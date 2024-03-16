@@ -1,0 +1,13 @@
+/*STYLE*/
+@import './import/fonts.css';
+@import './import/global.css';
+@import './import/list_post.css';
+@import './import/list_product.css';
+@import './import/add_cat.css';
+@import './import/info_account.css';
+@import './import/change_pass.css';
+@import './import/sidebar.css';
+@import './import/menu.css';
+@import './import/detail_order.css';
+@import './import/users.css';
+@import './import/spinner.css';

@@ -1,0 +1,433 @@
+{
+  "categories": [
+    {
+      "id": 1,
+      "title": "Điện thoại",
+      "timer": 1705326485295
+    },
+    {
+      "id": 2,
+      "title": "Laptop",
+      "timer": 1705315693832
+    },
+    {
+      "id": 3,
+      "title": "Máy tính bảng",
+      "timer": 1705315703293
+    },
+    {
+      "id": 4,
+      "title": "Tai nghe",
+      "timer": 1705315713487
+    },
+    {
+      "id": 5,
+      "title": "Phụ kiện",
+      "timer": 1705315717415
+    },
+    {
+      "id": 6,
+      "title": "Đồng hồ",
+      "timer": 1705315720348
+    },
+    {
+      "id": 7,
+      "title": "Thiết bị văn phòng",
+      "timer": 1705315724935
+    }
+  ],
+  "comments": [
+    {
+      "productID": 2,
+      "userID": 1,
+      "text": "San pham dep",
+      "createdAt": 1706521261453,
+      "id": 1
+    }
+  ],
+  "order": [
+    {
+      "fullname": "Hoàng Bảo",
+      "email": "baohoang@gmail.com",
+      "address": "https://www.google.com/maps?q=10.853346,106.626307",
+      "phone": "0852343047",
+      "note": "",
+      "userID": 1,
+      "orderDate": 1706521100986,
+      "status": 1,
+      "id": 1
+    },
+    {
+      "fullname": "Hoàng Bảo",
+      "email": "baohoang@gmail.com",
+      "address": "https://www.google.com/maps?q=10.853346,106.626307",
+      "phone": "0852343047",
+      "note": "",
+      "userID": 1,
+      "orderDate": 1706521107307,
+      "status": 1,
+      "id": 2
+    },
+    {
+      "fullname": "Hoàng Bảo",
+      "email": "baohoang@gmail.com",
+      "address": "https://www.google.com/maps?q=10.853346,106.626307",
+      "phone": "0852343047",
+      "note": "",
+      "userID": 1,
+      "orderDate": 1706521170037,
+      "status": 1,
+      "id": 3
+    },
+    {
+      "fullname": "Hoàng Bảo",
+      "email": "baohoang@gmail.com",
+      "address": "https://www.google.com/maps?q=10.853346,106.626307",
+      "phone": "0852343047",
+      "note": "",
+      "userID": 1,
+      "orderDate": 1706521181159,
+      "status": 1,
+      "id": 4
+    },
+    {
+      "fullname": "Hoàng Bảo",
+      "email": "baohoang@gmail.com",
+      "address": "https://www.google.com/maps?q=10.853346,106.626307",
+      "phone": "0852343047",
+      "note": "",
+      "userID": 1,
+      "orderDate": 1706521203885,
+      "status": 1,
+      "id": 5
+    }
+  ],
+  "orderDetails": [
+    {
+      "productID": 3,
+      "quantity": 2,
+      "userID": 1,
+      "isChecked": true,
+      "price": 6392000,
+      "orderID": 5,
+      "id": 1
+    }
+  ],
+  "products": [
+    {
+      "id": 1,
+      "category_id": "1",
+      "name": "Motorola Moto G5S Plus",
+      "description": "Sản phẩm 1",
+      "code": "BAODEV01",
+      "price": "8990000",
+      "discount": "1",
+      "thumb": "img-pro-16.png",
+      "content": "<p>San pham 1</p>\n",
+      "status": "1",
+      "quantity": 10,
+      "timer": 1706266589492
+    },
+    {
+      "id": 2,
+      "category_id": 1,
+      "name": "Samsung Galaxy A5",
+      "description": "<p>Samsung Galaxy A5</p>\n",
+      "code": "BAODEV02",
+      "price": 9990000,
+      "discount": 20,
+      "thumb": "img-pro-15.png",
+      "content": "<p>San pham 2</p>\n",
+      "status": 1,
+      "quantity": 2,
+      "timer": 1705416362854
+    },
+    {
+      "id": 3,
+      "category_id": 1,
+      "name": "Sony Xperia XA Ultra",
+      "description": "Sony Xperia XA Ultra",
+      "code": "BAODEV03",
+      "price": 7990000,
+      "discount": 20,
+      "thumb": "img-pro-14.png",
+      "content": "<p>San pham 3</p>\n",
+      "status": 1,
+      "quantity": 196,
+      "timer": 1705416469093
+    },
+    {
+      "id": 4,
+      "category_id": 1,
+      "name": "Huawei Nova 2i",
+      "description": "Huawei Nova 2i",
+      "code": "BAODEV04",
+      "price": 8990000,
+      "discount": 20,
+      "thumb": "img-pro-13.png",
+      "content": "<p>San pham 4</p>\n",
+      "status": 1,
+      "quantity": 199,
+      "timer": 1705416477743
+    },
+    {
+      "id": 5,
+      "category_id": 1,
+      "name": "Xiaomi Mi A1",
+      "description": "Xiaomi Mi A1",
+      "code": "BAODEV05",
+      "price": 6900000,
+      "discount": 20,
+      "thumb": "img-pro-12.png",
+      "content": "<p>San pham 5</p>\n",
+      "status": 1,
+      "quantity": 200,
+      "timer": 1705416499857
+    },
+    {
+      "id": 6,
+      "category_id": 1,
+      "name": "HTC U Ultra Sapphire",
+      "description": "HTC U Ultra Sapphire",
+      "code": "BAODEV06",
+      "price": 18500000,
+      "discount": 20,
+      "thumb": "img-pro-11.png",
+      "content": "<p>Sản phẩm 6</p>\n",
+      "status": 1,
+      "quantity": 200,
+      "timer": 1705416507134
+    },
+    {
+      "id": 7,
+      "category_id": 1,
+      "name": "Sony Xperia XZ Dual",
+      "description": "Sony Xperia XZ Dual",
+      "code": "BAODEV07",
+      "price": 10990000,
+      "discount": 20,
+      "thumb": "img-pro-08.png",
+      "content": "<p>Sản phẩm 6</p>\n",
+      "status": 1,
+      "quantity": 200,
+      "timer": 1705416512295
+    },
+    {
+      "id": 8,
+      "category_id": 1,
+      "name": "Bphone 2017",
+      "description": "Bphone 2017",
+      "code": "BAODEV08",
+      "price": 10900000,
+      "discount": 20,
+      "thumb": "img-pro-10.png",
+      "content": "<p>San pham 8</p>\n",
+      "status": 1,
+      "quantity": 200,
+      "timer": 1705416518088
+    },
+    {
+      "id": 9,
+      "category_id": 2,
+      "name": "Laptop Acer Aspire ES1",
+      "description": "Laptop Asus X441NA",
+      "code": "BAODEV09",
+      "price": 8690000,
+      "discount": 20,
+      "thumb": "img-pro-17.png",
+      "content": "<p>San pham 9</p>\n",
+      "status": 1,
+      "quantity": 200,
+      "timer": 1705416533319
+    },
+    {
+      "id": 10,
+      "category_id": 2,
+      "name": "Laptop Acer ES1 X441NA",
+      "description": "Laptop Acer ES1 533",
+      "code": "BAODEV10",
+      "price": 9490000,
+      "discount": 20,
+      "thumb": "img-pro-19.png",
+      "content": "<p>San pham 10</p>\n",
+      "status": 1,
+      "quantity": 200,
+      "timer": 1705416527886
+    },
+    {
+      "id": 11,
+      "category_id": 2,
+      "name": "Laptop Lenovo IdeaPad 110",
+      "description": "Laptop Lenovo IdeaPad 110",
+      "code": "BAODEV11",
+      "price": 10490000,
+      "discount": 20,
+      "thumb": "img-pro-18.png",
+      "content": "<p>San pham 11</p>\n",
+      "status": 1,
+      "quantity": 200,
+      "timer": 1705416686306
+    },
+    {
+      "id": 12,
+      "category_id": 2,
+      "name": "Laptop Lenovo IdeaPad",
+      "description": "Laptop Lenovo IdeaPad",
+      "code": "BAODEV12",
+      "price": 7990000,
+      "discount": 20,
+      "thumb": "img-pro-20.png",
+      "content": "<p>Sản phẩm 6</p>\n",
+      "status": 1,
+      "quantity": 200,
+      "timer": 1705416692009
+    },
+    {
+      "id": 13,
+      "category_id": 2,
+      "name": "Laptop Asus X441NA",
+      "description": "Laptop Asus X441NA",
+      "code": "BAODEV13",
+      "price": 8490000,
+      "discount": 20,
+      "thumb": "img-pro-21.png",
+      "content": "<p>San pham 13</p>\n",
+      "status": 1,
+      "quantity": 200,
+      "timer": 1705416700470
+    },
+    {
+      "id": 14,
+      "category_id": 2,
+      "name": "Laptop Acer Aspire ES1",
+      "description": "Laptop Acer Aspire ES1",
+      "code": "BAODEV14",
+      "price": 7390000,
+      "discount": 20,
+      "thumb": "img-pro-22.png",
+      "content": "<p>San pham 14</p>\n",
+      "status": 1,
+      "quantity": 200,
+      "timer": 1705416705350
+    },
+    {
+      "id": 15,
+      "category_id": 2,
+      "name": "Laptop Lenovo IdeaPad 120S",
+      "description": "Laptop Lenovo IdeaPad 120S",
+      "code": "BAODEV15",
+      "price": 7190000,
+      "discount": 20,
+      "thumb": "img-pro-05.png",
+      "content": "<p>San pham 15</p>\n",
+      "status": 1,
+      "quantity": 200,
+      "timer": 1705416710797
+    },
+    {
+      "id": 16,
+      "category_id": 2,
+      "name": "Laptop Asus A540UP I5",
+      "description": "Laptop Asus A540UP I5",
+      "code": "BAODEV16",
+      "price": 16490000,
+      "discount": 20,
+      "thumb": "img-pro-23.png",
+      "content": "<p>San pham 16</p>\n",
+      "status": 1,
+      "quantity": 200,
+      "timer": 1705416732624
+    },
+    {
+      "id": 17,
+      "category_id": 1,
+      "name": "Iphone 15",
+      "description": "Iphone 15",
+      "code": "BAODEV17",
+      "price": 59000000,
+      "discount": 20,
+      "thumb": "iphone-15.jpeg",
+      "content": "<p>San pham 17</p>\n",
+      "status": 1,
+      "quantity": 200,
+      "timer": 1705416738654
+    },
+    {
+      "id": 18,
+      "category_id": 1,
+      "name": "Iphone XS",
+      "description": "Iphone XS",
+      "code": "BAODEV18",
+      "price": 10490000,
+      "discount": 20,
+      "thumb": "iphone-xs.jpg",
+      "content": "<p>San pham 18</p>\n",
+      "status": 1,
+      "quantity": 200,
+      "timer": 1705416742648
+    },
+    {
+      "id": 19,
+      "category_id": 1,
+      "name": "Samsung Galaxy Note 20 Ultra",
+      "description": "Samsung Galaxy Note 20 Ultra 5G\n",
+      "code": "BAODEV19",
+      "price": 23990000,
+      "discount": 20,
+      "thumb": "note-ultra.png",
+      "content": "<p>San pham 19</p>\n",
+      "status": 1,
+      "quantity": 200,
+      "timer": 1705416746751
+    },
+    {
+      "id": 20,
+      "category_id": 1,
+      "name": "Iphone 7 128GB",
+      "description": "Iphone 7 128GB",
+      "code": "BAODEV20",
+      "price": 15900000,
+      "discount": 20,
+      "thumb": "iphone-7.jpg",
+      "content": "<p>San pham 20</p>\n",
+      "status": 1,
+      "quantity": 250,
+      "timer": 1705416751279
+    }
+  ],
+  "users": [
+    {
+      "fullname": "Hoàng Bảo",
+      "username": "baohoang",
+      "email": "baohoang@gmail.com",
+      "phone": "0852343047",
+      "password": "123456",
+      "password_confirmation": "123456",
+      "roleID": "1",
+      "imageUrl": "https://picsum.photos/id/687/300/300",
+      "id": 1
+    },
+    {
+      "fullname": "Nguyen Van Admin",
+      "username": "admin",
+      "email": "admink4.1@gmail.com",
+      "phone": "0852343047",
+      "password": "123456789",
+      "password_confirmation": "123456789",
+      "roleID": "2",
+      "imageUrl": "https://picsum.photos/id/649/300/300",
+      "id": 2
+    }
+  ],
+  "roles": [
+    {
+      "id": 1,
+      "title": "User"
+    },
+    {
+      "id": 2,
+      "title": "Admin"
+    }
+  ],
+  "images": []
+}
