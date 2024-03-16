@@ -1,7 +1,11 @@
 import { setFieldError, setFieldValue } from './common'
 import * as yup from 'yup'
-function setFormValues(form, defaultValues) {
-  setFieldValue(form, "input[name='title']", defaultValues?.title)
+function setFormValues(form, values) {
+  if (values.success) {
+    setFieldValue(form, "input[name='title']", values.catalog?.title)
+  } else {
+    setFieldValue(form, "input[name='title']", values?.title)
+  }
 }
 function getFormValues(form) {
   const formValues = {}
@@ -46,7 +50,6 @@ async function vaidateEditCategoryForm(form, formValues) {
 export function initFormCategory({ idForm, defaultValues, onSubmit }) {
   const form = document.getElementById(idForm)
   const input = form.querySelector('input[name="title"]')
-  if (!form || !input) return
   setFormValues(form, defaultValues)
   let isSubmitting = false
   input.addEventListener('blur', async function () {

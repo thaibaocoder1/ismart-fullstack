@@ -24,6 +24,52 @@ class CatalogController {
       });
     }
   }
+  async detail(req, res, next) {
+    try {
+      const { id } = req.params;
+      const catalog = await Catalog.findOne({ _id: id });
+      if (catalog) {
+        return res.status(status.StatusCodes.OK).json({
+          success: true,
+          catalog,
+        });
+      } else {
+        return res.status(status.StatusCodes.NOT_FOUND).json({
+          success: false,
+          message: 'Không có danh mục nào được tìm thấy.',
+        });
+      }
+    } catch (error) {
+      return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Đã xảy ra lỗi khi lấy thông tin danh mục.',
+      });
+    }
+  }
+  async update(req, res, next) {
+    try {
+      const { id } = req.params;
+      const catalog = await Catalog.findOneAndUpdate({ _id: id }, req.body, {
+        new: true,
+      });
+      if (catalog) {
+        return res.status(status.StatusCodes.OK).json({
+          success: true,
+          catalog,
+        });
+      } else {
+        return res.status(status.StatusCodes.NOT_FOUND).json({
+          success: false,
+          message: 'Không có danh mục nào được tìm thấy.',
+        });
+      }
+    } catch (error) {
+      return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Đã xảy ra lỗi khi lấy thông tin danh mục.',
+      });
+    }
+  }
 }
 
 module.exports = new CatalogController();

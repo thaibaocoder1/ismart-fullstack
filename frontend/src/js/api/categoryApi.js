@@ -14,7 +14,7 @@ const categoryApi = {
     return axiosClient.post(url, data)
   },
   update(data) {
-    const url = `/catalogs/${data.id}`
+    const url = `/catalogs/update/${data.id}?_method=PATCH`
     return axiosClient.patch(url, data)
   },
   delete(id) {
