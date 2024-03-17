@@ -1,39 +1,43 @@
 import userApi from './api/userApi'
 import { hideSpinner, showSpinner, toast } from './utils'
+function setCookie(cname, cvalue, exdays) {
+  const d = new Date()
+  d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000)
+  let expires = 'expires=' + d.toUTCString()
+  document.cookie = cname + '=' + cvalue + ';' + expires + ';path=/'
+}
 async function handleOnSubmitForm(data) {
   try {
     showSpinner()
-    const users = await userApi.getAll()
+    const user = await userApi.check(data)
     hideSpinner()
     const infoUser = []
-    let isChecked = false
-    for (const user of users) {
-      if (isChecked) break
-      if (user.email === data.email && user.password === data.password) {
-        isChecked = true
-        toast.success('Đăng nhập thành công')
-        if (+user.roleID === 1) {
-          infoUser.push({
-            access_token: `Bearer ${new Date().getTime()}`,
-            user_id: user.id,
-            roleID: 1,
-          })
-          setTimeout(() => {
-            window.location.assign('/index.html')
-          }, 2000)
-        } else {
-          infoUser.push({
-            access_token: `Bearer ${new Date().getTime()}`,
-            user_id: user.id,
-            roleID: 2,
-          })
-          setTimeout(() => {
-            window.location.assign('/admin/index.html')
-          }, 2000)
-        }
-        localStorage.setItem('user_info', JSON.stringify(infoUser))
+    if (user.success) {
+      toast.success('Đăng nhập thành công')
+      if (user.data.role === 'User') {
+        infoUser.push({
+          accessToken: user.data.accessToken,
+          userID: user.data.userID,
+          role: user.data.role,
+        })
+        setCookie('refreshToken', user.data.refreshToken, 365)
+        setTimeout(() => {
+          window.location.assign('/index.html')
+        }, 2000)
+      } else {
+        infoUser.push({
+          accessToken: user.data.accessToken,
+          userID: user.data.userID,
+          role: user.data.role,
+        })
+        setCookie('refreshToken', user.data.refreshToken, 365)
+        setTimeout(() => {
+          window.location.assign('/admin/index.html')
+        }, 2000)
       }
+      localStorage.setItem('user_info', JSON.stringify(infoUser))
     }
+    return
   } catch (error) {
     toast.error('Đăng nhập thất bại')
   }

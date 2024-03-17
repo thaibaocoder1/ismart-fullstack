@@ -22,15 +22,16 @@ async function displayInfoUser(userID, divInfoLeftEl, userAvatarEl) {
   if (!userID) return
   try {
     showSpinner()
-    const infoUser = await userApi.getById(userID)
+    const res = await userApi.getById(userID)
     hideSpinner()
-    setFieldValue(divInfoLeftEl, "input[name='fullname']", infoUser?.fullname)
-    setFieldValue(divInfoLeftEl, "input[name='username']", infoUser?.username)
-    setFieldValue(divInfoLeftEl, "input[name='phone']", infoUser?.phone)
-    setFieldValue(divInfoLeftEl, "input[name='email']", infoUser?.email)
-    setFieldValue(divInfoLeftEl, "input[name='password']", infoUser?.password)
-    setFieldValue(userAvatarEl, "input[name='imageUrl']", infoUser?.imageUrl)
-    setBackgroundImage(userAvatarEl, 'img#avatar', infoUser?.imageUrl)
+    const { user } = res
+    setFieldValue(divInfoLeftEl, "input[name='fullname']", user?.fullname)
+    setFieldValue(divInfoLeftEl, "input[name='username']", user?.username)
+    setFieldValue(divInfoLeftEl, "input[name='phone']", user?.phone)
+    setFieldValue(divInfoLeftEl, "input[name='email']", user?.email)
+    setFieldValue(divInfoLeftEl, "input[name='password']", user?.password)
+    setFieldValue(userAvatarEl, "input[name='imageUrl']", user?.imageUrl)
+    setBackgroundImage(userAvatarEl, 'img#avatar', user?.imageUrl)
   } catch (error) {
     console.log('failed to fetch data', error)
   }
@@ -45,9 +46,9 @@ async function renderInfoAccount({ idElement, infoUserStorage, divInfoLeft, divI
     userAvatarEl.classList.add('is-hide')
   }
   for (const user of infoUserStorage) {
-    if (user.access_token) {
+    if (user.accessToken) {
       displayTagLink(ulElement)
-      displayInfoUser(user.user_id, divInfoLeftEl, userAvatarEl)
+      displayInfoUser(user.userID, divInfoLeftEl, userAvatarEl)
     }
     break
   }
@@ -151,7 +152,7 @@ async function handleOnSubmitForm(formValues) {
         onSubmit: handleOnSubmitForm,
       })
     } else {
-      const user = infoUserStorage.find((user) => user?.roleID === 1)
+      const user = infoUserStorage.find((user) => user?.role === 'User')
       if (user) {
         handleUpdateInfoUser({
           idForm: 'formUpdateUser',

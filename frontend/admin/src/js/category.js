@@ -1,8 +1,6 @@
 import categoryApi from '../../../src/js/api/categoryApi'
 import { hideSpinner, initSearchInput, showSpinner } from '../../../src/js/utils'
 import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
-dayjs.extend(relativeTime)
 import diacritics from 'diacritics'
 
 async function renderListProductAdmin({ idElement, idBreadcrumb }) {
@@ -22,9 +20,12 @@ async function renderListProductAdmin({ idElement, idBreadcrumb }) {
       <td><span class="tbody-text">${index + 1}</span></td>
       <td><span class="tbody-text">${item._id}</span></td>
       <td><span class="tbody-text">${item.title}</span></td>
-      <td><span class="tbody-text">${dayjs(item.timer).fromNow()}</span></td>
+      <td><span class="tbody-text">${dayjs(item.createdAt).format('DD/MM/YYYY HH:mm')}</span></td>
+      <td><span class="tbody-text">${dayjs(item.updatedAt).format('DD/MM/YYYY HH:mm')}</span></td>
       <td>
-        <button class="btn btn-primary" data-id="${item._id}" id="editCategory">Chỉnh sửa</button>
+        <button class="btn btn-primary" data-id="${
+          item._id
+        }" id="editCategory" style="color: #fff;">Chỉnh sửa</button>
       </td>`
       tbody.appendChild(tableRow)
     })

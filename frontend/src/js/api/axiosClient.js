@@ -6,15 +6,25 @@ const axiosClient = axios.create({
     'Content-Type': 'application/json',
   },
 })
+
 // Add a request interceptor
 axiosClient.interceptors.request.use(
   function (config) {
     // Do something before request is sent
     // Attach token to request if exists
-    const accessToken = localStorage.getItem('access_token')
-    if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`
+    const userInfo = localStorage.getItem('user_info')
+    if (userInfo) {
+      const data = JSON.parse(userInfo)
+      if (data.length === 1) {
+        const accessToken = data[0].accessToken
+        config.headers.Authorization = `Bearer ${accessToken}`
+      } else {
+        const userCustomer = data.find((x) => x.role === 'User')
+        const accessToken = userCustomer.accessToken
+        config.headers.Authorization = `Bearer ${accessToken}`
+      }
     }
+
     return config
   },
   function (error) {

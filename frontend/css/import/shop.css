@@ -15,7 +15,7 @@ html {
   height: 100vh;
 }
 .form {
-  width: 360px;
+  min-width: 360px;
   min-height: 100px;
   padding: 32px 24px;
   text-align: center;
@@ -24,6 +24,14 @@ html {
   margin: 24px;
   align-self: center;
   box-shadow: 0 2px 5px 0 rgba(51, 62, 73, 0.1);
+}
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.wrapper > * {
+  width: 49.5%;
 }
 .form .heading {
   font-size: 2rem;
@@ -34,13 +42,13 @@ html {
   font-size: 1.6rem;
   font-weight: lighter;
   line-height: 2.4rem;
-  margin-top: 16px;
+  margin-top: 8px;
   font-weight: 300;
 }
 
 .form-group {
   display: flex;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
   flex-direction: column;
 }
 
@@ -102,7 +110,7 @@ html {
 }
 
 .spacer {
-  margin-top: 36px;
+  margin-top: 24px;
 }
 .actions p {
   font-size: 16px;

@@ -9,8 +9,12 @@ const userApi = {
     const url = `/users/${id}`
     return axiosClient.get(url)
   },
+  check(data) {
+    const url = `/users/login`
+    return axiosClient.post(url, data)
+  },
   add(data) {
-    const url = `/users`
+    const url = `/users/add`
     return axiosClient.post(url, data)
   },
   update(data) {

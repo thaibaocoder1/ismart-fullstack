@@ -20,8 +20,13 @@
 #thumb-circle {
   display: block;
   padding: 4px 8px;
-  width: 50px;
-  height: 50px;
+}
+#thumb-circle img {
+  display: block;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 #account {
   font-family: 'Roboto Medium';
@@ -33,7 +38,6 @@
 /*MAIN CONTENT*/
 #sidebar {
   width: 18%;
-  padding: 10px;
 }
 #content {
   width: 82%;
@@ -100,9 +104,6 @@
   display: block;
   padding: 0px 5px;
   color: #ddd;
-}
-.list-table-wp tbody tr td:hover a {
-  color: #777;
 }
 .tb-title {
   width: 75%;
@@ -178,7 +179,7 @@
 
 /*Action*/
 .filter-wp {
-  margin-bottom: 5px;
+  margin-bottom: 15px;
 }
 .actions {
   margin-bottom: 20px;

@@ -14,7 +14,7 @@ async function handleSubmitForm(formValues) {
       ? toast.success('Chỉnh sửa thành công')
       : toast.success('Thêm mới thành công')
     setTimeout(() => {
-      window.location.assign('/admin/list-category.html')
+      window.location.assign('category.html')
     }, 500)
   } catch (error) {
     console.log('error', error)

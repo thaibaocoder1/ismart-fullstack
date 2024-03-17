@@ -2,15 +2,16 @@ import userApi from './api/userApi'
 import { toast, getRandomImage, showSpinner, hideSpinner } from './utils'
 async function handleOnSubmitForm(data) {
   if (data) {
-    data['roleID'] = 1
+    data['role'] = 'User'
     data['imageUrl'] = getRandomImage()
   }
   try {
     showSpinner()
-    const listUser = await userApi.getAll()
+    const res = await userApi.getAll()
     hideSpinner()
-    if (Array.isArray(listUser) && listUser.length > 0) {
-      listUser.forEach(async (user) => {
+    const { users } = res
+    if (Array.isArray(users) && users.length > 0) {
+      users.forEach(async (user) => {
         if (user.email === data.email) {
           toast.error('Duplicate user. Please check again')
         } else {

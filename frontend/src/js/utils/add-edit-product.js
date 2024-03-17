@@ -9,8 +9,8 @@ function setFormValues(form, defaultValues) {
   setFieldValue(form, "input[name='description']", defaultValues?.description)
   setFieldValue(form, "textarea[name='content']", defaultValues?.content)
   setFieldValue(form, "input[name='imageUrl']", `${defaultValues?.thumb}`)
-  if (defaultValues?.id) {
-    setBackgroundImage(form, 'img#imageUrl', `/public/images/${defaultValues?.thumb}`)
+  if (defaultValues?._id) {
+    setBackgroundImage(form, 'img#imageUrl', `/images/${defaultValues?.thumb.fileName}`)
   }
 }
 function getFormValues(form) {
@@ -37,7 +37,6 @@ function getSchema() {
       .test('contain-string', 'Mã sản phẩm bắt đầu bằng BAODEV', (value) =>
         value.startsWith('BAODEV'),
       ),
-    description: yup.string().required('Không được để trống trường này'),
     content: yup.string().required('Không được để trống trường này'),
     price: yup
       .number()
@@ -74,7 +73,7 @@ function initUploadImage(form) {
 }
 async function validateAdminForm(form, formValues) {
   try {
-    ;['name', 'description', 'code', 'price', 'quantity', 'content'].forEach((name) =>
+    ;['name', 'code', 'price', 'quantity', 'content'].forEach((name) =>
       setFieldError(form, name, ''),
     )
     const schema = getSchema()
@@ -104,10 +103,10 @@ export function initFormProduct({ idForm, defaultValues, onSubmit }) {
     e.preventDefault()
     if (isSubmitting) return
     const formValues = getFormValues(form)
-    formValues.id = defaultValues.id
+    formValues.id = defaultValues._id
     const isValid = await validateAdminForm(form, formValues)
     if (!isValid) return
-    await onSubmit?.(form, formValues)
+    await onSubmit?.(formValues)
     isSubmitting = true
   })
 }

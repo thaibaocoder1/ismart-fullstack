@@ -10,7 +10,7 @@ const categoryApi = {
     return axiosClient.get(url)
   },
   add(data) {
-    const url = `/catalogs`
+    const url = `/catalogs/add`
     return axiosClient.post(url, data)
   },
   update(data) {

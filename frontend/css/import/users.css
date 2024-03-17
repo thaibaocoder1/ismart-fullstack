@@ -61,7 +61,6 @@
   background-color: #fff;
 }
 .input-group input:not(:first-child) {
-  margin-bottom: 15px;
 }
 .input-group .icons-toggle {
   position: absolute;

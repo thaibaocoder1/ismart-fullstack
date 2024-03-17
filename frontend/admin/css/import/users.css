@@ -60,7 +60,6 @@
   font-family: inherit;
 }
 .input-group input:not(:first-child) {
-  margin-bottom: 15px;
 }
 .input-group label {
   font-family: inherit;

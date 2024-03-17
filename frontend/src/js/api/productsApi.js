@@ -17,9 +17,25 @@ const productApi = {
     const url = `/products`
     return axiosClient.post(url, data)
   },
+  addFormData(data) {
+    const url = `/products/add`
+    return axiosClient.post(url, data, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+  },
   update(data) {
     const url = `/products/${data.id}`
     return axiosClient.patch(url, data)
+  },
+  updateFormData(data) {
+    const url = `/products/update/${data.get('id')}?_method=PATCH`
+    return axiosClient.patch(url, data, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
   },
   delete(id) {
     const url = `/products/${id}`

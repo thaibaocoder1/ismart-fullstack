@@ -63,7 +63,7 @@ export function initFormCategory({ idForm, defaultValues, onSubmit }) {
     e.preventDefault()
     if (isSubmitting) return
     const formValues = getFormValues(form)
-    formValues.id = defaultValues.id
+    formValues.id = defaultValues.catalog?._id
     const isValid = await vaidateEditCategoryForm(form, formValues)
     if (!isValid) return
     await onSubmit?.(formValues)
