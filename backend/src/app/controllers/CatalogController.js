@@ -70,6 +70,27 @@ class CatalogController {
       });
     }
   }
+  async add(req, res, next) {
+    try {
+      const catalog = await Catalog.create(req.body);
+      if (catalog) {
+        return res.status(status.StatusCodes.OK).json({
+          success: true,
+          catalog,
+        });
+      } else {
+        return res.status(status.StatusCodes.NOT_FOUND).json({
+          success: false,
+          message: 'Không có danh mục nào được tìm thấy.',
+        });
+      }
+    } catch (error) {
+      return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Đã xảy ra lỗi khi tạo danh mục.',
+      });
+    }
+  }
 }
 
 module.exports = new CatalogController();

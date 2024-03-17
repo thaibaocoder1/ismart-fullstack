@@ -74,5 +74,31 @@ class ProductController {
       });
     }
   }
+  async add(req, res, next) {
+    try {
+      req.body.thumb = {
+        data: req.file.originalname,
+        contentType: req.file.mimetype,
+        fileName: req.file.originalname,
+      };
+      const product = await Product.create(req.body);
+      if (product) {
+        return res.status(status.StatusCodes.CREATED).json({
+          success: true,
+          product,
+        });
+      } else {
+        return res.status(status.StatusCodes.NOT_FOUND).json({
+          success: false,
+          message: 'Không có sản phẩm nào được tìm thấy.',
+        });
+      }
+    } catch (error) {
+      return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Đã xảy ra lỗi khi lấy thông tin sản phẩm.',
+      });
+    }
+  }
 }
 module.exports = new ProductController();
