@@ -75,7 +75,7 @@ export function handleUpdateInfoUser({ idForm, user, onSubmit }) {
   form.addEventListener('submit', async function (e) {
     e.preventDefault()
     const formValues = getFormValues(form)
-    formValues.id = user.user_id
+    formValues.id = user.id
     const isValid = await checkValidationForm(form, formValues)
     if (!isValid) return
     await onSubmit?.(formValues)

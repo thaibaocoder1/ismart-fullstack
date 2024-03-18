@@ -43,7 +43,9 @@ async function renderListProductWithName({ idElement, tagName }) {
           <span class="old">${formatCurrencyNumber(item.price)}</span>
         </div>
         <div class="action clearfix">
-          <a href="cart.html" title="Thêm giỏ hàng" class="add-cart fl-left">Thêm giỏ hàng</a>
+          <a href="cart.html" title="Thêm giỏ hàng" data-id=${
+            item._id
+          } class="add-cart fl-left">Thêm giỏ hàng</a>
           <a href="checkout.html" title="Mua ngay" class="buy-now fl-right">Mua ngay</a>
         </div>`
         ulElement.appendChild(liElement)
@@ -57,41 +59,23 @@ async function renderListProductWithName({ idElement, tagName }) {
 // main
 ;(() => {
   // get cart from localStorage
-  let cart = localStorage.getItem('cart') !== null ? JSON.parse(localStorage.getItem('cart')) : []
-  let infoUserStorage =
-    localStorage.getItem('user_info') !== null ? JSON.parse(localStorage.getItem('user_info')) : []
+  let cart = localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : []
+  let infoUserStorage = localStorage.getItem('accessToken')
+    ? JSON.parse(localStorage.getItem('accessToken'))
+    : {}
   let isCartAdded = false
   if (Array.isArray(cart) && cart.length > 0) {
-    cart.forEach((item) => {
-      if (infoUserStorage.length === 1) {
-        if (item.userID === infoUserStorage[0].user_id && !isCartAdded) {
-          addCartToDom({
-            idListCart: 'listCart',
-            cart,
-            userID: infoUserStorage[0].user_id,
-            idNumOrder: 'numOrder',
-            idNum: '#num.numDesktop',
-            idTotalPrice: 'totalPrice',
-          })
-          isCartAdded = true
-        }
-      } else {
-        const user = infoUserStorage.find((user) => user?.roleID === 1)
-        if (user) {
-          if (item.userID === user.user_id && !isCartAdded) {
-            addCartToDom({
-              idListCart: 'listCart',
-              cart,
-              userID: user.user_id,
-              idNumOrder: 'numOrder',
-              idNum: '#num.numDesktop',
-              idTotalPrice: 'totalPrice',
-            })
-            isCartAdded = true
-          }
-        }
-      }
-    })
+    if (!isCartAdded) {
+      addCartToDom({
+        idListCart: 'listCart',
+        cart,
+        userID: infoUserStorage.id,
+        idNumOrder: 'numOrder',
+        idNum: '#num.numDesktop',
+        idTotalPrice: 'totalPrice',
+      })
+      isCartAdded = true
+    }
   }
   renderListCategory('#listCategory')
   renderListProductSeller('#listItemSeller')
@@ -113,30 +97,15 @@ async function renderListProductWithName({ idElement, tagName }) {
     const { target } = e
     if (target.matches('.add-cart')) {
       e.preventDefault()
-      const infoUserStorage =
-        localStorage.getItem('user_info') !== null
-          ? JSON.parse(localStorage.getItem('user_info'))
-          : []
-      if (Array.isArray(infoUserStorage) && infoUserStorage.length > 0) {
-        const productID = +target.parentElement.parentElement.dataset.id
-        if (productID) {
-          sweetAlert.success('Tuyệt vời!')
-          cart = addProductToCart(productID, cart, infoUserStorage, 1)
-        }
-      } else {
-        toast.error('Đăng nhập để mua sản phẩm')
-        setTimeout(() => {
-          window.location.assign('/login.html')
-        }, 2000)
+      const productID = target.dataset.id
+      if (productID) {
+        sweetAlert.success('Tuyệt vời!')
+        cart = addProductToCart(productID, cart, infoUserStorage, 1)
       }
     } else if (target.matches('.buy-now')) {
       e.preventDefault()
-      const infoUserStorage =
-        localStorage.getItem('user_info') !== null
-          ? JSON.parse(localStorage.getItem('user_info'))
-          : []
-      if (Array.isArray(infoUserStorage) && infoUserStorage.length > 0) {
-        const productID = +target.parentElement.parentElement.dataset.id
+      if (infoUserStorage) {
+        const productID = target.dataset.id
         showSpinner()
         const product = await productApi.getById(productID)
         const priceProduct = (product.price * (100 - Number.parseInt(product.discount))) / 100

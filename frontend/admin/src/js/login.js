@@ -3,34 +3,14 @@ import { hideSpinner, showSpinner, toast } from '../../../src/js/utils'
 async function handleOnSubmitForm(data) {
   try {
     showSpinner()
-    const users = await userApi.getAll()
+    const user = await userApi.check(data)
     hideSpinner()
-    const infoUser = JSON.parse(localStorage.getItem('user_info')) || []
-    let isChecked = false
-    for (const user of users) {
-      if (isChecked) break
-      if (user.email === data.email && user.password === data.password) {
-        isChecked = true
-        toast.success('Đăng nhập thành công')
-        if (infoUser.length === 0) {
-          infoUser.push({
-            access_token: `Bearer ${new Date().getTime()}`,
-            user_id: user.id,
-            roleID: 2,
-          })
-        } else {
-          const newObject = {
-            access_token: `Bearer ${new Date().getTime()}`,
-            user_id: user.id,
-            roleID: 2,
-          }
-          infoUser.push(newObject)
-        }
-        localStorage.setItem('user_info', JSON.stringify(infoUser))
-        setTimeout(() => {
-          window.location.assign('/admin/index.html')
-        }, 2000)
-      }
+    if (user.success) {
+      toast.success('Đăng nhập thành công')
+      localStorage.setItem('accessTokenAdmin', JSON.stringify(user.data))
+      setTimeout(() => {
+        window.location.assign('index.html')
+      }, 500)
     }
   } catch (error) {
     toast.error('Đăng nhập thất bại')
@@ -38,7 +18,6 @@ async function handleOnSubmitForm(data) {
 }
 // main
 ;(() => {
-  // check if exists access_token
   Validator({
     formID: '#form-1',
     formGroupSelector: '.form-group',

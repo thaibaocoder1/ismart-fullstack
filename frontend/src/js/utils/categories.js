@@ -51,7 +51,7 @@ export async function renderListProductWithCateID({
         <div class='product-sale'>
           <span>${item.discount}%</span>
         </div>
-        <a href="/product-detail.html?id=${item._id}" title="" class="thumb">
+        <a href="product-detail.html?id=${item._id}" title="" class="thumb">
           <img src="/images/${item.thumb.fileName}" alt="${item.name}" />
         </a>
         <a href="/product-detail.html?id=${item._id}" title="${item.name}" class="product-name">${
@@ -64,7 +64,7 @@ export async function renderListProductWithCateID({
         <div class="action clearfix action--custom">
           ${
             Number.parseInt(item.quantity) > 0 && Number.parseInt(item.status) === 1
-              ? `<a href="/cart.html" title="Thêm giỏ hàng" class="add-cart fl-left">Thêm giỏ hàng</a>
+              ? `<a href="/cart.html" title="Thêm giỏ hàng" data-id=${item._id} class="add-cart fl-left">Thêm giỏ hàng</a>
           <a title="Mua ngay" class="buy-now fl-right">Mua ngay</a>`
               : `<span>Hết hàng</span>`
           }

@@ -5,30 +5,77 @@ const axiosClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
 })
-
+axiosClient.getLocalAccessToken = async () => {
+  const accessToken = window.localStorage.getItem('accessToken')
+  return JSON.parse(accessToken) || null
+}
+axiosClient.getLocalAccessTokenAdmin = async () => {
+  const accessToken = window.localStorage.getItem('accessTokenAdmin')
+  return JSON.parse(accessToken) || null
+}
+axiosClient.getRefershToken = async () => {
+  return await axiosClient.get('users/auth/refresh')
+}
+axiosClient.getRefershTokenAdmin = async () => {
+  return await axiosClient.get('users/auth/refreshAdmin')
+}
+axiosClient.setLocalStorage = async (data) => {
+  window.localStorage.setItem('accessToken', JSON.stringify(data))
+}
+axiosClient.setLocalStorageAdmin = async (data) => {
+  window.localStorage.setItem('accessTokenAdmin', JSON.stringify(data))
+}
 // Add a request interceptor
 axiosClient.interceptors.request.use(
-  function (config) {
-    // Do something before request is sent
-    // Attach token to request if exists
-    const userInfo = localStorage.getItem('user_info')
-    if (userInfo) {
-      const data = JSON.parse(userInfo)
-      if (data.length === 1) {
-        const accessToken = data[0].accessToken
-        config.headers.Authorization = `Bearer ${accessToken}`
-      } else {
-        const userCustomer = data.find((x) => x.role === 'User')
-        const accessToken = userCustomer.accessToken
-        config.headers.Authorization = `Bearer ${accessToken}`
+  async function (config) {
+    const dataLocal = await axiosClient.getLocalAccessToken()
+    const dataLocalAdmin = await axiosClient.getLocalAccessTokenAdmin()
+    if (dataLocal) {
+      if (config.url.indexOf('users/auth/refresh') >= 0) {
+        return config
+      }
+      const { accessToken, expireIns } = await axiosClient.getLocalAccessToken()
+      const now = new Date().getTime()
+      if (expireIns < now) {
+        try {
+          const refreshToken = await axiosClient.getRefershToken()
+          if (refreshToken.success) {
+            await axiosClient.setLocalStorage(refreshToken.data)
+            return config
+          }
+        } catch (error) {
+          return Promise.reject(error)
+        }
+        return config
       }
     }
-
+    // if (dataLocalAdmin) {
+    //   if (config.url.indexOf('users/auth/refreshAdmin') >= 0) {
+    //     return config
+    //   }
+    //   const { accessToken: accessTokenAdmin, expireIns: expireInsAdmin } =
+    //     await axiosClient.getLocalAccessTokenAdmin()
+    //   const now = new Date().getTime()
+    //   console.log(`NOW: ${now} - Expire: ${expireInsAdmin}`)
+    //   if (expireInsAdmin < now) {
+    //     console.log('token het han')
+    //     try {
+    //       const refreshTokenAdmin = await axiosClient.getRefershTokenAdmin()
+    //       if (refreshTokenAdmin.success) {
+    //         await axiosClient.setLocalStorageAdmin(refreshToken.data)
+    //         return config
+    //       }
+    //     } catch (error) {
+    //       return Promise.reject(error)
+    //     }
+    //     return config
+    //   }
+    // }
     return config
   },
   function (error) {
-    // Do something with request error
     return Promise.reject(error)
   },
 )
@@ -39,7 +86,6 @@ axiosClient.interceptors.response.use(
     return response.data
   },
   function (error) {
-    console.log('axiosClient response error', error)
     if (!error.response) {
       throw new Error('Network error. Please try again later')
     }

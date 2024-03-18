@@ -24,7 +24,9 @@ export async function displaySwiper(selector) {
       <span class="old">${formatCurrencyNumber(item.price)}</span>
     </div>
     <div class="action clearfix">
-      <a href="cart.html" title="Thêm giỏ hàng" id="btn-cart" class="btn-custom add-cart fl-left">Thêm giỏ hàng</a>
+      <a href="cart.html" title="Thêm giỏ hàng" id="btn-cart" data-id=${
+        item._id
+      } class="btn-custom add-cart fl-left">Thêm giỏ hàng</a>
       <a href="checkout.html" title="Mua ngay" id="btn-buynow" class="btn-custom buy-now fl-right">Mua ngay</a>
     </div>`
     sliderWrapper.appendChild(divElement)

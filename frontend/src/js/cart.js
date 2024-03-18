@@ -1,5 +1,7 @@
 import productApi from './api/productsApi'
 import {
+  addCartToDom,
+  calcPrice,
   formatCurrencyNumber,
   handleChangeQuantity,
   hideSpinner,
@@ -8,49 +10,7 @@ import {
   sweetAlert,
   toast,
 } from './utils'
-
-async function addCartToDom({ idListCart, cart, userID, idNumOrder, idNum, idTotalPrice }) {
-  const listCartElement = document.getElementById(idListCart)
-  const idNumOrderEl = document.getElementById(idNumOrder)
-  const idNumEl = document.querySelector(idNum)
-  const idTotalPriceEl = document.getElementById(idTotalPrice)
-  if (!listCartElement || !idNumOrderEl || !idNumEl || !idTotalPriceEl) return
-  listCartElement.textContent = ''
-  let totalQuantity = 0
-  let totalPrice = 0
-  try {
-    const listProduct = await productApi.getAll()
-    cart.forEach((item) => {
-      if (item.userID === userID) {
-        totalQuantity += item.quantity
-        const liElement = document.createElement('li')
-        liElement.classList.add('clearfix')
-        const productIndex = listProduct.findIndex((x) => +x.id === item.productID)
-        const productInfo = listProduct[productIndex]
-        liElement.innerHTML = `<a href="" title="" class="thumb fl-left">
-      <img src="public/images/${productInfo.thumb}" alt="${productInfo.name}" />
-    </a>
-    <div class="info fl-right">
-      <a href="" title="" class="product-name">${productInfo.name}</a>
-      <p class="price">${formatCurrencyNumber(
-        (productInfo.price * (100 - Number.parseInt(productInfo.discount))) / 100,
-      )}</p>
-      <p class="qty">Số lượng: <span>${item.quantity}</span></p>
-    </div>`
-        listCartElement.appendChild(liElement)
-        totalPrice =
-          totalPrice +
-          item.quantity *
-            ((productInfo.price * (100 - Number.parseInt(productInfo.discount))) / 100)
-      }
-    })
-    idNumOrderEl.innerHTML = `Có <span>${totalQuantity} sản phẩm</span> trong giỏ hàng`
-    idNumEl.textContent = totalQuantity
-    idTotalPriceEl.innerHTML = `${formatCurrencyNumber(totalPrice)}`
-  } catch (error) {
-    console.log('error', error)
-  }
-}
+import Swal from 'sweetalert2'
 
 function updateTotal(checkedProducts) {
   let totalTemp
@@ -68,60 +28,59 @@ function updateTotal(checkedProducts) {
 
 async function renderListProductInCart({ idTable, cart, idTotalPrice, infoUserStorage }) {
   const tableElement = document.getElementById(idTable)
-  if (!tableElement) return
+  const totalPriceEl = document.getElementById(idTotalPrice)
+  if (!tableElement || !totalPriceEl) return
   const tableBodyElement = tableElement.getElementsByTagName('tbody')[0]
   tableBodyElement.textContent = ''
   if (tableBodyElement) {
     showSpinner()
-    const products = await productApi.getAll()
+    const data = await productApi.getAll()
     hideSpinner()
+    const { products: listProduct } = data
     let checkedProducts = cart.filter((item) => item.isChecked)
     updateTotal(checkedProducts)
+    let total = 0
     cart?.forEach((item) => {
-      if (+item.userID === +infoUserStorage.user_id) {
+      if (item.userID === infoUserStorage.id) {
         const tableRowElement = document.createElement('tr')
-        const productIndex = products.findIndex((x) => +x.id === item.productID)
-        const productInfo = products[productIndex]
+        const productIndex = listProduct.findIndex((x) => x._id.toString() === item.productID)
+        const productInfo = listProduct[productIndex]
         tableRowElement.innerHTML = `
         <td>
         <input type="checkbox" name="product" class="checkbox2" data-id="${
           item.productID
-        }" data-price=${
-          (productInfo.price * (100 - Number.parseInt(productInfo.discount))) / 100
-        } value="${
-          ((productInfo.price * (100 - Number.parseInt(productInfo.discount))) / 100) *
-          item.quantity
-        }" ${item.isChecked === true ? 'checked' : ''} />
+        }" data-price=${calcPrice(productInfo)} value="${calcPrice(productInfo) * item.quantity}" ${
+          item.isChecked === true ? 'checked' : ''
+        } />
         </td>
         <td>${productInfo.code}</td>
         <td>
-          <a href="" title="" class="thumb">
-            <img src="public/images/${productInfo.thumb}" alt="${productInfo.name}" />
+          <a href="product-detail.html?id=${productInfo._id}" title="${
+          productInfo.name
+        }" class="thumb">
+            <img src="/images/${productInfo.thumb.fileName}" alt="${productInfo.name}" />
           </a>
         </td>
         <td>
-          <a href="/product-detail.html?id=${productInfo.id}" title="" class="name-product">${
+          <a href="/product-detail.html?id=${productInfo._id}" title="" class="name-product">${
           productInfo.name
         }</a>
         </td>
-        <td>${formatCurrencyNumber(
-          (productInfo.price * (100 - Number.parseInt(productInfo.discount))) / 100,
-        )}</td>
+        <td>${formatCurrencyNumber(calcPrice(productInfo))}</td>
         <td>
           <input min="1" data-id="${item.productID}" type="number" name="num-order" value="${
           item.quantity
         }" class="num-order" />
         </td>
-        <td id="priceProduct">${formatCurrencyNumber(
-          ((productInfo.price * (100 - Number.parseInt(productInfo.discount))) / 100) *
-            item.quantity,
-        )}</td>
+        <td id="priceProduct">${formatCurrencyNumber(calcPrice(productInfo) * item.quantity)}</td>
         <td>
           <a href="" data-id="${
             item.productID
           }" title="" class="del-product"><i class="fa fa-trash-o"></i></a>
         </td>`
         tableBodyElement.appendChild(tableRowElement)
+        total += item.quantity * calcPrice(productInfo)
+        totalPriceEl.innerHTML = `Tổng thanh toán: <span>${formatCurrencyNumber(total)}</span>`
       }
     })
   }
@@ -129,54 +88,30 @@ async function renderListProductInCart({ idTable, cart, idTotalPrice, infoUserSt
 
 // main
 ;(() => {
-  // get cart from storage
-  let cart = localStorage.getItem('cart') !== null ? JSON.parse(localStorage.getItem('cart')) : []
-  let infoUserStorage =
-    localStorage.getItem('user_info') !== null ? JSON.parse(localStorage.getItem('user_info')) : []
+  // get cart from localStorage
+  let cart = localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : []
+  let infoUserStorage = localStorage.getItem('accessToken')
+    ? JSON.parse(localStorage.getItem('accessToken'))
+    : {}
   let isCartAdded = false
   if (Array.isArray(cart) && cart.length > 0) {
-    cart.forEach((item) => {
-      if (infoUserStorage.length === 1) {
-        if (item.userID === infoUserStorage[0].user_id && !isCartAdded) {
-          addCartToDom({
-            idListCart: 'listCart',
-            cart,
-            userID: infoUserStorage[0].user_id,
-            idNumOrder: 'numOrder',
-            idNum: '#num.numDesktop',
-            idTotalPrice: 'totalPrice',
-          })
-          renderListProductInCart({
-            idTable: 'tableCart',
-            cart,
-            idTotalPrice: 'total-price',
-            infoUserStorage: infoUserStorage[0],
-          })
-          isCartAdded = true
-        }
-      } else {
-        const user = infoUserStorage.find((user) => user.roleID === 1)
-        if (user) {
-          if (item.userID === user.user_id && !isCartAdded) {
-            addCartToDom({
-              idListCart: 'listCart',
-              cart,
-              userID: user.user_id,
-              idNumOrder: 'numOrder',
-              idNum: '#num.numDesktop',
-              idTotalPrice: 'totalPrice',
-            })
-            renderListProductInCart({
-              idTable: 'tableCart',
-              cart,
-              idTotalPrice: 'total-price',
-              infoUserStorage: user,
-            })
-            isCartAdded = true
-          }
-        }
-      }
-    })
+    if (!isCartAdded) {
+      addCartToDom({
+        idListCart: 'listCart',
+        cart,
+        userID: infoUserStorage.id,
+        idNumOrder: 'numOrder',
+        idNum: '#num.numDesktop',
+        idTotalPrice: 'totalPrice',
+      })
+      renderListProductInCart({
+        idTable: 'tableCart',
+        cart,
+        idTotalPrice: 'total-price',
+        infoUserStorage,
+      })
+      isCartAdded = true
+    }
   } else {
     document.getElementById('btn-remove-product').hidden = true
   }
@@ -188,27 +123,36 @@ async function renderListProductInCart({ idTable, cart, idTotalPrice, infoUserSt
     if (e.target.matches('#btn-buy-product')) {
       window.location.assign('/products.html')
     } else if (e.target.matches('#btn-remove-product')) {
-      let newCart
-      sweetAlert.error('Xoá toàn bộ giỏ hàng?')
-      cart?.forEach(async (item) => {
-        if (infoUserStorage.length === 1) {
-          if (+item.userID === +infoUserStorage[0].user_id) {
-            newCart = cart.filter((x) => x.userID !== +infoUserStorage[0].user_id)
-            localStorage.setItem('cart', JSON.stringify(newCart))
-          } else {
-            const user = infoUserStorage.find((user) => user?.roleID === 1)
-            if (user) {
-              newCart = cart.filter((x) => x.userID !== +user.user_id)
-              localStorage.setItem('cart', JSON.stringify(newCart))
+      const tableCartElement = document.getElementById('tableCart')
+      const tbodyElement = tableCartElement.getElementsByTagName('tbody')[0]
+      const totalPriceEl = document.getElementById('total-price')
+
+      Swal.fire({
+        title: 'Are you sure?',
+        text: 'You will not be able to recover this imaginary file!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!',
+        dangerMode: true,
+      }).then(function (result) {
+        if (result.isConfirmed) {
+          Swal.fire({
+            title: 'Shortlisted!',
+            text: 'Candidates are successfully shortlisted!',
+            icon: 'success',
+          }).then(function () {
+            localStorage.removeItem('cart')
+
+            while (tbodyElement.firstChild) {
+              tbodyElement.removeChild(tbodyElement.firstChild)
             }
-          }
+            totalPriceEl.innerHTML = `Tổng thanh toán: <span>${formatCurrencyNumber(0)}</span>`
+            document.getElementById('btn-remove-product').hidden = true
+            window.location.reload()
+          })
         }
-        const tableCartElement = document.getElementById('tableCart')
-        const tbodyElement = tableCartElement.getElementsByTagName('tbody')[0]
-        while (tbodyElement.firstChild) {
-          tbodyElement.removeChild(tbodyElement.firstChild)
-        }
-        document.getElementById('btn-remove-product').hidden = true
       })
     } else if (e.target.matches('#checkout-cart')) {
       e.preventDefault()

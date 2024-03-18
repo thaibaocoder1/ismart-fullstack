@@ -8,6 +8,7 @@ import {
   toast,
   handleUpdateInfoUser,
   initSearchForm,
+  sweetAlert,
 } from './utils'
 function displayTagLink(ulElement) {
   ulElement.textContent = ''
@@ -18,11 +19,11 @@ function displayTagLink(ulElement) {
     ulElement.appendChild(liElement)
   }
 }
-async function displayInfoUser(userID, divInfoLeftEl, userAvatarEl) {
-  if (!userID) return
+async function displayInfoUser(infoUserStorage, divInfoLeftEl, userAvatarEl) {
+  if (!infoUserStorage) return
   try {
     showSpinner()
-    const res = await userApi.getById(userID)
+    const res = await userApi.getById(infoUserStorage.id)
     hideSpinner()
     const { user } = res
     setFieldValue(divInfoLeftEl, "input[name='fullname']", user?.fullname)
@@ -41,34 +42,23 @@ async function renderInfoAccount({ idElement, infoUserStorage, divInfoLeft, divI
   const divInfoLeftEl = document.getElementById(divInfoLeft)
   const userAvatarEl = document.getElementById(divInfoRight)
   if (!ulElement || !divInfoLeftEl || !userAvatarEl) return
-  if (infoUserStorage.length === 0) {
+  if (!infoUserStorage) {
     divInfoLeftEl.classList.add('is-hide')
     userAvatarEl.classList.add('is-hide')
   }
-  for (const user of infoUserStorage) {
-    if (user.accessToken) {
-      displayTagLink(ulElement)
-      displayInfoUser(user.userID, divInfoLeftEl, userAvatarEl)
-    }
-    break
-  }
+  displayTagLink(ulElement)
+  displayInfoUser(infoUserStorage, divInfoLeftEl, userAvatarEl)
 }
 function handleOnClick() {
   // add event for element render after dom
   document.addEventListener('click', async function (e) {
     const { target } = e
     if (target.matches("a[title='Đăng xuất']")) {
-      const infoUserStorage = JSON.parse(localStorage.getItem('user_info'))
-      if (infoUserStorage.length === 1) {
-        localStorage.removeItem('user_info')
-      } else {
-        infoUserStorage.splice(0, 1)
-        localStorage.setItem('user_info', JSON.stringify(infoUserStorage))
-      }
+      localStorage.removeItem('accessToken')
       toast.info('Chuyển đến trang đăng nhập')
       setTimeout(() => {
         window.location.assign('/login.html')
-      }, 2000)
+      }, 500)
     } else if (target.matches("a[title='Cập nhật thông tin']")) {
       window.location.assign('/update-info.html')
     } else if (target.matches("a[title='Quản lý đơn hàng']")) {
@@ -96,41 +86,23 @@ async function handleOnSubmitForm(formValues) {
 // main
 ;(() => {
   // get cart from localStorage
-  let cart = localStorage.getItem('cart') !== null ? JSON.parse(localStorage.getItem('cart')) : []
-  let infoUserStorage =
-    localStorage.getItem('user_info') !== null ? JSON.parse(localStorage.getItem('user_info')) : []
+  let cart = localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : []
+  let infoUserStorage = localStorage.getItem('accessToken')
+    ? JSON.parse(localStorage.getItem('accessToken'))
+    : {}
   let isCartAdded = false
   if (Array.isArray(cart) && cart.length > 0) {
-    cart.forEach((item) => {
-      if (infoUserStorage.length === 1) {
-        if (item.userID === infoUserStorage[0].user_id && !isCartAdded) {
-          addCartToDom({
-            idListCart: 'listCart',
-            cart,
-            userID: infoUserStorage[0].user_id,
-            idNumOrder: 'numOrder',
-            idNum: '#num.numDesktop',
-            idTotalPrice: 'totalPrice',
-          })
-          isCartAdded = true
-        }
-      } else {
-        const user = infoUserStorage.find((user) => user?.roleID === 1)
-        if (user) {
-          if (item.userID === user.user_id && !isCartAdded) {
-            addCartToDom({
-              idListCart: 'listCart',
-              cart,
-              userID: user.user_id,
-              idNumOrder: 'numOrder',
-              idNum: '#num.numDesktop',
-              idTotalPrice: 'totalPrice',
-            })
-            isCartAdded = true
-          }
-        }
-      }
-    })
+    if (!isCartAdded) {
+      addCartToDom({
+        idListCart: 'listCart',
+        cart,
+        userID: infoUserStorage.id,
+        idNumOrder: 'numOrder',
+        idNum: '#num.numDesktop',
+        idTotalPrice: 'totalPrice',
+      })
+      isCartAdded = true
+    }
   }
   renderInfoAccount({
     idElement: 'accountUser',
@@ -143,23 +115,9 @@ async function handleOnSubmitForm(formValues) {
     idElement: 'searchList',
   })
   handleOnClick()
-  if (window.location.pathname === '/update-info.html') {
-    if (infoUserStorage.length === 1) {
-      const user = infoUserStorage[0]
-      handleUpdateInfoUser({
-        idForm: 'formUpdateUser',
-        user,
-        onSubmit: handleOnSubmitForm,
-      })
-    } else {
-      const user = infoUserStorage.find((user) => user?.role === 'User')
-      if (user) {
-        handleUpdateInfoUser({
-          idForm: 'formUpdateUser',
-          user,
-          onSubmit: handleOnSubmitForm,
-        })
-      }
-    }
-  }
+  handleUpdateInfoUser({
+    idForm: 'formUpdateUser',
+    user: infoUserStorage,
+    onSubmit: handleOnSubmitForm,
+  })
 })()

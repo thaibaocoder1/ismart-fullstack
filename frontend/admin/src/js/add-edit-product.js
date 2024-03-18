@@ -14,8 +14,8 @@ async function handleSubmitForm(formValues) {
   const payload = jsonToFormData(formValues)
   try {
     let saveProduct = null
-    if (payload.id) {
-      saveProduct = payload.id
+    if (payload.get('id')) {
+      saveProduct = payload.get('id')
       await productApi.updateFormData(payload)
     } else {
       await productApi.addFormData(payload)
@@ -24,7 +24,7 @@ async function handleSubmitForm(formValues) {
       ? toast.success('Chỉnh sửa thành công')
       : toast.success('Thêm mới thành công')
     setTimeout(() => {
-      window.location.reload('product.html')
+      window.location.assign('product.html')
     }, 500)
   } catch (error) {
     console.log('error', error)

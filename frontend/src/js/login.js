@@ -1,43 +1,25 @@
 import userApi from './api/userApi'
 import { hideSpinner, showSpinner, toast } from './utils'
-function setCookie(cname, cvalue, exdays) {
-  const d = new Date()
-  d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000)
-  let expires = 'expires=' + d.toUTCString()
-  document.cookie = cname + '=' + cvalue + ';' + expires + ';path=/'
-}
+
 async function handleOnSubmitForm(data) {
   try {
     showSpinner()
     const user = await userApi.check(data)
     hideSpinner()
-    const infoUser = []
     if (user.success) {
       toast.success('Đăng nhập thành công')
       if (user.data.role === 'User') {
-        infoUser.push({
-          accessToken: user.data.accessToken,
-          userID: user.data.userID,
-          role: user.data.role,
-        })
-        setCookie('refreshToken', user.data.refreshToken, 365)
+        localStorage.setItem('accessToken', JSON.stringify(user.data))
         setTimeout(() => {
           window.location.assign('/index.html')
-        }, 2000)
+        }, 500)
       } else {
-        infoUser.push({
-          accessToken: user.data.accessToken,
-          userID: user.data.userID,
-          role: user.data.role,
-        })
-        setCookie('refreshToken', user.data.refreshToken, 365)
+        localStorage.setItem('accessToken', JSON.stringify(user.data))
         setTimeout(() => {
           window.location.assign('/admin/index.html')
-        }, 2000)
+        }, 500)
       }
-      localStorage.setItem('user_info', JSON.stringify(infoUser))
     }
-    return
   } catch (error) {
     toast.error('Đăng nhập thất bại')
   }

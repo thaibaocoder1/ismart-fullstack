@@ -18,7 +18,7 @@ const productApi = {
     return axiosClient.post(url, data)
   },
   addFormData(data) {
-    const url = `/products/add`
+    const url = `/products/add?_method=POST`
     return axiosClient.post(url, data, {
       headers: {
         'Content-Type': 'multipart/form-data',

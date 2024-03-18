@@ -39,7 +39,7 @@ async function renderListProduct({ selector, selectorCount, searchValueUrl }) {
         <div class='product-sale'>
           <span>${item.discount}%</span>
         </div>
-        <a href="/product-detail.html?id=${item._id}" title="" class="thumb">
+        <a href="product-detail.html?id=${item._id}" title="" class="thumb">
           <img src="/images/${item.thumb.fileName}" alt="${item.name}" />
         </a>
         <a href="/product-detail.html?id=${item._id}" title="${item.name}" class="product-name">${
@@ -52,7 +52,7 @@ async function renderListProduct({ selector, selectorCount, searchValueUrl }) {
         <div class="action clearfix action--custom">
           ${
             Number.parseInt(item.quantity) > 0 && Number.parseInt(item.status) === 1
-              ? `<a href="/cart.html" title="Thêm giỏ hàng" class="add-cart fl-left">Thêm giỏ hàng</a>
+              ? `<a href="/cart.html" title="Thêm giỏ hàng" data-id=${item._id} class="add-cart fl-left">Thêm giỏ hàng</a>
           <a title="Mua ngay" class="buy-now fl-right">Mua ngay</a>`
               : `<span>Hết hàng</span>`
           }
@@ -68,7 +68,7 @@ async function renderListProduct({ selector, selectorCount, searchValueUrl }) {
         <div class='product-sale'>
           <span>${item.discount}%</span>
         </div>
-        <a href="/product-detail.html?id=${item._id}" title="" class="thumb">
+        <a href="product-detail.html?id=${item._id}" title="${item.name}" class="thumb">
           <img src="/images/${item.thumb.fileName}" alt="${item.name}" />
         </a>
         <a href="/product-detail.html?id=${item._id}" title="${item.name}" class="product-name">${
@@ -81,7 +81,7 @@ async function renderListProduct({ selector, selectorCount, searchValueUrl }) {
         <div class="action clearfix action--custom">
           ${
             Number.parseInt(item.quantity) > 0 && Number.parseInt(item.status) === 1
-              ? `<a href="/cart.html" title="Thêm giỏ hàng" class="add-cart fl-left">Thêm giỏ hàng</a>
+              ? `<a href="/cart.html" title="Thêm giỏ hàng" data-id=${item._id} class="add-cart fl-left">Thêm giỏ hàng</a>
           <a title="Mua ngay" class="buy-now fl-right">Mua ngay</a>`
               : `<span>Hết hàng</span>`
           }
@@ -105,7 +105,7 @@ async function renderListFilter(value) {
     <div class='product-sale'>
       <span>${item.discount}%</span>
     </div>
-    <a href="/product-detail.html?id=${item._id}" title="" class="thumb">
+    <a href="product-detail.html?id=${item._id}" title="" class="thumb">
       <img src="/images/${item.thumb.fileName}" alt="${item.name}" />
     </a>
     <a href="/product-detail.html?id=${item._id}" title="${item.name}" class="product-name">${
@@ -118,7 +118,7 @@ async function renderListFilter(value) {
     <div class="action clearfix action--custom">
       ${
         Number.parseInt(item.quantity) > 0 && Number.parseInt(item.status) === 1
-          ? `<a href="/cart.html" title="Thêm giỏ hàng" class="add-cart fl-left">Thêm giỏ hàng</a>
+          ? `<a href="/cart.html" title="Thêm giỏ hàng" data-id=${item._id} class="add-cart fl-left">Thêm giỏ hàng</a>
       <a title="Mua ngay" class="buy-now fl-right">Mua ngay</a>`
           : `<span>Hết hàng</span>`
       }
@@ -131,41 +131,23 @@ async function renderListFilter(value) {
 ;(() => {
   renderListCategory('#listCategory')
   // get cart from localStorage
-  let cart = localStorage.getItem('cart') !== null ? JSON.parse(localStorage.getItem('cart')) : []
-  let infoUserStorage =
-    localStorage.getItem('user_info') !== null ? JSON.parse(localStorage.getItem('user_info')) : []
+  let cart = localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : []
+  let infoUserStorage = localStorage.getItem('accessToken')
+    ? JSON.parse(localStorage.getItem('accessToken'))
+    : {}
   let isCartAdded = false
   if (Array.isArray(cart) && cart.length > 0) {
-    cart.forEach(async (item) => {
-      if (infoUserStorage.length === 1) {
-        if (item.userID === infoUserStorage[0].user_id && !isCartAdded) {
-          await addCartToDom({
-            idListCart: 'listCart',
-            cart,
-            userID: infoUserStorage[0].user_id,
-            idNumOrder: 'numOrder',
-            idNum: '#num.numDesktop',
-            idTotalPrice: 'totalPrice',
-          })
-          isCartAdded = true
-        }
-      } else {
-        const user = infoUserStorage.find((item) => item.roleID === 1)
-        if (user) {
-          if (item.userID === user.user_id && !isCartAdded) {
-            await addCartToDom({
-              idListCart: 'listCart',
-              cart,
-              userID: user.user_id,
-              idNumOrder: 'numOrder',
-              idNum: '#num.numDesktop',
-              idTotalPrice: 'totalPrice',
-            })
-            isCartAdded = true
-          }
-        }
-      }
-    })
+    if (!isCartAdded) {
+      addCartToDom({
+        idListCart: 'listCart',
+        cart,
+        userID: infoUserStorage.id,
+        idNumOrder: 'numOrder',
+        idNum: '#num.numDesktop',
+        idTotalPrice: 'totalPrice',
+      })
+      isCartAdded = true
+    }
   }
   // get params from URL
   const searchParams = new URLSearchParams(location.search)
@@ -217,21 +199,10 @@ async function renderListFilter(value) {
     const { target } = e
     if (target.matches('.add-cart')) {
       e.preventDefault()
-      const infoUserStorage =
-        localStorage.getItem('user_info') !== null
-          ? JSON.parse(localStorage.getItem('user_info'))
-          : []
-      if (Array.isArray(infoUserStorage) && infoUserStorage.length > 0) {
-        const productID = +target.parentElement.parentElement.dataset.id
-        if (productID) {
-          sweetAlert.success('Tuyệt vời!')
-          cart = addProductToCart(productID, cart, infoUserStorage, 1)
-        }
-      } else {
-        toast.error('Đăng nhập để mua sản phẩm')
-        setTimeout(() => {
-          window.location.assign('/login.html')
-        }, 2000)
+      const productID = target.dataset.id
+      if (productID) {
+        sweetAlert.success('Tuyệt vời!')
+        cart = addProductToCart(productID, cart, infoUserStorage, 1)
       }
     } else if (target.matches('.buy-now')) {
       e.preventDefault()

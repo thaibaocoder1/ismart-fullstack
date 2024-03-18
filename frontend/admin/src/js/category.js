@@ -25,7 +25,7 @@ async function renderListProductAdmin({ idElement, idBreadcrumb }) {
       <td>
         <button class="btn btn-primary" data-id="${
           item._id
-        }" id="editCategory" style="color: #fff;">Chỉnh sửa</button>
+        }" id="editCategory" style="color: #fff; background-position: unset;">Chỉnh sửa</button>
       </td>`
       tbody.appendChild(tableRow)
     })
@@ -47,9 +47,14 @@ async function handleFilterChange(value, tbodyEl) {
     <td><span class="tbody-text">${index + 1}</span></td>
     <td><span class="tbody-text">${item._id}</span></td>
     <td><span class="tbody-text">${item.title}</span></td>
-    <td><span class="tbody-text">${dayjs(item.timer).fromNow()}</span></td>
+    <td><span class="tbody-text">${dayjs(item.createdAt).format('DD/MM/YYYY HH:mm')}</span></td>
+    <td><span class="tbody-text">${dayjs(item.updatedAt).format('DD/MM/YYYY HH:mm')}</span></td>
     <td>
-      <button class="btn btn-primary" data-id="${item._id}" id="editCategory">Chỉnh sửa</button>
+      <button class="btn btn-primary" onclick='window.location.assign("/admin/edit-category.html?id=${
+        item._id
+      }")' data-id="${
+      item._id
+    }" style="color: #fff; background-position: unset;" id="editCategory">Chỉnh sửa</button>
     </td>`
     tbodyEl.appendChild(tableRow)
   })

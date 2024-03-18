@@ -148,6 +148,7 @@
   text-transform: uppercase;
   border: none;
   transition: all 0.25s linear;
+  cursor: pointer;
 }
 #detail-product-wp .add-cart.add-cart--fast {
   background: #f12a43;

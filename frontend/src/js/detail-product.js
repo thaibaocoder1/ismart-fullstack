@@ -59,11 +59,15 @@ async function renderDetailProduct({
       <input type="text" value="1" data-quantity="1" name="num-order" id="num-order" />
       <span id="plus"><i class="fa fa-plus"></i></span>
     </div>
-    <button data-id=${data.id} title="Thêm giỏ hàng" class="add-cart" ${
-      Number.parseInt(data.quantity) > 0 && Number.parseInt(data.status) === 1 ? '' : 'disabled'
+    <button data-id=${product._id} title="Thêm giỏ hàng" class="add-cart" ${
+      Number.parseInt(product.quantity) > 0 && Number.parseInt(product.status) === 1
+        ? ''
+        : 'disabled'
     }>Thêm giỏ hàng</button>
-    <button data-id=${data.id} title="Mua ngay" class="add-cart add-cart--fast" ${
-      Number.parseInt(data.quantity) > 0 && Number.parseInt(data.status) === 1 ? '' : 'disabled'
+    <button data-id=${product._id} title="Mua ngay" class="add-cart add-cart--fast" ${
+      Number.parseInt(product.quantity) > 0 && Number.parseInt(product.status) === 1
+        ? ''
+        : 'disabled'
     }>Mua ngay</button>`
     infoProductDesc.innerHTML = `<p>${product.description}</p>`
     // fetch list product same category
@@ -104,8 +108,10 @@ async function renderListProductSameCategory({ idElement, swiperWrapper, categor
         <span class="old">${formatCurrencyNumber(item.price)}</span>
       </div>
       <div class="action clearfix">
-        <a href="/cart.html" title="Thêm giỏ hàng" id="btn-cart" class="btn-custom add-cart fl-left">Thêm giỏ hàng</a>
-        <a href="/checkout.html" title="Mua ngay" id="btn-buynow" class="btn-custom buy-now fl-right">Mua ngay</a>
+        <a href="/cart.html" title="Thêm giỏ hàng" id="btn-cart" data-id=${
+          item._id
+        } class="btn-custom add-cart fl-left">Thêm giỏ hàng</a>
+        <a href="checkout.html" title="Mua ngay" id="btn-buynow" class="btn-custom buy-now fl-right">Mua ngay</a>
       </div>`
       swiperWrapperEl.appendChild(divElement)
       initSwiper()
@@ -172,41 +178,24 @@ async function handleOnSubmitForm(value, productID, userID) {
 
 // main
 ;(() => {
-  let cart = localStorage.getItem('cart') !== null ? JSON.parse(localStorage.getItem('cart')) : []
-  let infoUserStorage =
-    localStorage.getItem('user_info') !== null ? JSON.parse(localStorage.getItem('user_info')) : []
+  // get cart from localStorage
+  let cart = localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : []
+  let infoUserStorage = localStorage.getItem('accessToken')
+    ? JSON.parse(localStorage.getItem('accessToken'))
+    : {}
   let isCartAdded = false
   if (Array.isArray(cart) && cart.length > 0) {
-    cart.forEach((item) => {
-      if (infoUserStorage.length === 1) {
-        if (item.userID === infoUserStorage.user_id && !isCartAdded) {
-          addCartToDom({
-            idListCart: 'listCart',
-            cart,
-            userID: infoUserStorage.user_id,
-            idNumOrder: 'numOrder',
-            idNum: '#num.numDesktop',
-            idTotalPrice: 'totalPrice',
-          })
-        }
-        isCartAdded = true
-      } else {
-        const user = infoUserStorage.find((user) => user.roleID === 1)
-        if (user) {
-          if (item.userID === user.user_id && !isCartAdded) {
-            addCartToDom({
-              idListCart: 'listCart',
-              cart,
-              userID: user.user_id,
-              idNumOrder: 'numOrder',
-              idNum: '#num.numDesktop',
-              idTotalPrice: 'totalPrice',
-            })
-          }
-          isCartAdded = true
-        }
-      }
-    })
+    if (!isCartAdded) {
+      addCartToDom({
+        idListCart: 'listCart',
+        cart,
+        userID: infoUserStorage.id,
+        idNumOrder: 'numOrder',
+        idNum: '#num.numDesktop',
+        idTotalPrice: 'totalPrice',
+      })
+      isCartAdded = true
+    }
   }
   renderListCategory('#listCategory')
   const searchParams = new URLSearchParams(location.search)
@@ -219,16 +208,16 @@ async function handleOnSubmitForm(value, productID, userID) {
     breadcrumbTitle: 'breadcrumb-title',
     productID,
   })
-  initProductComment({
-    idForm: 'formComment',
-    infoUserStorage,
-    productID,
-    onSubmit: handleOnSubmitForm,
-  })
-  renderListComment({
-    idElement: 'comments',
-    productID,
-  })
+  // initProductComment({
+  //   idForm: 'formComment',
+  //   infoUserStorage,
+  //   productID,
+  //   onSubmit: handleOnSubmitForm,
+  // })
+  // renderListComment({
+  //   idElement: 'comments',
+  //   productID,
+  // })
   initSearchForm({
     idForm: 'searchForm',
     idElement: 'searchList',
@@ -238,30 +227,18 @@ async function handleOnSubmitForm(value, productID, userID) {
     const { target } = e
     if (target.matches('.add-cart')) {
       e.preventDefault()
-      const infoUserStorage =
-        localStorage.getItem('user_info') !== null
-          ? JSON.parse(localStorage.getItem('user_info'))
-          : []
-      if (Array.isArray(infoUserStorage) && infoUserStorage.length > 0) {
-        const productID = +target.dataset.id
-        if (productID) {
-          sweetAlert.success('Tuyệt vời!')
-          const numOrderEl = target.previousElementSibling?.querySelector("[name='num-order']")
-          let quantity = 1
-          if (numOrderEl) {
-            quantity = +numOrderEl.dataset.quantity
-          }
-          cart = addProductToCart(productID, cart, infoUserStorage, quantity)
-          toast.success('Thêm sản phẩm thành công')
-          setTimeout(() => {
-            window.location.assign(`/product-detail.html?id=${productID}`)
-          }, 1000)
+      const productID = target.dataset.id
+      if (productID) {
+        const numOrderEl = target.previousElementSibling?.querySelector("[name='num-order']")
+        let quantity = 1
+        if (numOrderEl) {
+          quantity = +numOrderEl.dataset.quantity
         }
-      } else {
-        toast.error('Đăng nhập để mua sản phẩm')
+        cart = addProductToCart(productID, cart, infoUserStorage, quantity)
+        toast.success('Thêm sản phẩm thành công')
         setTimeout(() => {
-          window.location.assign('/login.html')
-        }, 2000)
+          window.location.assign(`/product-detail.html?id=${productID}`)
+        }, 500)
       }
     } else if (target.closest('#minus')) {
       const parent = target.closest('#num-order-wp')
