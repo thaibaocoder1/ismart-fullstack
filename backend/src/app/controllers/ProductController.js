@@ -100,5 +100,31 @@ class ProductController {
       });
     }
   }
+  async update(req, res, next) {
+    try {
+      const product = await Product.findById(req.params.id);
+      if (!req.file) {
+        if (JSON.stringify(req.body) !== JSON.stringify(product.toObject())) {
+          await Product.findByIdAndUpdate({ _id: req.params.id }, req.body);
+        }
+      } else {
+        req.body.thumb = {
+          data: req.file.originalname,
+          contentType: req.file.mimetype,
+          fileName: req.file.originalname,
+        };
+        await Product.findByIdAndUpdate({ _id: req.params.id }, req.body);
+      }
+      res.status(status.StatusCodes.OK).json({
+        success: true,
+        message: 'Update successfully',
+      });
+    } catch (error) {
+      return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Đã xảy ra lỗi khi lấy thông tin sản phẩm.',
+      });
+    }
+  }
 }
 module.exports = new ProductController();

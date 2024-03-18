@@ -7,6 +7,7 @@ const productController = require('../app/controllers/ProductController');
 router.get('/detail/:id', productController.detail);
 router.get('/:slug', productController.slug);
 router.post('/add', upload.single('thumb'), productController.add);
+router.patch('/update/:id', upload.single('thumb'), productController.update);
 router.get('/', productController.index);
 
 module.exports = router;

@@ -22,6 +22,16 @@ exports.generateToken = async (payload, secretSignature, tokenLife) => {
     return null;
   }
 };
+exports.decodeToken = async (token, secretKey) => {
+  try {
+    return await verify(token, secretKey, {
+      ignoreExpiration: true,
+    });
+  } catch (error) {
+    console.log(`Error in decode access token: ${error}`);
+    return null;
+  }
+};
 exports.validatePayload = async (req, res, next) => {
   const { email, phone, password, password_confirmation } = req.body;
   const user = await User.findOne({ email: email });

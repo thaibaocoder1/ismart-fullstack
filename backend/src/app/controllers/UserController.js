@@ -54,20 +54,37 @@ class UserController {
       } else {
         refreshToken = user.refreshToken;
       }
-      if (refreshToken && accessToken) {
-        return res.status(status.StatusCodes.CREATED).json({
+      if (user.role === 'User') {
+        res.cookie('refreshToken', refreshToken, {
+          httpOnly: true,
+          sameSite: 'strict',
+          path: '/',
+          secure: false,
+        });
+        res.status(status.StatusCodes.CREATED).json({
           success: true,
           data: {
             role: user.role,
-            userID: user._id,
+            id: user._id,
             accessToken,
-            refreshToken,
+            expireIns: Date.now() + 1 * 60 * 1000,
           },
         });
       } else {
-        return res.status(status.StatusCodes.UNAUTHORIZED).json({
-          success: false,
-          message: 'Not found apply user',
+        res.cookie('refreshTokenAdmin', refreshToken, {
+          httpOnly: true,
+          sameSite: 'strict',
+          path: '/',
+          secure: false,
+        });
+        res.status(status.StatusCodes.CREATED).json({
+          success: true,
+          data: {
+            role: user.role,
+            id: user._id,
+            accessToken,
+            expireIns: Date.now() + 1 * 60 * 1000,
+          },
         });
       }
     } catch (error) {
@@ -136,6 +153,130 @@ class UserController {
       return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: 'Đã xảy ra lỗi khi lấy thông tin tài khoản.',
+      });
+    }
+  }
+  async update(req, res, next) {
+    try {
+      const { id } = req.params;
+      const user = await User.findOneAndUpdate({ _id: id }, req.body, {
+        new: true,
+      });
+      if (user) {
+        return res.status(status.StatusCodes.OK).json({
+          success: true,
+          user,
+        });
+      } else {
+        return res.status(status.StatusCodes.NOT_FOUND).json({
+          success: false,
+          message: 'Không có tài khoản nào được tìm thấy.',
+        });
+      }
+    } catch (error) {
+      return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Đã xảy ra lỗi khi lấy thông tin tài khoản.',
+      });
+    }
+  }
+  async refresh(req, res, next) {
+    try {
+      const { refreshToken } = req.cookies;
+      if (!refreshToken) {
+        return res.sendStatus(401).json('Please login');
+      }
+      const verifyToken = await authMethod.decodeToken(
+        refreshToken,
+        process.env.REFRESH_TOKEN_SECRET,
+      );
+      if (verifyToken) {
+        const newAccessToken = await authMethod.generateToken(
+          verifyToken.payload,
+          process.env.ACCESS_TOKEN_SECRET,
+          process.env.ACCESS_TOKEN_LIFE,
+        );
+        const user = await User.findOne({ email: verifyToken.payload.email });
+        if (user) {
+          res.status(status.StatusCodes.CREATED).json({
+            success: true,
+            data: {
+              id: user._id,
+              accessToken: newAccessToken,
+              expireIns: Date.now() + 60000,
+            },
+          });
+        }
+        next();
+      }
+    } catch (error) {
+      res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        data: {
+          message: 'Error from SERVER!',
+        },
+      });
+    }
+  }
+  async refreshAdmin(req, res, next) {
+    try {
+      const { refreshTokenAdmin } = req.cookies;
+      if (!refreshTokenAdmin) {
+        return res.sendStatus(401).json('Please login');
+      }
+      const verifyToken = await authMethod.decodeToken(
+        refreshTokenAdmin,
+        process.env.REFRESH_TOKEN_SECRET,
+      );
+      if (verifyToken) {
+        const newAccessToken = await authMethod.generateToken(
+          verifyToken.payload,
+          process.env.ACCESS_TOKEN_SECRET,
+          process.env.ACCESS_TOKEN_LIFE,
+        );
+        const user = await User.findOne({ email: verifyToken.payload.email });
+        if (user) {
+          res.status(status.StatusCodes.CREATED).json({
+            success: true,
+            data: {
+              id: user._id,
+              accessToken: newAccessToken,
+              expireIns: Date.now() + 60000,
+            },
+          });
+        }
+        next();
+      }
+    } catch (error) {
+      res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        data: {
+          message: 'Error from SERVER!',
+        },
+      });
+    }
+  }
+  async verify(req, res, next) {
+    try {
+      const { id } = req.params;
+      const user = await User.findById({ _id: id });
+      if (user) {
+        res.status(status.StatusCodes.OK).json({
+          success: true,
+          user,
+        });
+      } else {
+        return res.status(status.StatusCodes.NOT_FOUND).json({
+          success: false,
+          message: 'Không có tài khoản nào được tìm thấy.',
+        });
+      }
+    } catch (error) {
+      res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        data: {
+          message: 'Error from SERVER!',
+        },
       });
     }
   }
