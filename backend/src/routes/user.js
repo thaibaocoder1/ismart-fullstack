@@ -10,8 +10,8 @@ router.get('/auth/refresh', userController.refresh);
 // router.get('/auth/refreshAdmin', userController.refreshAdmin);
 router.get('/verify/:id', userController.verify);
 
-router.post('/add', authMethod.validatePayload, userController.add);
 router.get('/:id', userController.detail);
+router.post('/add', authMethod.validatePayload, userController.add);
 router.patch('/update/:id', userController.update);
 router.get('/', userController.index);
 

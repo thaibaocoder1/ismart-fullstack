@@ -111,7 +111,9 @@ async function renderListProductSameCategory({ idElement, swiperWrapper, categor
         <a href="/cart.html" title="Thêm giỏ hàng" id="btn-cart" data-id=${
           item._id
         } class="btn-custom add-cart fl-left">Thêm giỏ hàng</a>
-        <a href="checkout.html" title="Mua ngay" id="btn-buynow" class="btn-custom buy-now fl-right">Mua ngay</a>
+        <a href="checkout.html" data-id=${
+          item._id
+        } title="Mua ngay" id="btn-buynow" class="btn-custom buy-now fl-right">Mua ngay</a>
       </div>`
       swiperWrapperEl.appendChild(divElement)
       initSwiper()
@@ -189,7 +191,6 @@ async function handleOnSubmitForm(value, productID, userID) {
       addCartToDom({
         idListCart: 'listCart',
         cart,
-        userID: infoUserStorage.id,
         idNumOrder: 'numOrder',
         idNum: '#num.numDesktop',
         idTotalPrice: 'totalPrice',
@@ -258,6 +259,34 @@ async function handleOnSubmitForm(value, productID, userID) {
       if (+numOrderDetail.value >= 1) {
         numOrderDetail.value++
         numOrderDetail.dataset.quantity = +numOrderDetail.value
+      }
+    } else if (target.matches('.buy-now')) {
+      e.preventDefault()
+      if (infoUserStorage) {
+        const productID = target.dataset.id
+        showSpinner()
+        const data = await productApi.getById(productID)
+        const { product } = data
+        hideSpinner()
+        const priceProduct = calcPrice(product)
+        if (productID) {
+          cart = addProductToCart(productID, cart, infoUserStorage, 1)
+          // set status buy now for product if user click buy now button in ui
+          for (const item of cart) {
+            if (item.productID === productID) {
+              item['isBuyNow'] = true
+              item['isChecked'] = true
+              item['price'] = priceProduct
+            }
+          }
+          localStorage.setItem('cart', JSON.stringify(cart))
+          window.location.assign('/checkout.html')
+        }
+      } else {
+        toast.error('Đăng nhập để mua sản phẩm')
+        setTimeout(() => {
+          window.location.assign('/login.html')
+        }, 2000)
       }
     }
   })

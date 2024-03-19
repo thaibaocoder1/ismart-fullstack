@@ -20,7 +20,6 @@ function displayTagLink(ulElement) {
   }
 }
 async function displayInfoUser(infoUserStorage, divInfoLeftEl, userAvatarEl) {
-  if (!infoUserStorage) return
   try {
     showSpinner()
     const res = await userApi.getById(infoUserStorage.id)
@@ -42,12 +41,13 @@ async function renderInfoAccount({ idElement, infoUserStorage, divInfoLeft, divI
   const divInfoLeftEl = document.getElementById(divInfoLeft)
   const userAvatarEl = document.getElementById(divInfoRight)
   if (!ulElement || !divInfoLeftEl || !userAvatarEl) return
-  if (!infoUserStorage) {
+  if (Object.keys(infoUserStorage).length === 0) {
     divInfoLeftEl.classList.add('is-hide')
     userAvatarEl.classList.add('is-hide')
+  } else {
+    displayTagLink(ulElement)
+    displayInfoUser(infoUserStorage, divInfoLeftEl, userAvatarEl)
   }
-  displayTagLink(ulElement)
-  displayInfoUser(infoUserStorage, divInfoLeftEl, userAvatarEl)
 }
 function handleOnClick() {
   // add event for element render after dom
@@ -96,7 +96,6 @@ async function handleOnSubmitForm(formValues) {
       addCartToDom({
         idListCart: 'listCart',
         cart,
-        userID: infoUserStorage.id,
         idNumOrder: 'numOrder',
         idNum: '#num.numDesktop',
         idTotalPrice: 'totalPrice',

@@ -184,7 +184,9 @@ class UserController {
     try {
       const { refreshToken } = req.cookies;
       if (!refreshToken) {
-        return res.sendStatus(401).json('Please login');
+        res.status(status.StatusCodes.OK).json({
+          remove: true,
+        });
       }
       const verifyToken = await authMethod.decodeToken(
         refreshToken,

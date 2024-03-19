@@ -53,7 +53,7 @@ async function renderListProduct({ selector, selectorCount, searchValueUrl }) {
           ${
             Number.parseInt(item.quantity) > 0 && Number.parseInt(item.status) === 1
               ? `<a href="/cart.html" title="Thêm giỏ hàng" data-id=${item._id} class="add-cart fl-left">Thêm giỏ hàng</a>
-          <a title="Mua ngay" class="buy-now fl-right">Mua ngay</a>`
+                <a title="Mua ngay" data-id=${item._id} style="cursor: pointer;" class="buy-now fl-right">Mua ngay</a>`
               : `<span>Hết hàng</span>`
           }
         </div>`
@@ -82,7 +82,7 @@ async function renderListProduct({ selector, selectorCount, searchValueUrl }) {
           ${
             Number.parseInt(item.quantity) > 0 && Number.parseInt(item.status) === 1
               ? `<a href="/cart.html" title="Thêm giỏ hàng" data-id=${item._id} class="add-cart fl-left">Thêm giỏ hàng</a>
-          <a title="Mua ngay" class="buy-now fl-right">Mua ngay</a>`
+          <a title="Mua ngay" data-id=${item._id} style="cursor: pointer;" class="buy-now fl-right">Mua ngay</a>`
               : `<span>Hết hàng</span>`
           }
         </div>`
@@ -119,7 +119,7 @@ async function renderListFilter(value) {
       ${
         Number.parseInt(item.quantity) > 0 && Number.parseInt(item.status) === 1
           ? `<a href="/cart.html" title="Thêm giỏ hàng" data-id=${item._id} class="add-cart fl-left">Thêm giỏ hàng</a>
-      <a title="Mua ngay" class="buy-now fl-right">Mua ngay</a>`
+      <a title="Mua ngay" data-id=${item._id} style="cursor: pointer;" class="buy-now fl-right">Mua ngay</a>`
           : `<span>Hết hàng</span>`
       }
     </div>`
@@ -141,7 +141,6 @@ async function renderListFilter(value) {
       addCartToDom({
         idListCart: 'listCart',
         cart,
-        userID: infoUserStorage.id,
         idNumOrder: 'numOrder',
         idNum: '#num.numDesktop',
         idTotalPrice: 'totalPrice',
@@ -206,21 +205,18 @@ async function renderListFilter(value) {
       }
     } else if (target.matches('.buy-now')) {
       e.preventDefault()
-      const infoUserStorage =
-        localStorage.getItem('user_info') !== null
-          ? JSON.parse(localStorage.getItem('user_info'))
-          : []
-      if (Array.isArray(infoUserStorage) && infoUserStorage.length > 0) {
-        const productID = +target.parentElement.parentElement.dataset.id
+      if (infoUserStorage) {
+        const productID = target.dataset.id
         showSpinner()
-        const product = await productApi.getById(productID)
-        const priceProduct = (product.price * (100 - Number.parseInt(product.discount))) / 100
+        const data = await productApi.getById(productID)
+        const { product } = data
         hideSpinner()
+        const priceProduct = calcPrice(product)
         if (productID) {
           cart = addProductToCart(productID, cart, infoUserStorage, 1)
           // set status buy now for product if user click buy now button in ui
           for (const item of cart) {
-            if (+item.productID === productID) {
+            if (item.productID === productID) {
               item['isBuyNow'] = true
               item['isChecked'] = true
               item['price'] = priceProduct

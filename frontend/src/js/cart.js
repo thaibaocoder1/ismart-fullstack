@@ -26,10 +26,9 @@ function updateTotal(checkedProducts) {
   )}</span>`
 }
 
-async function renderListProductInCart({ idTable, cart, idTotalPrice, infoUserStorage }) {
+async function renderListProductInCart({ idTable, cart }) {
   const tableElement = document.getElementById(idTable)
-  const totalPriceEl = document.getElementById(idTotalPrice)
-  if (!tableElement || !totalPriceEl) return
+  if (!tableElement) return
   const tableBodyElement = tableElement.getElementsByTagName('tbody')[0]
   tableBodyElement.textContent = ''
   if (tableBodyElement) {
@@ -39,38 +38,36 @@ async function renderListProductInCart({ idTable, cart, idTotalPrice, infoUserSt
     const { products: listProduct } = data
     let checkedProducts = cart.filter((item) => item.isChecked)
     updateTotal(checkedProducts)
-    let total = 0
     cart?.forEach((item) => {
-      if (item.userID === infoUserStorage.id) {
-        const tableRowElement = document.createElement('tr')
-        const productIndex = listProduct.findIndex((x) => x._id.toString() === item.productID)
-        const productInfo = listProduct[productIndex]
-        tableRowElement.innerHTML = `
+      const tableRowElement = document.createElement('tr')
+      const productIndex = listProduct.findIndex((x) => x._id.toString() === item.productID)
+      const productInfo = listProduct[productIndex]
+      tableRowElement.innerHTML = `
         <td>
         <input type="checkbox" name="product" class="checkbox2" data-id="${
           item.productID
         }" data-price=${calcPrice(productInfo)} value="${calcPrice(productInfo) * item.quantity}" ${
-          item.isChecked === true ? 'checked' : ''
-        } />
+        item.isChecked === true ? 'checked' : ''
+      } />
         </td>
         <td>${productInfo.code}</td>
         <td>
           <a href="product-detail.html?id=${productInfo._id}" title="${
-          productInfo.name
-        }" class="thumb">
+        productInfo.name
+      }" class="thumb">
             <img src="/images/${productInfo.thumb.fileName}" alt="${productInfo.name}" />
           </a>
         </td>
         <td>
           <a href="/product-detail.html?id=${productInfo._id}" title="" class="name-product">${
-          productInfo.name
-        }</a>
+        productInfo.name
+      }</a>
         </td>
         <td>${formatCurrencyNumber(calcPrice(productInfo))}</td>
         <td>
-          <input min="1" data-id="${item.productID}" type="number" name="num-order" value="${
-          item.quantity
-        }" class="num-order" />
+          <input data-id="${item.productID}" type="number" name="num-order" value="${
+        item.quantity
+      }" class="num-order" />
         </td>
         <td id="priceProduct">${formatCurrencyNumber(calcPrice(productInfo) * item.quantity)}</td>
         <td>
@@ -78,10 +75,7 @@ async function renderListProductInCart({ idTable, cart, idTotalPrice, infoUserSt
             item.productID
           }" title="" class="del-product"><i class="fa fa-trash-o"></i></a>
         </td>`
-        tableBodyElement.appendChild(tableRowElement)
-        total += item.quantity * calcPrice(productInfo)
-        totalPriceEl.innerHTML = `Tổng thanh toán: <span>${formatCurrencyNumber(total)}</span>`
-      }
+      tableBodyElement.appendChild(tableRowElement)
     })
   }
 }
@@ -99,7 +93,6 @@ async function renderListProductInCart({ idTable, cart, idTotalPrice, infoUserSt
       addCartToDom({
         idListCart: 'listCart',
         cart,
-        userID: infoUserStorage.id,
         idNumOrder: 'numOrder',
         idNum: '#num.numDesktop',
         idTotalPrice: 'totalPrice',
@@ -107,8 +100,6 @@ async function renderListProductInCart({ idTable, cart, idTotalPrice, infoUserSt
       renderListProductInCart({
         idTable: 'tableCart',
         cart,
-        idTotalPrice: 'total-price',
-        infoUserStorage,
       })
       isCartAdded = true
     }
@@ -126,25 +117,24 @@ async function renderListProductInCart({ idTable, cart, idTotalPrice, infoUserSt
       const tableCartElement = document.getElementById('tableCart')
       const tbodyElement = tableCartElement.getElementsByTagName('tbody')[0]
       const totalPriceEl = document.getElementById('total-price')
-
       Swal.fire({
-        title: 'Are you sure?',
-        text: 'You will not be able to recover this imaginary file!',
+        title: 'Xoá toàn bộ giỏ hàng?',
+        text: 'Hành động này sẽ khiến tất cả sản phẩm bị xoá!',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, delete it!',
+        confirmButtonText: 'Xác nhận',
+        cancelButtonText: 'Huỷ bỏ',
         dangerMode: true,
       }).then(function (result) {
         if (result.isConfirmed) {
           Swal.fire({
-            title: 'Shortlisted!',
-            text: 'Candidates are successfully shortlisted!',
+            title: 'Xoá thành công!',
+            text: 'Vào shop để chọn lại sản phẩm khác!',
             icon: 'success',
           }).then(function () {
             localStorage.removeItem('cart')
-
             while (tbodyElement.firstChild) {
               tbodyElement.removeChild(tbodyElement.firstChild)
             }
@@ -171,96 +161,104 @@ async function renderListProductInCart({ idTable, cart, idTotalPrice, infoUserSt
       }
     } else if (e.target.closest('.del-product')) {
       e.preventDefault()
-      const productID = +e.target.closest('.del-product').dataset.id
-      const productIndex = cart.findIndex((item) => +item.productID === productID)
+      const productID = e.target.closest('.del-product').dataset.id
+      const productIndex = cart.findIndex((item) => item.productID === productID)
       if (productIndex >= 0) {
-        toast.info('Xoá sản phẩm thành công')
-        cart.splice(productIndex, 1)
-        localStorage.setItem('cart', JSON.stringify(cart))
-        e.target.parentElement.parentElement.parentElement.remove()
-        populateNewData()
-        let totalTemp = 0
-        if (cart.length > 0) {
-          for (const item of cart) {
-            if (item.isChecked || item.isBuyNow) {
-              totalTemp = cart.reduce((total, item) => {
-                return total + item.quantity * item.price
-              }, 0)
-            } else {
-              totalTemp = 0
-            }
-          }
-        }
-        if (infoUserStorage.length === 1) {
-          await addCartToDom({
-            idListCart: 'listCart',
-            cart,
-            userID: infoUserStorage[0].user_id,
-            idNumOrder: 'numOrder',
-            idNum: '#num.numDesktop',
-            idTotalPrice: 'totalPrice',
-          })
-        } else {
-          const user = infoUserStorage.find((user) => user?.roleID === 1)
-          if (user) {
-            await addCartToDom({
-              idListCart: 'listCart',
-              cart,
-              userID: user.user_id,
-              idNumOrder: 'numOrder',
-              idNum: '#num.numDesktop',
-              idTotalPrice: 'totalPrice',
+        Swal.fire({
+          title: 'Xoá sản phẩm này?',
+          text: 'Sản phẩm sẽ bị xoá khỏi giỏ hàng!',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Xác nhận',
+          cancelButtonText: 'Huỷ bỏ',
+        }).then(function (result) {
+          if (result.isConfirmed) {
+            Swal.fire({
+              title: 'Xoá thành công sản phẩm!',
+              text: 'Vào shop để chọn lại sản phẩm khác!',
+              icon: 'success',
+            }).then(async function () {
+              cart.splice(productIndex, 1)
+              localStorage.setItem('cart', JSON.stringify(cart))
+              e.target.parentElement.parentElement.parentElement.remove()
+              await addCartToDom({
+                idListCart: 'listCart',
+                cart,
+                idNumOrder: 'numOrder',
+                idNum: '#num.numDesktop',
+                idTotalPrice: 'totalPrice',
+              })
+              if (cart.length === 0) {
+                toast.info('Giỏ hàng trống')
+                setTimeout(() => {
+                  window.location.reload()
+                }, 500)
+              }
             })
           }
-        }
-        const totalPriceEl = document.getElementById('total-price')
-        if (totalPriceEl) {
-          totalPriceEl.innerHTML = `Tổng thanh toán: <span>${formatCurrencyNumber(
-            totalTemp,
-          )}</span>`
-        }
-        if (cart.length === 0) {
-          setTimeout(() => {
-            window.location.reload()
-          }, 2000)
-        }
+        })
       }
     } else if (e.target.matches("input[type='number'].num-order")) {
       const inputValue = parseInt(+e.target.value, 10)
-      const productID = +e.target.dataset.id
-      const index = cart.findIndex((item) => +item.productID === productID)
-      const product = await productApi.getById(productID)
-      if (isNaN(inputValue) || inputValue < 0) {
-        toast.error('Không được chỉnh về số âm')
+      const productID = e.target.dataset.id
+      const index = cart.findIndex((item) => item.productID === productID)
+      const data = await productApi.getById(productID)
+      const { product } = data
+      if (inputValue === 0) {
+        Swal.fire({
+          title: 'Xoá sản phẩm này?',
+          text: 'Sản phẩm sẽ bị xoá khỏi giỏ hàng!',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Xác nhận',
+          cancelButtonText: 'Huỷ bỏ',
+        }).then(function (result) {
+          if (result.isConfirmed) {
+            Swal.fire({
+              title: 'Xoá thành công sản phẩm!',
+              text: 'Vào shop để chọn lại sản phẩm khác!',
+              icon: 'success',
+            }).then(async function () {
+              cart.splice(index, 1)
+              e.target.parentElement.parentElement.remove()
+              localStorage.setItem('cart', JSON.stringify(cart))
+              await addCartToDom({
+                idListCart: 'listCart',
+                cart,
+                idNumOrder: 'numOrder',
+                idNum: '#num.numDesktop',
+                idTotalPrice: 'totalPrice',
+              })
+              if (cart.length === 0) {
+                toast.info('Giỏ hàng trống')
+                setTimeout(() => {
+                  window.location.reload()
+                }, 500)
+              }
+            })
+          } else {
+            e.target.value = 1
+          }
+        })
       }
-      if (infoUserStorage.length === 1) {
-        cart = handleChangeQuantity(inputValue, cart, infoUserStorage.user_id, productID)
+      if (inputValue >= 1) {
+        cart = handleChangeQuantity(inputValue, cart, productID)
         await addCartToDom({
           idListCart: 'listCart',
           cart,
-          userID: infoUserStorage.user_id,
           idNumOrder: 'numOrder',
           idNum: '#num.numDesktop',
           idTotalPrice: 'totalPrice',
         })
-      } else {
-        const user = infoUserStorage.find((user) => user?.roleID === 1)
-        if (user) {
-          cart = handleChangeQuantity(inputValue, cart, user.user_id, productID)
-          await addCartToDom({
-            idListCart: 'listCart',
-            cart,
-            userID: user.user_id,
-            idNumOrder: 'numOrder',
-            idNum: '#num.numDesktop',
-            idTotalPrice: 'totalPrice',
-          })
-        }
+        const productPrice = e.target.parentElement.parentElement.querySelector('#priceProduct')
+        productPrice.innerHTML = `${formatCurrencyNumber(
+          cart[index].quantity * calcPrice(product),
+        )}`
       }
-      const productPrice = e.target.parentElement.parentElement.querySelector('#priceProduct')
-      productPrice.innerHTML = `${formatCurrencyNumber(
-        cart[index].quantity * ((product.price * (100 - Number.parseInt(product.discount))) / 100),
-      )}`
       const totalPriceEl =
         e.target.parentElement.parentElement.parentElement.nextElementSibling.querySelector(
           '#total-price',
@@ -273,27 +271,24 @@ async function renderListProductInCart({ idTable, cart, idTotalPrice, infoUserSt
           totalPayment += item.quantity * +item.price
         }
       }
-      if (totalPriceEl) {
-        for (const item of cart) {
-          if (item.productID === productID) {
-            const newValue = item.quantity * +checkedProductEl.dataset.price
-            checkedProductEl.value = newValue
-            if (item.isChecked || item.isBuyNow) {
-              totalPayment += newValue - item.quantity * +item.price
-              item.price = +checkedProductEl.dataset.price
-              totalPriceEl.innerHTML = `Tổng thanh toán: <span>${formatCurrencyNumber(
-                totalPayment,
-              )}</span>`
-            }
+      for (const item of cart) {
+        if (item.productID === productID) {
+          const newValue = item.quantity * +checkedProductEl.dataset.price
+          checkedProductEl.value = newValue
+          if (item.isChecked || item.isBuyNow) {
+            totalPayment += newValue - item.quantity * +item.price
+            item.price = +checkedProductEl.dataset.price
+            totalPriceEl.innerHTML = `Tổng thanh toán: <span>${formatCurrencyNumber(
+              totalPayment,
+            )}</span>`
           }
         }
       }
     } else if (e.target.matches("input[name='product']")) {
       const cartFromStorage = JSON.parse(localStorage.getItem('cart'))
-
       let checkedProducts = cartFromStorage.filter((item) => item.isChecked)
       let totalTemp
-      function updateTotal() {
+      function updateTotalInner() {
         if (checkedProducts.length > 0) {
           totalTemp = checkedProducts.reduce((total, item) => {
             return total + item.quantity * item.price
@@ -305,12 +300,12 @@ async function renderListProductInCart({ idTable, cart, idTotalPrice, infoUserSt
           'total-price',
         ).innerHTML = `Tổng thanh toán: <span>${formatCurrencyNumber(totalTemp)}</span>`
       }
-      updateTotal()
+      updateTotalInner()
 
       const checkbox = e.target
-
       const priceProduct = +checkbox.value
-      const productID = +checkbox.dataset.id
+      const productID = checkbox.dataset.id
+
       const existingProduct = checkedProducts.find((item) => item.productID === productID)
 
       if (checkbox.checked) {
@@ -321,7 +316,6 @@ async function renderListProductInCart({ idTable, cart, idTotalPrice, infoUserSt
         totalTemp += priceProduct
       } else {
         totalTemp -= existingProduct ? existingProduct.quantity * existingProduct.price : 0
-
         if (existingProduct) {
           checkedProducts = checkedProducts.filter((item) => item.productID !== productID)
         }
@@ -336,7 +330,7 @@ async function renderListProductInCart({ idTable, cart, idTotalPrice, infoUserSt
       })
 
       localStorage.setItem('cart', JSON.stringify(newCart))
-      updateTotal()
+      updateTotalInner()
     }
   })
 })()

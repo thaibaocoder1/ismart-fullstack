@@ -29,7 +29,7 @@ export async function renderListProductSeller(selector) {
             <span class="new">${formatCurrencyNumber(calcPrice(item))}</span>
             <span class="old">${formatCurrencyNumber(item.price)}</span>
           </div>
-          <a href="checkout.html" title="" class="buy-now">Mua ngay</a>
+          <a href="checkout.html" data-id=${item._id} title="Mua ngay" class="buy-now">Mua ngay</a>
         </div>`
         ulElement.appendChild(liElement)
       })

@@ -1,7 +1,9 @@
 import productApi from '../api/productsApi'
 import { calcPrice, formatCurrencyNumber } from './format'
+import Swal from 'sweetalert2'
+import { toast } from './toast'
 
-export async function addCartToDom({ idListCart, cart, userID, idNumOrder, idNum, idTotalPrice }) {
+export async function addCartToDom({ idListCart, cart, idNumOrder, idNum, idTotalPrice }) {
   const listCartElement = document.getElementById(idListCart)
   const idNumOrderEl = document.getElementById(idNumOrder)
   const idNumEl = document.querySelector(idNum)
@@ -14,25 +16,25 @@ export async function addCartToDom({ idListCart, cart, userID, idNumOrder, idNum
     const data = await productApi.getAll()
     const { products: listProduct } = data
     cart?.forEach((item) => {
-      if (item.userID === userID) {
-        totalQuantity += item.quantity
-        const liElement = document.createElement('li')
-        liElement.classList.add('clearfix')
-        const productIndex = listProduct.findIndex((x) => x._id.toString() === item.productID)
-        const productInfo = listProduct[productIndex]
-        liElement.innerHTML = `<a href="product-detail.html?id=${item._id}" title="${
-          productInfo.name
-        }" class="thumb fl-left">
+      totalQuantity += item.quantity
+      const liElement = document.createElement('li')
+      liElement.classList.add('clearfix')
+      const productIndex = listProduct.findIndex((x) => x._id.toString() === item.productID)
+      const productInfo = listProduct[productIndex]
+      liElement.innerHTML = `<a href="product-detail.html?id=${item._id}" title="${
+        productInfo.name
+      }" class="thumb fl-left">
         <img src="/images/${productInfo.thumb.fileName}" alt="${productInfo.name}" />
         </a>
         <div class="info fl-right">
-          <a href="" title="" class="product-name">${productInfo.name}</a>
+          <a href="product-detail.html?id=${item._id}" title="${
+        productInfo.name
+      }" class="product-name">${productInfo.name}</a>
           <p class="price">${formatCurrencyNumber(calcPrice(productInfo))}</p>
           <p class="qty">Số lượng: <span>${item.quantity}</span></p>
         </div>`
-        listCartElement.appendChild(liElement)
-        totalPrice += item.quantity * calcPrice(productInfo)
-      }
+      listCartElement.appendChild(liElement)
+      totalPrice += item.quantity * calcPrice(productInfo)
     })
     idNumOrderEl.innerHTML = `Có <span>${totalQuantity} sản phẩm</span> trong giỏ hàng`
     idNumEl.textContent = totalQuantity
@@ -65,7 +67,6 @@ export function addProductToCart(productID, cart, infoUserStorage, quantity) {
   addCartToDom({
     idListCart: 'listCart',
     cart,
-    userID: infoUserStorage.id,
     idNumOrder: 'numOrder',
     idNum: '#num.numDesktop',
     idTotalPrice: 'totalPrice',
@@ -73,12 +74,14 @@ export function addProductToCart(productID, cart, infoUserStorage, quantity) {
   addCartToStorage(cart)
   return cart
 }
-export function handleChangeQuantity(inputValue, cart, userID, productID) {
-  const index = cart.findIndex((item) => +item.productID === productID && item.userID === userID)
-  if (index >= 0) cart[index].quantity = inputValue
-  addCartToStorage(cart)
+export function handleChangeQuantity(inputValue, cart, productID) {
+  const index = cart.findIndex((item) => item.productID === productID)
+  if (index >= 0) {
+    cart[index].quantity = inputValue
+    addCartToStorage(cart)
+  }
   return cart
 }
-export function addCartToStorage(cartCopy) {
-  localStorage.setItem('cart', JSON.stringify(cartCopy))
+export function addCartToStorage(cart) {
+  localStorage.setItem('cart', JSON.stringify(cart))
 }

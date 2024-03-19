@@ -57,15 +57,18 @@ export async function initFormCheckout({ idForm, cart, infoUserStorage, onSubmit
   if (!formCheckout) return
   let isSubmitting = false
   if (infoUserStorage) {
-    const user = await userApi.getById(infoUserStorage.user_id)
-    setValuesForm(formCheckout, user)
+    const data = await userApi.getById(infoUserStorage.id)
+    if (data.success) {
+      const { user } = data
+      setValuesForm(formCheckout, user)
+    }
     formCheckout.addEventListener('submit', async function (e) {
       e.preventDefault()
       if (isSubmitting) return
       const formValues = getValuesForm(formCheckout)
       const isValid = await validateCheckoutForm(formCheckout, formValues)
       if (!isValid) return
-      onSubmit?.(formValues, infoUserStorage.user_id, cart)
+      onSubmit?.(formValues, infoUserStorage.id, cart)
       isSubmitting = true
     })
   }

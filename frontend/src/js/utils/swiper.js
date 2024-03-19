@@ -27,7 +27,9 @@ export async function displaySwiper(selector) {
       <a href="cart.html" title="Thêm giỏ hàng" id="btn-cart" data-id=${
         item._id
       } class="btn-custom add-cart fl-left">Thêm giỏ hàng</a>
-      <a href="checkout.html" title="Mua ngay" id="btn-buynow" class="btn-custom buy-now fl-right">Mua ngay</a>
+      <a href="checkout.html" title="Mua ngay" data-id=${
+        item._id
+      } id="btn-buynow" class="btn-custom buy-now fl-right">Mua ngay</a>
     </div>`
     sliderWrapper.appendChild(divElement)
   })

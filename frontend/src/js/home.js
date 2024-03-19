@@ -46,7 +46,9 @@ async function renderListProductWithName({ idElement, tagName }) {
           <a href="cart.html" title="Thêm giỏ hàng" data-id=${
             item._id
           } class="add-cart fl-left">Thêm giỏ hàng</a>
-          <a href="checkout.html" title="Mua ngay" class="buy-now fl-right">Mua ngay</a>
+          <a href="checkout.html" data-id=${
+            item._id
+          } title="Mua ngay" class="buy-now fl-right">Mua ngay</a>
         </div>`
         ulElement.appendChild(liElement)
       })
@@ -69,7 +71,6 @@ async function renderListProductWithName({ idElement, tagName }) {
       addCartToDom({
         idListCart: 'listCart',
         cart,
-        userID: infoUserStorage.id,
         idNumOrder: 'numOrder',
         idNum: '#num.numDesktop',
         idTotalPrice: 'totalPrice',
@@ -107,14 +108,15 @@ async function renderListProductWithName({ idElement, tagName }) {
       if (infoUserStorage) {
         const productID = target.dataset.id
         showSpinner()
-        const product = await productApi.getById(productID)
-        const priceProduct = (product.price * (100 - Number.parseInt(product.discount))) / 100
+        const data = await productApi.getById(productID)
+        const { product } = data
         hideSpinner()
+        const priceProduct = calcPrice(product)
         if (productID) {
           cart = addProductToCart(productID, cart, infoUserStorage, 1)
           // set status buy now for product if user click buy now button in ui
           for (const item of cart) {
-            if (+item.productID === productID) {
+            if (item.productID === productID) {
               item['isBuyNow'] = true
               item['isChecked'] = true
               item['price'] = priceProduct

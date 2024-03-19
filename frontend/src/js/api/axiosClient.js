@@ -18,11 +18,14 @@ axiosClient.getLocalAccessTokenAdmin = async () => {
 axiosClient.getRefershToken = async () => {
   return await axiosClient.get('users/auth/refresh')
 }
-axiosClient.getRefershTokenAdmin = async () => {
-  return await axiosClient.get('users/auth/refreshAdmin')
-}
 axiosClient.setLocalStorage = async (data) => {
   window.localStorage.setItem('accessToken', JSON.stringify(data))
+}
+axiosClient.removeLocalStorage = async () => {
+  window.localStorage.removeItem('accessToken')
+}
+axiosClient.getRefershTokenAdmin = async () => {
+  return await axiosClient.get('users/auth/refreshAdmin')
 }
 axiosClient.setLocalStorageAdmin = async (data) => {
   window.localStorage.setItem('accessTokenAdmin', JSON.stringify(data))
@@ -43,36 +46,16 @@ axiosClient.interceptors.request.use(
           const refreshToken = await axiosClient.getRefershToken()
           if (refreshToken.success) {
             await axiosClient.setLocalStorage(refreshToken.data)
-            return config
+          }
+          if (refreshToken.remove) {
+            await axiosClient.removeLocalStorage()
           }
         } catch (error) {
           return Promise.reject(error)
         }
-        return config
       }
+      return config
     }
-    // if (dataLocalAdmin) {
-    //   if (config.url.indexOf('users/auth/refreshAdmin') >= 0) {
-    //     return config
-    //   }
-    //   const { accessToken: accessTokenAdmin, expireIns: expireInsAdmin } =
-    //     await axiosClient.getLocalAccessTokenAdmin()
-    //   const now = new Date().getTime()
-    //   console.log(`NOW: ${now} - Expire: ${expireInsAdmin}`)
-    //   if (expireInsAdmin < now) {
-    //     console.log('token het han')
-    //     try {
-    //       const refreshTokenAdmin = await axiosClient.getRefershTokenAdmin()
-    //       if (refreshTokenAdmin.success) {
-    //         await axiosClient.setLocalStorageAdmin(refreshToken.data)
-    //         return config
-    //       }
-    //     } catch (error) {
-    //       return Promise.reject(error)
-    //     }
-    //     return config
-    //   }
-    // }
     return config
   },
   function (error) {
