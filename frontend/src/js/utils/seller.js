@@ -25,7 +25,7 @@ export async function renderListProductSeller(selector) {
           <a href="product-detail.html?id=${item._id}" title="${item.name}" class="product-name">${
           item.name
         }</a>
-          <div class="price">
+          <div class="price" style="display: flex;">
             <span class="new">${formatCurrencyNumber(calcPrice(item))}</span>
             <span class="old">${formatCurrencyNumber(item.price)}</span>
           </div>

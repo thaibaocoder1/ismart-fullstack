@@ -6,37 +6,23 @@ export function initProductComment({ idForm, infoUserStorage, productID, onSubmi
   const form = document.getElementById(idForm)
   if (!form) return
   let isSubmitting = false
-  if (infoUserStorage && infoUserStorage?.length === 1) {
-    const user = infoUserStorage[0]
-    form.addEventListener('submit', async function (e) {
-      e.preventDefault()
-      if (isSubmitting) return
-      const textareaEl = this.elements['comment']
-      const value = textareaEl.value
-      if (value.length === 0) {
-        toast.error('Phải nhập vào bình luận')
-        return
-      }
-      await onSubmit?.(value, productID, user.user_id)
-      isSubmitting = true
-    })
-  } else {
-    const user = infoUserStorage.find((user) => user.roleID === 1)
-    if (user) {
-      form.addEventListener('submit', async function (e) {
-        e.preventDefault()
-        if (isSubmitting) return
-        const textareaEl = this.elements['comment']
-        const value = textareaEl.value
-        if (value.length === 0) {
-          toast.error('Phải nhập vào bình luận')
-          return
-        }
-        await onSubmit?.(value, productID, user.user_id)
-        isSubmitting = true
-      })
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault()
+    if (isSubmitting) return
+    const textareaEl = this.elements['comment']
+    const value = textareaEl.value
+    if (value.length === 0) {
+      toast.error('Phải nhập vào bình luận')
+      return
     }
-  }
+    if (infoUserStorage && Object.keys(infoUserStorage).length > 1) {
+      await onSubmit?.(value, productID, infoUserStorage.id)
+      isSubmitting = true
+    } else {
+      toast.info('Cần phải đăng nhập mới có thể bình luận')
+      return
+    }
+  })
 }
 function setFormValues(form, defaultValues) {
   if (!form || !defaultValues) return

@@ -38,7 +38,7 @@ async function renderListProductWithName({ idElement, tagName }) {
         <a href="product-detail.html?id=${item._id}" title="${item.name}" class="product-name">${
           item.name
         }</a>
-        <div class="price">
+        <div class="price" style="display: flex;">
           <span class="new">${formatCurrencyNumber(calcPrice(item))}</span>
           <span class="old">${formatCurrencyNumber(item.price)}</span>
         </div>
@@ -105,7 +105,7 @@ async function renderListProductWithName({ idElement, tagName }) {
       }
     } else if (target.matches('.buy-now')) {
       e.preventDefault()
-      if (infoUserStorage) {
+      if (infoUserStorage && Object.keys(infoUserStorage).length > 0) {
         const productID = target.dataset.id
         showSpinner()
         const data = await productApi.getById(productID)
@@ -127,9 +127,7 @@ async function renderListProductWithName({ idElement, tagName }) {
         }
       } else {
         toast.error('Đăng nhập để mua sản phẩm')
-        setTimeout(() => {
-          window.location.assign('/login.html')
-        }, 2000)
+        return
       }
     }
   })

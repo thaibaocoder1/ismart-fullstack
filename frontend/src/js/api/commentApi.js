@@ -10,7 +10,7 @@ const commentApi = {
     return axiosClient.get(url)
   },
   add(data) {
-    const url = `/comments`
+    const url = `/comments/add`
     return axiosClient.post(url, data)
   },
   update(data) {

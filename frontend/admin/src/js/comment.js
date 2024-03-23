@@ -12,25 +12,28 @@ async function renderListComment({ idElement }) {
   tbodyEl.textContent = ''
   try {
     showSpinner()
-    const comments = await commentApi.getAll()
+    const res = await commentApi.getAll()
     hideSpinner()
+    const { comments } = res
     comments?.forEach(async (item, index) => {
-      const product = await productApi.getById(item.productID)
+      const data = await productApi.getById(item.productID)
       const tableRow = document.createElement('tr')
-      tableRow.innerHTML = `<td><input type="checkbox" name="checkItem" class="checkItem" /></td>
+      tableRow.innerHTML = `
       <td><span class="tbody-text">${index + 1}</span></td>
-      <td><span class="tbody-text">${item.id}</span></td>
+      <td><span class="tbody-text">${item._id}</span></td>
       <td><span class="tbody-text">${item.text}</span></td>
       <td><span class="tbody-text">${dayjs(item.createdAt).format(
         'DD/MM/YYYY HH:mm:ss',
       )}</span></td>
-      <td><span class="tbody-text">${product.name}</span></td>
+      <td><span class="tbody-text">${data.product.name}</span></td>
       <td><span class="tbody-text">${item.userID}</span></td>
       <td>
-        <button class="btn btn-primary btn--style" id="editBtn" data-id="${
+        <button class="btn btn-primary btn-sm btn--style" id="editBtn" data-id="${
           item.id
         }">Chỉnh sửa</button>
-        <button class="btn btn-danger btn--style" id="removeBtn" data-id="${item.id}">Xoá</button>
+        <button class="btn btn-danger btn-sm btn--style" id="removeBtn" data-id="${
+          item.id
+        }">Xoá</button>
       </td>`
       tbodyEl.appendChild(tableRow)
     })

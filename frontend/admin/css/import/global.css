@@ -122,6 +122,9 @@ form#formProduct .form-right > .input-group input {
   border-radius: 6px;
   cursor: pointer;
 }
+.btn--style:hover {
+  background-position: unset;
+}
 .img-wrapper {
   display: flex;
   align-items: center;

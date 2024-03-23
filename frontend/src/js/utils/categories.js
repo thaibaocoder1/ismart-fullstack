@@ -64,8 +64,8 @@ export async function renderListProductWithCateID({
         <div class="action clearfix action--custom">
           ${
             Number.parseInt(item.quantity) > 0 && Number.parseInt(item.status) === 1
-              ? `<a href="/cart.html" title="Thêm giỏ hàng" data-id=${item._id} class="add-cart fl-left">Thêm giỏ hàng</a>
-          <a title="Mua ngay"  data-id=${item._id} class="buy-now fl-right">Mua ngay</a>`
+              ? `<a href="cart.html" title="Thêm giỏ hàng" data-id=${item._id} class="add-cart fl-left">Thêm giỏ hàng</a>
+          <a title="Mua ngay" data-id=${item._id} style="cursor: pointer;" class="buy-now fl-right">Mua ngay</a>`
               : `<span>Hết hàng</span>`
           }
         </div>`

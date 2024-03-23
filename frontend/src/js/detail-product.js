@@ -38,7 +38,7 @@ async function renderDetailProduct({
     const mainImg = infoProductLeft.querySelector('#zoom')
     if (!mainImg) return
     mainImg.src = `/images/${product.thumb.fileName}`
-    // mainImg.setAttribute('data-zoom-image', `/images/${data.thumb.fileName}`)
+    mainImg.setAttribute('data-zoom-image', `/images/${product.thumb.fileName}`)
     mainImg.style = `width: 340px; height: 340px; display: block; object-fit: contain;`
     breadcrumbTitleEl.innerText = product.name
     infoProductRight.innerHTML = `<h3 class="product-name">${product.name}</h3>
@@ -64,7 +64,7 @@ async function renderDetailProduct({
         ? ''
         : 'disabled'
     }>Thêm giỏ hàng</button>
-    <button data-id=${product._id} title="Mua ngay" class="add-cart add-cart--fast" ${
+    <button data-id=${product._id} title="Mua ngay" class="buy-now add-cart--fast" ${
       Number.parseInt(product.quantity) > 0 && Number.parseInt(product.status) === 1
         ? ''
         : 'disabled'
@@ -129,30 +129,34 @@ async function renderListComment({ idElement, productID }) {
   commentList.textContent = ''
   try {
     showSpinner()
-    const comments = await commentApi.getAll()
+    const res = await commentApi.getAll()
     hideSpinner()
-    const commentApply = comments.filter((comment) => +comment.productID === productID)
-    const commentSort = commentApply.sort((a, b) => b.id - a.id)
-    commentSort?.forEach(async (item) => {
-      const commentItem = document.createElement('div')
-      commentItem.classList.add('comment-item')
-      const userInfo = await userApi.getById(item.userID)
-      commentItem.innerHTML = `<figure class="comment-thumb">
-        <img
-          src="${userInfo?.imageUrl}"
-          alt="${userInfo?.username}"
-          class="comment-img"
-        />
-      </figure>
-      <div class="comment-content">
-        <div class="comment-top">
-          <h3 class="comment-author">${userInfo?.username}</h3>
-          <time class="comment-date">${dayjs(item?.createdAt).format('DD/MM/YYYY HH:mm:ss')}</time>
-        </div>
-        <p class="comment-desc">${item?.text}</p>
-      </div>`
-      commentList.appendChild(commentItem)
-    })
+    const { comments } = res
+    if (comments.length > 0) {
+      const commentApply = comments.filter((comment) => comment.productID === productID)
+      const commentSort = commentApply.sort((a, b) => b.id - a.id)
+      commentSort?.forEach(async (item) => {
+        const commentItem = document.createElement('div')
+        commentItem.classList.add('comment-item')
+        const userInfo = await userApi.getById(item.userID)
+        const { user } = userInfo
+        commentItem.innerHTML = `<figure class="comment-thumb">
+      <img
+        src="${user?.imageUrl}"
+        alt="${user?.username}"
+        class="comment-img"
+      />
+    </figure>
+    <div class="comment-content">
+      <div class="comment-top">
+        <h3 class="comment-author">${user?.username}</h3>
+        <time class="comment-date">${dayjs(item?.createdAt).format('DD/MM/YYYY HH:mm:ss')}</time>
+      </div>
+      <p class="comment-desc">${item?.text}</p>
+    </div>`
+        commentList.appendChild(commentItem)
+      })
+    }
   } catch (error) {
     console.log('failed to fetch data', error)
   }
@@ -164,14 +168,13 @@ async function handleOnSubmitForm(value, productID, userID) {
       productID,
       userID,
       text: value,
-      createdAt: new Date().getTime(),
     }
     showSpinner()
     const addComment = await commentApi.add(data)
     hideSpinner()
-    if (addComment) toast.success('Bình luận thành công')
+    if (addComment.success) toast.success('Bình luận thành công')
     setTimeout(() => {
-      window.location.assign(`/product-detail.html?id=${productID}`)
+      window.location.assign(`product-detail.html?id=${productID}`)
     }, 500)
   } catch (error) {
     toast.error('Có lỗi trong khi xử lý')
@@ -209,16 +212,16 @@ async function handleOnSubmitForm(value, productID, userID) {
     breadcrumbTitle: 'breadcrumb-title',
     productID,
   })
-  // initProductComment({
-  //   idForm: 'formComment',
-  //   infoUserStorage,
-  //   productID,
-  //   onSubmit: handleOnSubmitForm,
-  // })
-  // renderListComment({
-  //   idElement: 'comments',
-  //   productID,
-  // })
+  initProductComment({
+    idForm: 'formComment',
+    infoUserStorage,
+    productID,
+    onSubmit: handleOnSubmitForm,
+  })
+  renderListComment({
+    idElement: 'comments',
+    productID,
+  })
   initSearchForm({
     idForm: 'searchForm',
     idElement: 'searchList',
@@ -262,7 +265,7 @@ async function handleOnSubmitForm(value, productID, userID) {
       }
     } else if (target.matches('.buy-now')) {
       e.preventDefault()
-      if (infoUserStorage) {
+      if (infoUserStorage && Object.keys(infoUserStorage).length > 0) {
         const productID = target.dataset.id
         showSpinner()
         const data = await productApi.getById(productID)
@@ -284,9 +287,7 @@ async function handleOnSubmitForm(value, productID, userID) {
         }
       } else {
         toast.error('Đăng nhập để mua sản phẩm')
-        setTimeout(() => {
-          window.location.assign('/login.html')
-        }, 2000)
+        return
       }
     }
   })

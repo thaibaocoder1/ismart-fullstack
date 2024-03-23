@@ -205,7 +205,7 @@ class UserController {
             data: {
               id: user._id,
               accessToken: newAccessToken,
-              expireIns: Date.now() + 60000,
+              expireIns: Date.now() + 60000 * 10,
             },
           });
         }
@@ -243,7 +243,7 @@ class UserController {
             data: {
               id: user._id,
               accessToken: newAccessToken,
-              expireIns: Date.now() + 60000,
+              expireIns: Date.now() + 60000 * 10,
             },
           });
         }

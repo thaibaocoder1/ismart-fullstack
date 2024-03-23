@@ -92,29 +92,32 @@ async function handleCheckoutFormSubmit(formValues, userID, cart) {
   try {
     formValues['userID'] = userID
     formValues['status'] = 1
-    const listOrder = await orderApi.getAll()
-    if (Array.isArray(listOrder)) {
-      if (listOrder.length === 0) {
-        isOrder = await handleAddOrder(orderID, formValues, cart)
-        orderID = null
-      } else if (listOrder.length > 0) {
-        isOrder = await handleAddOrder(orderID, formValues, cart)
-        orderID = null
+    const res = await orderApi.getAll()
+    if (res.success) {
+      const { orders } = res
+      if (Array.isArray(orders)) {
+        if (orders.length === 0) {
+          isOrder = await handleAddOrder(orderID, formValues, cart)
+          orderID = null
+        } else if (orders.length > 0) {
+          isOrder = await handleAddOrder(orderID, formValues, cart)
+          orderID = null
+        }
+        if (isOrder) {
+          const newCart = cart.filter((item) => {
+            if (item.userID === userID && (item.isChecked || item.isBuyNow)) return false
+            return true
+          })
+          toast.success('Thanh toán thành công')
+          localStorage.setItem('cart', JSON.stringify(newCart))
+          setTimeout(() => {
+            window.location.assign('/order.html')
+          }, 500)
+        }
       }
     }
-    if (isOrder) {
-      const newCart = cart.filter((item) => {
-        if (item.userID === userID && (item.isChecked || item.isBuyNow)) return false
-        return true
-      })
-      toast.success('Thanh toán thành công')
-      localStorage.setItem('cart', JSON.stringify(newCart))
-      setTimeout(() => {
-        window.location.assign('/order.html')
-      }, 2000)
-    }
   } catch (error) {
-    console.log('failed to checkout', error)
+    toast.error(Error.name)
   }
 }
 // main
@@ -146,19 +149,7 @@ async function handleCheckoutFormSubmit(formValues, userID, cart) {
         cart,
         userID: infoUserStorage.id,
       })
-      document.addEventListener('DOMContentLoaded', function () {
-        navigator.geolocation.getCurrentPosition(
-          async function (position) {
-            const lat = position.coords.latitude
-            const lng = position.coords.longitude
-            const googleMapsLink = `https://www.google.com/maps?q=${lat},${lng}`
-            document.querySelector("input[name='address']").value = googleMapsLink
-          },
-          function (error) {
-            toast.info('Bật vị trí để có thể nhập địa chỉ nhanh hơn')
-          },
-        )
-      })
+
       isCartAdded = true
     }
   } else {

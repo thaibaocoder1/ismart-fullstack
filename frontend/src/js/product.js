@@ -52,7 +52,7 @@ async function renderListProduct({ selector, selectorCount, searchValueUrl }) {
         <div class="action clearfix action--custom">
           ${
             Number.parseInt(item.quantity) > 0 && Number.parseInt(item.status) === 1
-              ? `<a href="/cart.html" title="Thêm giỏ hàng" data-id=${item._id} class="add-cart fl-left">Thêm giỏ hàng</a>
+              ? `<a href="cart.html" title="Thêm giỏ hàng" data-id=${item._id} class="add-cart fl-left">Thêm giỏ hàng</a>
                 <a title="Mua ngay" data-id=${item._id} style="cursor: pointer;" class="buy-now fl-right">Mua ngay</a>`
               : `<span>Hết hàng</span>`
           }
@@ -81,7 +81,7 @@ async function renderListProduct({ selector, selectorCount, searchValueUrl }) {
         <div class="action clearfix action--custom">
           ${
             Number.parseInt(item.quantity) > 0 && Number.parseInt(item.status) === 1
-              ? `<a href="/cart.html" title="Thêm giỏ hàng" data-id=${item._id} class="add-cart fl-left">Thêm giỏ hàng</a>
+              ? `<a href="cart.html" title="Thêm giỏ hàng" data-id=${item._id} class="add-cart fl-left">Thêm giỏ hàng</a>
           <a title="Mua ngay" data-id=${item._id} style="cursor: pointer;" class="buy-now fl-right">Mua ngay</a>`
               : `<span>Hết hàng</span>`
           }
@@ -118,7 +118,7 @@ async function renderListFilter(value) {
     <div class="action clearfix action--custom">
       ${
         Number.parseInt(item.quantity) > 0 && Number.parseInt(item.status) === 1
-          ? `<a href="/cart.html" title="Thêm giỏ hàng" data-id=${item._id} class="add-cart fl-left">Thêm giỏ hàng</a>
+          ? `<a href="cart.html" title="Thêm giỏ hàng" data-id=${item._id} class="add-cart fl-left">Thêm giỏ hàng</a>
       <a title="Mua ngay" data-id=${item._id} style="cursor: pointer;" class="buy-now fl-right">Mua ngay</a>`
           : `<span>Hết hàng</span>`
       }
@@ -205,7 +205,7 @@ async function renderListFilter(value) {
       }
     } else if (target.matches('.buy-now')) {
       e.preventDefault()
-      if (infoUserStorage) {
+      if (infoUserStorage && Object.keys(infoUserStorage).length > 0) {
         const productID = target.dataset.id
         showSpinner()
         const data = await productApi.getById(productID)
@@ -227,9 +227,7 @@ async function renderListFilter(value) {
         }
       } else {
         toast.error('Đăng nhập để mua sản phẩm')
-        setTimeout(() => {
-          window.location.assign('/login.html')
-        }, 2000)
+        return
       }
     }
   })

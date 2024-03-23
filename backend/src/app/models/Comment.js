@@ -4,8 +4,9 @@ const Schema = mongoose.Schema;
 
 const Comment = new Schema(
   {
-    title: { type: String, require: true },
+    text: { type: String, require: true },
     userID: { type: mongoose.Types.ObjectId, ref: 'User' },
+    productID: { type: mongoose.Types.ObjectId, ref: 'Product' },
   },
   { timestamps: true },
 );

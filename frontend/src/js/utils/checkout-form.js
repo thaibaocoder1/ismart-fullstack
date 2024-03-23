@@ -56,7 +56,20 @@ export async function initFormCheckout({ idForm, cart, infoUserStorage, onSubmit
   const formCheckout = document.querySelector(idForm)
   if (!formCheckout) return
   let isSubmitting = false
-  if (infoUserStorage) {
+  if (infoUserStorage && Object.keys(infoUserStorage).length > 0) {
+    document.addEventListener('DOMContentLoaded', function () {
+      navigator.geolocation.getCurrentPosition(
+        async function (position) {
+          const lat = position.coords.latitude
+          const lng = position.coords.longitude
+          const googleMapsLink = `https://www.google.com/maps?q=${lat},${lng}`
+          document.querySelector("input[name='address']").value = googleMapsLink
+        },
+        function (error) {
+          toast.info('Bật vị trí để có thể nhập địa chỉ nhanh hơn')
+        },
+      )
+    })
     const data = await userApi.getById(infoUserStorage.id)
     if (data.success) {
       const { user } = data
@@ -71,5 +84,7 @@ export async function initFormCheckout({ idForm, cart, infoUserStorage, onSubmit
       onSubmit?.(formValues, infoUserStorage.id, cart)
       isSubmitting = true
     })
+  } else {
+    return
   }
 }

@@ -27,13 +27,9 @@ async function handleOnSubmitForm(data) {
 // main
 ;(() => {
   // check if exists access_token
-  let infoUser = localStorage.getItem('user_info')
-  if (infoUser !== null) {
-    infoUser = JSON.parse(localStorage.getItem('user_info'))
-    if (infoUser.length !== 0) {
-      const isHasRoleAdmin = infoUser.findIndex((user) => user?.roleID === 2)
-      if (isHasRoleAdmin < 0) window.location.assign('/index.html')
-    }
+  let accessToken = localStorage.getItem('accessToken')
+  if (accessToken !== null) {
+    window.location.assign('login.html')
   }
   Validator({
     formID: '#form-1',

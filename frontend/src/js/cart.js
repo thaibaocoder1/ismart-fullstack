@@ -151,18 +151,29 @@ async function renderListProductInCart({ idTable, cart }) {
       if (cart.length === 0) {
         toast.error('Không có sản phẩm trong giỏ hàng')
       } else {
-        listCheckbox.forEach((checkbox) => {
-          if (checkbox.checked) {
-            isAnyCheckboxChecked = true
-            window.location.assign('/checkout.html')
+        if (Object.keys(infoUserStorage).length > 0 && isAnyCheckboxChecked) {
+          listCheckbox.forEach((checkbox) => {
+            if (checkbox.checked) {
+              isAnyCheckboxChecked = true
+              window.location.assign('checkout.html')
+            }
+          })
+        } else {
+          if (!isAnyCheckboxChecked && Object.keys(infoUserStorage).length) {
+            toast.error('Chọn 1 sản phẩm để thanh toán')
+          } else {
+            toast.error('Đăng nhập để thanh toán')
+            setTimeout(() => {
+              window.location.assign('login.html')
+            }, 2000)
           }
-        })
-        if (!isAnyCheckboxChecked) toast.error('Chọn 1 sản phẩm để thanh toán')
+        }
       }
     } else if (e.target.closest('.del-product')) {
       e.preventDefault()
       const productID = e.target.closest('.del-product').dataset.id
       const productIndex = cart.findIndex((item) => item.productID === productID)
+      const checkedProducts = cart.filter((item) => item.isChecked)
       if (productIndex >= 0) {
         Swal.fire({
           title: 'Xoá sản phẩm này?',
@@ -190,6 +201,7 @@ async function renderListProductInCart({ idTable, cart }) {
                 idNum: '#num.numDesktop',
                 idTotalPrice: 'totalPrice',
               })
+              updateTotal(checkedProducts)
               if (cart.length === 0) {
                 toast.info('Giỏ hàng trống')
                 setTimeout(() => {
@@ -206,6 +218,7 @@ async function renderListProductInCart({ idTable, cart }) {
       const index = cart.findIndex((item) => item.productID === productID)
       const data = await productApi.getById(productID)
       const { product } = data
+      const checkedProducts = cart.filter((item) => item.isChecked)
       if (inputValue === 0) {
         Swal.fire({
           title: 'Xoá sản phẩm này?',
@@ -226,6 +239,7 @@ async function renderListProductInCart({ idTable, cart }) {
               cart.splice(index, 1)
               e.target.parentElement.parentElement.remove()
               localStorage.setItem('cart', JSON.stringify(cart))
+              updateTotal(checkedProducts)
               await addCartToDom({
                 idListCart: 'listCart',
                 cart,
@@ -245,7 +259,7 @@ async function renderListProductInCart({ idTable, cart }) {
           }
         })
       }
-      if (inputValue >= 1) {
+      if (inputValue >= 1 && inputValue <= +product.quantity) {
         cart = handleChangeQuantity(inputValue, cart, productID)
         await addCartToDom({
           idListCart: 'listCart',
@@ -254,10 +268,14 @@ async function renderListProductInCart({ idTable, cart }) {
           idNum: '#num.numDesktop',
           idTotalPrice: 'totalPrice',
         })
+        updateTotal(checkedProducts)
         const productPrice = e.target.parentElement.parentElement.querySelector('#priceProduct')
         productPrice.innerHTML = `${formatCurrencyNumber(
           cart[index].quantity * calcPrice(product),
         )}`
+      } else {
+        toast.error('Số lượng đặt mua đã đạt tối đa')
+        e.target.value = product.quantity
       }
       const totalPriceEl =
         e.target.parentElement.parentElement.parentElement.nextElementSibling.querySelector(

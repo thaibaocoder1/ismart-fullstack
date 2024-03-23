@@ -77,9 +77,9 @@ class ProductController {
   async add(req, res, next) {
     try {
       req.body.thumb = {
-        data: req.file.originalname,
+        data: `http://localhost:5173/uploads/${req.file.originalname}`,
         contentType: req.file.mimetype,
-        fileName: req.file.originalname,
+        fileName: `http://localhost:5173/uploads/${req.file.originalname}`,
       };
       const product = await Product.create(req.body);
       if (product) {
@@ -109,9 +109,9 @@ class ProductController {
         }
       } else {
         req.body.thumb = {
-          data: req.file.originalname,
+          data: `http://localhost:5173/uploads/${req.file.originalname}`,
           contentType: req.file.mimetype,
-          fileName: req.file.originalname,
+          fileName: `http://localhost:5173/uploads/${req.file.originalname}`,
         };
         await Product.findByIdAndUpdate({ _id: req.params.id }, req.body);
       }
