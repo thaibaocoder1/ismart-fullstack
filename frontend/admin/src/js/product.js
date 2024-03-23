@@ -27,7 +27,7 @@ async function renderListProductAdmin({ idElement }) {
       <td><span class="tbody-text">${item.code}</span></td>
       <td>
         <div class="tbody-thumb">
-          <img src="/images/${item.thumb.fileName}" alt="${item.name}" style="width: 100%;
+          <img src="${item.thumb.fileName}" alt="${item.name}" style="width: 100%;
           height: 100%; object-fit: contain;" />
         </div>
       </td>
@@ -39,10 +39,10 @@ async function renderListProductAdmin({ idElement }) {
       <td><span class="tbody-text">${formatCurrencyNumber(calcPrice(item))}</span></td>
       <td><span class="tbody-text">${item.quantity}</span></td>
       <td><span class="tbody-text">${checkStatus(item)}</span></td>
-      <td><span class="tbody-text">Admin</span></td>
-      <td><span class="tbody-text">${dayjs(item.createdAt).format('DD/MM/YYYY HH:mm')}</span></td>
+      <td><span class="tbody-text">${dayjs(item.createdAt).format('DD/MM/YYYY')}</span></td>
+      <td><span class="tbody-text">${dayjs(item.updatedAt).format('DD/MM/YYYY')}</span></td>
       <td>
-        <button class="btn btn-primary" id="editProduct" data-id="${
+        <button class="btn btn-primary btn-sm" id="editProduct" data-id="${
           item._id
         }" style="color: #fff; background-position: unset;">Chỉnh sửa</button>
       </td>`
@@ -66,7 +66,7 @@ async function handleFilterChange(value, tbodyEl) {
     <td><span class="tbody-text">${item.code}</span></td>
     <td>
       <div class="tbody-thumb">
-        <img src="/images/${item.thumb.fileName}" alt="${item.name}" style="width: 100%;
+        <img src="${item.thumb.fileName}" alt="${item.name}" style="width: 100%;
         height: 100%; object-fit: contain;" />
       </div>
     </td>
@@ -78,8 +78,8 @@ async function handleFilterChange(value, tbodyEl) {
     <td><span class="tbody-text">${formatCurrencyNumber(calcPrice(item))}</span></td>
     <td><span class="tbody-text">${item.quantity}</span></td>
     <td><span class="tbody-text">${checkStatus(item)}</span></td>
-    <td><span class="tbody-text">Admin</span></td>
-    <td><span class="tbody-text">${dayjs(item.createdAt).format('DD/MM/YYYY HH:mm')}</span></td>
+    <td><span class="tbody-text">${dayjs(item.createdAt).format('DD/MM/YYYY')}</span></td>
+    <td><span class="tbody-text">${dayjs(item.updatedAt).format('DD/MM/YYYY')}</span></td>
     <td>
       <button class="btn btn-primary" id="editProduct" onclick='window.location.assign("/admin/edit-product.html?id=${
         item._id
@@ -89,24 +89,23 @@ async function handleFilterChange(value, tbodyEl) {
   })
 }
 // main
-;(() => {
+;(async () => {
   initSearchInput({
     idElement: 'searchInput',
     idTable: 'listProductTable',
     onChange: handleFilterChange,
   })
-  renderListProductAdmin({
+  await renderListProductAdmin({
     idElement: 'listProductTable',
   })
-  window.addEventListener('load', function () {
-    const buttonProducts = document.querySelectorAll('button#editProduct')
-    if (buttonProducts) {
-      buttonProducts.forEach((button) => {
-        button.addEventListener('click', function () {
-          const productID = button.dataset.id
-          window.location.assign(`/admin/edit-product.html?id=${productID}`)
-        })
+  const buttonProducts = document.querySelectorAll('button#editProduct')
+  if (buttonProducts) {
+    buttonProducts.forEach((button) => {
+      button.addEventListener('click', function () {
+        const productID = button.dataset.id
+        window.location.assign(`/admin/edit-product.html?id=${productID}`)
       })
-    }
-  })
+    })
+  }
+  // document.addEventListener('DOMContentLoaded', function () {})
 })()

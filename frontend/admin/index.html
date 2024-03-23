@@ -12,8 +12,8 @@
     <link href="css/responsive.css" rel="stylesheet" type="text/css" />
 
     <script src="js/jquery-2.2.4.min.js" type="text/javascript"></script>
-    <script src="js/bootstrap/bootstrap.min.js" type="text/javascript"></script>
     <script src="js/main.js" type="text/javascript"></script>
+    <script src="js/bootstrap/bootstrap.bundle.min.js" type="text/javascript"></script>
   </head>
   <body>
     <div class="spinner"></div>
@@ -46,13 +46,12 @@
                 <a href="/admin/comment.html" title="">Bình luận</a>
               </li>
             </ul>
-            <div id="dropdown-user" class="dropdown dropdown-extended fl-right">
+            <div class="dropdown fl-right">
               <button
-                class="dropdown-toggle clearfix"
+                class="dropdown-toggle"
                 type="button"
-                data-toggle="dropdown"
-                aria-haspopup="true"
-                aria-expanded="true"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
               >
                 <div id="thumb-circle" class="fl-left">
                   <img src="/images/img-admin.png" />
@@ -61,7 +60,9 @@
               </button>
               <ul class="dropdown-menu">
                 <li>
-                  <a href="/admin/account.html" title="Thông tin cá nhân">Thông tin tài khoản</a>
+                  <a class="dropdown-item" href="/admin/account.html" title="Thông tin cá nhân"
+                    >Thông tin tài khoản</a
+                  >
                 </li>
                 <li><a href="#" title="Thoát">Thoát</a></li>
               </ul>

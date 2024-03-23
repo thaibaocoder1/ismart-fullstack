@@ -1,6 +1,16 @@
 import userApi from '../api/userApi'
 import { setFieldError, setFieldValue } from './common'
 import * as yup from 'yup'
+
+export function displayTextStatus(status) {
+  return +status === 1
+    ? 'Huỷ đơn'
+    : +status === 4
+    ? 'Đã huỷ'
+    : +status === 2
+    ? 'Đang vận chuyển'
+    : 'Đã nhận hàng'
+}
 function setValuesForm(formCheckout, user) {
   setFieldValue(formCheckout, "input[name='fullname']", user?.fullname)
   setFieldValue(formCheckout, "input[name='email']", user?.email)

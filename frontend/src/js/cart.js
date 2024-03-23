@@ -151,7 +151,7 @@ async function renderListProductInCart({ idTable, cart }) {
       if (cart.length === 0) {
         toast.error('Không có sản phẩm trong giỏ hàng')
       } else {
-        if (Object.keys(infoUserStorage).length > 0 && isAnyCheckboxChecked) {
+        if (Object.keys(infoUserStorage).length > 0 && !isAnyCheckboxChecked) {
           listCheckbox.forEach((checkbox) => {
             if (checkbox.checked) {
               isAnyCheckboxChecked = true
@@ -159,7 +159,7 @@ async function renderListProductInCart({ idTable, cart }) {
             }
           })
         } else {
-          if (!isAnyCheckboxChecked && Object.keys(infoUserStorage).length) {
+          if (isAnyCheckboxChecked && Object.keys(infoUserStorage).length > 0) {
             toast.error('Chọn 1 sản phẩm để thanh toán')
           } else {
             toast.error('Đăng nhập để thanh toán')

@@ -14,7 +14,7 @@ export async function displaySwiper(selector) {
     divElement.dataset.id = item._id
     divElement.innerHTML = `
     <a href="product-detail.html?id=${item._id}" title="${item.name}" class="thumb">
-    <img src="/images/${item.thumb.fileName}" alt="${item.name}" />
+    <img src="${item.thumb.fileName}" alt="${item.name}" />
     </a>
     <a href="product-detail.html?id=${item._id}" title="${item.name}" class="product-name">${
       item.name

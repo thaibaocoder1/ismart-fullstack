@@ -1,8 +1,17 @@
 import orderApi from './api/orderApi'
 import orderDetailApi from './api/orderDetailApi'
 import productApi from './api/productsApi'
-import { addCartToDom, hideSpinner, initSearchForm, showSpinner, toast } from './utils'
+import {
+  addCartToDom,
+  displayTextStatus,
+  formatCurrencyNumber,
+  hideSpinner,
+  initSearchForm,
+  showSpinner,
+  toast,
+} from './utils'
 import dayjs from 'dayjs'
+
 function displayTagLink(ulElement) {
   ulElement.textContent = ''
   const infoArr = ['Cập nhật thông tin', 'Quản lý đơn hàng', 'Đăng xuất']
@@ -12,23 +21,17 @@ function displayTagLink(ulElement) {
     ulElement.appendChild(liElement)
   }
 }
-
 async function renderInfoAccount({ idElement, infoUserStorage, divInfoLeft }) {
   const ulElement = document.getElementById(idElement)
   const divInfoLeftEl = document.getElementById(divInfoLeft)
   if (!ulElement || !divInfoLeftEl) return
-  if (infoUserStorage.length === 0) {
+  if (Object.keys(infoUserStorage).length === 0) {
     divInfoLeftEl.classList.add('is-hide')
     userAvatarEl.classList.add('is-hide')
-  }
-  for (const user of infoUserStorage) {
-    if (user.access_token) {
-      displayTagLink(ulElement)
-    }
-    break
+  } else {
+    displayTagLink(ulElement)
   }
 }
-
 async function handleCancelOrder(orderID) {
   if (!orderID) return
   let isSuccess = false
@@ -71,26 +74,45 @@ function handleOnClick() {
   document.addEventListener('click', async function (e) {
     const { target } = e
     if (target.matches("a[title='Đăng xuất']")) {
-      const infoUserStorage = JSON.parse(localStorage.getItem('user_info'))
-      if (infoUserStorage.length === 1) {
-        localStorage.removeItem('user_info')
-      } else {
-        infoUserStorage.splice(0, 1)
-        localStorage.setItem('user_info', JSON.stringify(infoUserStorage))
-      }
+      localStorage.removeItem('accessToken')
       toast.info('Chuyển đến trang đăng nhập')
       setTimeout(() => {
         window.location.assign('/login.html')
-      }, 2000)
+      }, 500)
     } else if (target.matches("a[title='Cập nhật thông tin']")) {
       window.location.assign('/update-info.html')
     } else if (target.matches("a[title='Quản lý đơn hàng']")) {
       window.location.assign('/order.html')
     } else if (target.matches('#orderDetail')) {
-      const orderID = +target.dataset.id
-      window.location.assign(`/detail-order.html?id=${orderID}`)
+      const modal = document.getElementById('modal')
+      if (!modal) return
+      const modalBody = modal.querySelector('.modal-body')
+      const tableBody = modalBody.querySelector('tbody')
+      const orderID = target.dataset.id
+      showSpinner()
+      const res = await orderDetailApi.getById(orderID)
+      hideSpinner()
+      if (res.success) {
+        modal && modal.classList.add('is-show')
+        const { orders } = res
+        tableBody.textContent = ''
+        if (Array.isArray(orders) && orders.length > 0) {
+          orders.forEach((item, index) => {
+            const tableRow = document.createElement('tr')
+            tableRow.innerHTML = `<th scope="row">${index + 1}</th>
+            <td>${item.productID.name}</td>
+            <td><img src="${item.productID.thumb.fileName}" class="img-thumbnail" alt="${
+              item.productID.name
+            }" style="width: 100px; height: 100px; object-fit: cover;"></td>
+            <td>${item.quantity}</td>
+            <td>${formatCurrencyNumber(item.price)}</td>
+            <td>${formatCurrencyNumber(item.price * item.quantity)}</td>`
+            tableBody.appendChild(tableRow)
+          })
+        }
+      }
     } else if (target.matches('#cancelOrder')) {
-      const orderID = +target.dataset.id
+      const orderID = target.dataset.id
       const isCancel = await handleCancelOrder(orderID)
       if (isCancel) {
         toast.success('Huỷ đơn hàng thành công')
@@ -117,46 +139,12 @@ async function renderListOrder({ idTable, infoUserStorage }) {
   if (!tbodyEl) return
   try {
     showSpinner()
-    const orders = await orderApi.getAll()
+    const res = await orderApi.getAll()
     hideSpinner()
-    if (infoUserStorage.length === 1) {
-      const user = infoUserStorage[0]
-      const userID = user.user_id
-      const listOrderApply = orders.filter((order) => order.userID === userID)
-      if (listOrderApply.length === 0) {
-        toast.info('Bạn chưa có đơn hàng nào')
-        return
-      }
-      listOrderApply.forEach((item, index) => {
-        const tableRow = document.createElement('tr')
-        tableRow.dataset.id = item.id
-        tableRow.innerHTML = `<th scope="row">${index + 1}</th>
-        <td>${item.fullname}</td>
-        <td>${item.email}</td>
-        <td>${item.phone}</td>
-        <td>${dayjs(item.orderDate).format('DD/MM/YYYY')}</td>
-        <td>
-          <button type="button" class="btn btn-primary btn--style" id="orderDetail" data-id="${
-            item.id
-          }">Chi tiết</button>
-          <button type="button" id="cancelOrder" data-id="${
-            item.id
-          }" class="btn btn-danger btn--style" ${displayStatus(item.status)}>${
-          +item.status === 1
-            ? 'Huỷ đơn'
-            : +item.status === 4
-            ? 'Đã huỷ'
-            : +item.status === 2
-            ? 'Đang vận chuyển'
-            : 'Đã nhận hàng'
-        }</button>
-        </td>`
-        tbodyEl.appendChild(tableRow)
-      })
-    } else {
-      const user = infoUserStorage.find((user) => user?.roleID === 1)
-      const userID = user?.user_id
-      if (user) {
+    if (res.success) {
+      const { orders } = res
+      if (Object.keys(infoUserStorage).length > 0 && orders.length > 0) {
+        const userID = infoUserStorage.id
         const listOrderApply = orders.filter((order) => order.userID === userID)
         if (listOrderApply.length === 0) {
           toast.info('Bạn chưa có đơn hàng nào')
@@ -164,27 +152,21 @@ async function renderListOrder({ idTable, infoUserStorage }) {
         }
         listOrderApply.forEach((item, index) => {
           const tableRow = document.createElement('tr')
-          tableRow.dataset.id = item.id
+          tableRow.dataset.id = item._id
           tableRow.innerHTML = `<th scope="row">${index + 1}</th>
           <td>${item.fullname}</td>
           <td>${item.email}</td>
-          <td>${item.phone}</td>
-          <td>${dayjs(item.orderDate).format('DD/MM/YYYY')}</td>
+          <td>0${item.phone}</td>
+          <td>${dayjs(item.orderDate).format('DD/MM/YYYY HH:mm:ss')}</td>
           <td>
             <button type="button" class="btn btn-primary btn--style" id="orderDetail" data-id="${
-              item.id
+              item._id
             }">Chi tiết</button>
             <button type="button" id="cancelOrder" data-id="${
-              item.id
-            }" class="btn btn-danger btn--style" ${displayStatus(item.status)}>${
-            +item.status === 1
-              ? 'Huỷ đơn'
-              : +item.status === 4
-              ? 'Đã huỷ'
-              : +item.status === 2
-              ? 'Đang vận chuyển'
-              : 'Đã nhận hàng'
-          }</button>
+              item._id
+            }" class="btn btn-danger btn--style" ${displayStatus(item.status)}>${displayTextStatus(
+            item.status,
+          )}</button>
           </td>`
           tbodyEl.appendChild(tableRow)
         })
@@ -197,41 +179,22 @@ async function renderListOrder({ idTable, infoUserStorage }) {
 // main
 ;(() => {
   // get cart from localStorage
-  let cart = localStorage.getItem('cart') !== null ? JSON.parse(localStorage.getItem('cart')) : []
-  let infoUserStorage =
-    localStorage.getItem('user_info') !== null ? JSON.parse(localStorage.getItem('user_info')) : []
+  let cart = localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : []
+  let infoUserStorage = localStorage.getItem('accessToken')
+    ? JSON.parse(localStorage.getItem('accessToken'))
+    : {}
   let isCartAdded = false
   if (Array.isArray(cart) && cart.length > 0) {
-    cart.forEach((item) => {
-      if (infoUserStorage.length === 1) {
-        if (item.userID === infoUserStorage[0].user_id && !isCartAdded) {
-          addCartToDom({
-            idListCart: 'listCart',
-            cart,
-            userID: infoUserStorage[0].user_id,
-            idNumOrder: 'numOrder',
-            idNum: '#num.numDesktop',
-            idTotalPrice: 'totalPrice',
-          })
-          isCartAdded = true
-        }
-      } else {
-        const user = infoUserStorage.find((user) => user?.roleID === 1)
-        if (user) {
-          if (item.userID === user.user_id && !isCartAdded) {
-            addCartToDom({
-              idListCart: 'listCart',
-              cart,
-              userID: user.user_id,
-              idNumOrder: 'numOrder',
-              idNum: '#num.numDesktop',
-              idTotalPrice: 'totalPrice',
-            })
-            isCartAdded = true
-          }
-        }
-      }
-    })
+    if (!isCartAdded) {
+      addCartToDom({
+        idListCart: 'listCart',
+        cart,
+        idNumOrder: 'numOrder',
+        idNum: '#num.numDesktop',
+        idTotalPrice: 'totalPrice',
+      })
+      isCartAdded = true
+    }
   }
   initSearchForm({
     idForm: 'searchForm',

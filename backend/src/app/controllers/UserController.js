@@ -24,10 +24,10 @@ class UserController {
           message: "Missing required information: 'email or password'",
         });
       }
-      const accessTokenLife = process.env.ACCESS_TOKEN_LIFE;
-      const refreshTokenLife = process.env.REFRESH_TOKEN_LIFE;
       const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
+      const accessTokenLife = process.env.ACCESS_TOKEN_LIFE;
       const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET;
+      const refreshTokenLife = process.env.REFRESH_TOKEN_LIFE;
       const dataForAccessToken = {
         email: user.email,
       };
@@ -67,7 +67,7 @@ class UserController {
             role: user.role,
             id: user._id,
             accessToken,
-            expireIns: Date.now() + 1 * 60 * 1000,
+            expireIns: Date.now() + 10 * 60 * 1000,
           },
         });
       } else {
@@ -83,7 +83,7 @@ class UserController {
             role: user.role,
             id: user._id,
             accessToken,
-            expireIns: Date.now() + 1 * 60 * 1000,
+            expireIns: Date.now() + 10 * 60 * 1000,
           },
         });
       }
@@ -198,12 +198,32 @@ class UserController {
           process.env.ACCESS_TOKEN_SECRET,
           process.env.ACCESS_TOKEN_LIFE,
         );
-        const user = await User.findOne({ email: verifyToken.payload.email });
+        const newRefreshToken = await authMethod.generateToken(
+          verifyToken.payload,
+          process.env.REFRESH_TOKEN_SECRET,
+          process.env.REFRESH_TOKEN_LIFE,
+        );
+        const user = await User.findOne(
+          { email: verifyToken.payload.email },
+          {
+            refreshToken: newRefreshToken,
+          },
+          {
+            new: true,
+          },
+        );
         if (user) {
+          res.cookie('refreshToken', newRefreshToken, {
+            httpOnly: true,
+            sameSite: 'strict',
+            path: '/',
+            secure: false,
+          });
           res.status(status.StatusCodes.CREATED).json({
             success: true,
             data: {
               id: user._id,
+              role: user.role,
               accessToken: newAccessToken,
               expireIns: Date.now() + 60000 * 10,
             },
@@ -224,7 +244,9 @@ class UserController {
     try {
       const { refreshTokenAdmin } = req.cookies;
       if (!refreshTokenAdmin) {
-        return res.sendStatus(401).json('Please login');
+        res.status(status.StatusCodes.OK).json({
+          remove: true,
+        });
       }
       const verifyToken = await authMethod.decodeToken(
         refreshTokenAdmin,
@@ -236,12 +258,33 @@ class UserController {
           process.env.ACCESS_TOKEN_SECRET,
           process.env.ACCESS_TOKEN_LIFE,
         );
-        const user = await User.findOne({ email: verifyToken.payload.email });
+        const newRefreshToken = await authMethod.generateToken(
+          verifyToken.payload,
+          process.env.REFRESH_TOKEN_SECRET,
+          process.env.REFRESH_TOKEN_LIFE,
+        );
+        const user = await User.findOneAndUpdate(
+          { email: verifyToken.payload.email },
+          {
+            refreshToken: newRefreshToken,
+          },
+          {
+            new: true,
+          },
+        );
         if (user) {
+          res.cookie('refreshTokenAdmin', newRefreshToken, {
+            httpOnly: true,
+            sameSite: 'strict',
+            path: '/',
+            secure: false,
+          });
           res.status(status.StatusCodes.CREATED).json({
             success: true,
             data: {
               id: user._id,
+              role: user.role,
+              user,
               accessToken: newAccessToken,
               expireIns: Date.now() + 60000 * 10,
             },
@@ -266,6 +309,41 @@ class UserController {
         res.status(status.StatusCodes.OK).json({
           success: true,
           user,
+        });
+      } else {
+        return res.status(status.StatusCodes.NOT_FOUND).json({
+          success: false,
+          message: 'Không có tài khoản nào được tìm thấy.',
+        });
+      }
+    } catch (error) {
+      res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        data: {
+          message: 'Error from SERVER!',
+        },
+      });
+    }
+  }
+  async logout(req, res, next) {
+    try {
+      const { refreshToken } = req.cookies;
+      const user = await User.findOneAndUpdate(
+        { refreshToken },
+        {
+          refreshToken: '',
+        },
+        {
+          new: true,
+        },
+      );
+      if (user) {
+        res.clearCookie('refreshToken');
+        res.status(status.StatusCodes.OK).json({
+          success: true,
+          data: {
+            message: 'Logout success!',
+          },
         });
       } else {
         return res.status(status.StatusCodes.NOT_FOUND).json({

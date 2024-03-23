@@ -18,7 +18,7 @@ const ordersApi = {
     return axiosClient.patch(url, data)
   },
   delete(id) {
-    const url = `/orders/${id}`
+    const url = `/orders/delete/${id}?_method=DELETE`
     return axiosClient.delete(url)
   },
 }

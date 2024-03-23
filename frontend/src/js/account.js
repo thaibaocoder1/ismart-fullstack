@@ -54,6 +54,7 @@ function handleOnClick() {
   document.addEventListener('click', async function (e) {
     const { target } = e
     if (target.matches("a[title='Đăng xuất']")) {
+      await userApi.logout()
       localStorage.removeItem('accessToken')
       toast.info('Chuyển đến trang đăng nhập')
       setTimeout(() => {

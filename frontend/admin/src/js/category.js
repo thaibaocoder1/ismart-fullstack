@@ -23,7 +23,7 @@ async function renderListProductAdmin({ idElement, idBreadcrumb }) {
       <td><span class="tbody-text">${dayjs(item.createdAt).format('DD/MM/YYYY HH:mm')}</span></td>
       <td><span class="tbody-text">${dayjs(item.updatedAt).format('DD/MM/YYYY HH:mm')}</span></td>
       <td>
-        <button class="btn btn-primary" data-id="${
+        <button class="btn btn-primary btn-sm" data-id="${
           item._id
         }" id="editCategory" style="color: #fff; background-position: unset;">Chỉnh sửa</button>
       </td>`
@@ -50,7 +50,7 @@ async function handleFilterChange(value, tbodyEl) {
     <td><span class="tbody-text">${dayjs(item.createdAt).format('DD/MM/YYYY HH:mm')}</span></td>
     <td><span class="tbody-text">${dayjs(item.updatedAt).format('DD/MM/YYYY HH:mm')}</span></td>
     <td>
-      <button class="btn btn-primary" onclick='window.location.assign("/admin/edit-category.html?id=${
+      <button class="btn btn-primary btn-sm" onclick='window.location.assign("/admin/edit-category.html?id=${
         item._id
       }")' data-id="${
       item._id
@@ -61,29 +61,27 @@ async function handleFilterChange(value, tbodyEl) {
 }
 
 // main
-;(() => {
+;(async () => {
   initSearchInput({
     idElement: 'searchInput',
     idTable: 'listCategoryTable',
     onChange: handleFilterChange,
   })
-  renderListProductAdmin({
+  await renderListProductAdmin({
     idElement: 'listCategoryTable',
     idBreadcrumb: 'breadcrumbCategory',
   })
-  window.addEventListener('load', function () {
-    const listCategory = document.getElementById('listCategoryTable')
-    if (!listCategory) return
-    const tbodyElement = listCategory.getElementsByTagName('tbody')[0]
-    if (!tbodyElement) return
-    const editButtons = tbodyElement.querySelectorAll('button#editCategory')
-    if (editButtons) {
-      ;[...editButtons].forEach((button) => {
-        button.addEventListener('click', function () {
-          const idCategory = button.dataset.id
-          window.location.assign(`/admin/edit-category.html?id=${idCategory}`)
-        })
+  const listCategory = document.getElementById('listCategoryTable')
+  if (!listCategory) return
+  const tbodyElement = listCategory.getElementsByTagName('tbody')[0]
+  if (!tbodyElement) return
+  const editButtons = tbodyElement.querySelectorAll('button#editCategory')
+  if (editButtons) {
+    ;[...editButtons].forEach((button) => {
+      button.addEventListener('click', function () {
+        const idCategory = button.dataset.id
+        window.location.assign(`/admin/edit-category.html?id=${idCategory}`)
       })
-    }
-  })
+    })
+  }
 })()

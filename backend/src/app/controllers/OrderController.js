@@ -46,5 +46,29 @@ class OrderController {
       });
     }
   }
+  async delete(req, res, next) {
+    try {
+      const { id } = req.params;
+      if (id) {
+        await Order.deleteOne({ _id: id });
+        return res.status(status.StatusCodes.OK).json({
+          success: true,
+          data: {
+            message: 'Delete success!',
+          },
+        });
+      } else {
+        return res.status(status.StatusCodes.BAD_REQUEST).json({
+          success: false,
+          message: 'Thiếu thông tin.',
+        });
+      }
+    } catch (error) {
+      return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Đã xảy ra lỗi khi xoá thông tin đơn hàng.',
+      });
+    }
+  }
 }
 module.exports = new OrderController();

@@ -28,11 +28,8 @@ async function renderListComment({ idElement }) {
       <td><span class="tbody-text">${data.product.name}</span></td>
       <td><span class="tbody-text">${item.userID}</span></td>
       <td>
-        <button class="btn btn-primary btn-sm btn--style" id="editBtn" data-id="${
-          item.id
-        }">Chỉnh sửa</button>
         <button class="btn btn-danger btn-sm btn--style" id="removeBtn" data-id="${
-          item.id
+          item._id
         }">Xoá</button>
       </td>`
       tbodyEl.appendChild(tableRow)
@@ -42,29 +39,36 @@ async function renderListComment({ idElement }) {
   }
 }
 async function handleFilterChange(value, tbodyEl) {
-  const comments = await commentApi.getAll()
-  const commentApply = comments.filter((comment) =>
-    diacritics.remove(comment?.text.toLowerCase()).includes(value.toLowerCase()),
-  )
-  tbodyEl.innerHTML = ''
-  commentApply?.forEach(async (item, index) => {
-    const product = await productApi.getById(item.productID)
-    const tableRow = document.createElement('tr')
-    tableRow.innerHTML = `<td><input type="checkbox" name="checkItem" class="checkItem" /></td>
-    <td><span class="tbody-text">${index + 1}</span></td>
-    <td><span class="tbody-text">${item.id}</span></td>
-    <td><span class="tbody-text">${item.text}</span></td>
-    <td><span class="tbody-text">${dayjs(item.createdAt).format('DD/MM/YYYY HH:mm:ss')}</span></td>
-    <td><span class="tbody-text">${product.name}</span></td>
-    <td><span class="tbody-text">${item.userID}</span></td>
-    <td>
-      <button class="btn btn-primary btn--style" id="editBtn" data-id="${
-        item.id
-      }">Chỉnh sửa</button>
-      <button class="btn btn-danger btn--style" id="removeBtn" data-id="${item.id}">Xoá</button>
-    </td>`
-    tbodyEl.appendChild(tableRow)
-  })
+  const res = await commentApi.getAll()
+  if (res.success) {
+    const { comments } = res
+    const commentApply = comments.filter((comment) =>
+      diacritics.remove(comment?.text.toLowerCase()).includes(value.toLowerCase()),
+    )
+    tbodyEl.innerHTML = ''
+    commentApply?.forEach(async (item, index) => {
+      const data = await productApi.getById(item.productID)
+      const tableRow = document.createElement('tr')
+      tableRow.innerHTML = `
+      <td><span class="tbody-text">${index + 1}</span></td>
+      <td><span class="tbody-text">${item._id}</span></td>
+      <td><span class="tbody-text">${item.text}</span></td>
+      <td><span class="tbody-text">${dayjs(item.createdAt).format(
+        'DD/MM/YYYY HH:mm:ss',
+      )}</span></td>
+      <td><span class="tbody-text">${data.product.name}</span></td>
+      <td><span class="tbody-text">${item.userID}</span></td>
+      <td>
+        <button class="btn btn-danger btn-sm btn--style" id="removeBtn" data-id="${
+          item._id
+        }">Xoá</button>
+      </td>`
+      tbodyEl.appendChild(tableRow)
+    })
+  } else {
+    toast.error('Có lỗi trong khi tìm kiếm')
+    return
+  }
 }
 // main
 ;(() => {
@@ -76,21 +80,28 @@ async function handleFilterChange(value, tbodyEl) {
   renderListComment({
     idElement: 'listComment',
   })
+  let commentID = null
   document.addEventListener('click', async function (e) {
     const { target } = e
-    if (target.matches('#editBtn')) {
-      const commentID = +target.dataset.id
-      window.location.assign(`/admin/edit-comment.html?id=${commentID}`)
-    } else if (target.matches('#removeBtn')) {
-      const commentID = +target.dataset.id
-      if (commentID) {
-        await commentApi.delete(commentID)
-        target.parentElement.parentElement.remove()
-        toast.info('Xoá thành công bình luận')
-        setTimeout(() => {
-          window.location.assign('/admin/comment.html')
-        }, 500)
-      }
+    const modal = document.getElementById('modal')
+    if (target.matches('#removeBtn')) {
+      commentID = target.dataset.id
+      modal && modal.classList.add('show')
+    } else if (target.closest('button.btn-confirm')) {
+      await commentApi.delete(commentID)
+      const item = document.querySelector(`button[data-id='${commentID}']`).parentElement
+        .parentElement
+      item && item.remove()
+      setTimeout(() => {
+        modal && modal.classList.remove('show')
+      }, 1)
+      toast.info('Xoá thành công bình luận')
+    } else if (target.matches('.modal')) {
+      modal && modal.classList.remove('show')
+    } else if (target.matches('.btn-close')) {
+      modal && modal.classList.remove('show')
+    } else if (target.matches('.btn-denide')) {
+      modal && modal.classList.remove('show')
     }
   })
 })()

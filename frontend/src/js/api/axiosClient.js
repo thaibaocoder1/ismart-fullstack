@@ -30,13 +30,19 @@ axiosClient.getRefershTokenAdmin = async () => {
 axiosClient.setLocalStorageAdmin = async (data) => {
   window.localStorage.setItem('accessTokenAdmin', JSON.stringify(data))
 }
+axiosClient.removeLocalStorageAdmin = async () => {
+  window.localStorage.removeItem('accessTokenAdmin')
+}
 // Add a request interceptor
 axiosClient.interceptors.request.use(
   async function (config) {
     const dataLocal = await axiosClient.getLocalAccessToken()
     const dataLocalAdmin = await axiosClient.getLocalAccessTokenAdmin()
     if (dataLocal) {
-      if (config.url.indexOf('users/auth/refresh') >= 0) {
+      if (
+        config.url.indexOf('users/auth/refreshAdmin') >= 0 ||
+        config.url.indexOf('users/auth/refresh') >= 0
+      ) {
         return config
       }
       const { accessToken, expireIns } = await axiosClient.getLocalAccessToken()
@@ -49,6 +55,32 @@ axiosClient.interceptors.request.use(
           }
           if (refreshToken.remove) {
             await axiosClient.removeLocalStorage()
+          }
+        } catch (error) {
+          return Promise.reject(error)
+        }
+      }
+      return config
+    }
+    if (dataLocalAdmin) {
+      if (
+        config.url.indexOf('users/auth/refreshAdmin') >= 0 ||
+        config.url.indexOf('users/auth/refresh') >= 0
+      ) {
+        return config
+      }
+      const { accessToken, expireIns } = await axiosClient.getLocalAccessTokenAdmin()
+      const now = new Date().getTime()
+      console.log(`Now: ${now} - Expire: ${expireIns}`)
+      if (expireIns < now) {
+        try {
+          console.log('Token het han')
+          const refreshToken = await axiosClient.getRefershTokenAdmin()
+          if (refreshToken.success) {
+            await axiosClient.setLocalStorageAdmin(refreshToken.data)
+          }
+          if (refreshToken.remove) {
+            await axiosClient.removeLocalStorageAdmin()
           }
         } catch (error) {
           return Promise.reject(error)

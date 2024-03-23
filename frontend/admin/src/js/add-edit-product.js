@@ -9,12 +9,11 @@ function jsonToFormData(formValues) {
   }
   return formData
 }
-
 async function handleSubmitForm(formValues) {
   const payload = jsonToFormData(formValues)
   try {
     let saveProduct = null
-    if (payload.get('id')) {
+    if (payload.get('id') !== undefined) {
       saveProduct = payload.get('id')
       await productApi.updateFormData(payload)
     } else {

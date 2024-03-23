@@ -21,7 +21,7 @@ function displayProductInCart({ idTable, idTotalPrice, cart, userID }) {
   let totalPrice = 0
   try {
     cart?.forEach(async (item) => {
-      if (item.isBuyNow || (item.isChecked && item.userID === userID)) {
+      if (item.isBuyNow || item.isChecked) {
         showSpinner()
         const data = await productApi.getById(item.productID)
         hideSpinner()
@@ -49,11 +49,13 @@ async function handleAddOrder(orderID, formValues, cart) {
   let isFlag = false
   const errorLog = {}
   const orderData = await orderApi.add(formValues)
-  orderID = orderData.id
+  if (orderData.success) {
+    orderID = orderData.data._id
+  }
   let cartApply = cart.filter((item) => item.isChecked || item.isBuyNow)
   for (const item of cartApply) {
     const product = await productApi.getById(item.productID)
-    const remainingQuantity = +product.quantity
+    const remainingQuantity = Number.parseInt(product.quantity)
     isOrder = item.quantity > remainingQuantity ? false : true
     if (isOrder === false) {
       isFlag = true
@@ -73,12 +75,16 @@ async function handleAddOrder(orderID, formValues, cart) {
     }
   } else {
     for (const item of cartApply) {
-      const product = await productApi.getById(item.productID)
+      let product = {}
+      const data = await productApi.getById(item.productID)
+      if (data) {
+        product = data.product
+      }
       item['orderID'] = orderID
-      item['price'] = (product.price * (100 - Number.parseInt(product.discount))) / 100
+      item['price'] = calcPrice(product)
       const payload = {
         id: item.productID,
-        quantity: +product.quantity - item.quantity,
+        quantity: Number.parseInt(product.quantity) - Number.parseInt(item.quantity),
       }
       await productApi.update(payload)
       await orderDetailApi.add(item)
@@ -105,7 +111,7 @@ async function handleCheckoutFormSubmit(formValues, userID, cart) {
         }
         if (isOrder) {
           const newCart = cart.filter((item) => {
-            if (item.userID === userID && (item.isChecked || item.isBuyNow)) return false
+            if (item.isChecked || item.isBuyNow) return false
             return true
           })
           toast.success('Thanh toán thành công')
@@ -149,7 +155,6 @@ async function handleCheckoutFormSubmit(formValues, userID, cart) {
         cart,
         userID: infoUserStorage.id,
       })
-
       isCartAdded = true
     }
   } else {

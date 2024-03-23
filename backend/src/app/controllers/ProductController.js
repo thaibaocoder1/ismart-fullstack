@@ -77,9 +77,9 @@ class ProductController {
   async add(req, res, next) {
     try {
       req.body.thumb = {
-        data: `http://localhost:5173/uploads/${req.file.originalname}`,
+        data: `http://localhost:3001/uploads/${req.file.originalname}`,
         contentType: req.file.mimetype,
-        fileName: `http://localhost:5173/uploads/${req.file.originalname}`,
+        fileName: `http://localhost:3001/uploads/${req.file.originalname}`,
       };
       const product = await Product.create(req.body);
       if (product) {
@@ -105,20 +105,41 @@ class ProductController {
       const product = await Product.findById(req.params.id);
       if (!req.file) {
         if (JSON.stringify(req.body) !== JSON.stringify(product.toObject())) {
-          await Product.findByIdAndUpdate({ _id: req.params.id }, req.body);
+          await Product.findOneAndUpdate({ _id: req.params.id }, req.body, {
+            new: true,
+          });
         }
       } else {
         req.body.thumb = {
-          data: `http://localhost:5173/uploads/${req.file.originalname}`,
+          data: `http://localhost:3001/uploads/${req.file.originalname}`,
           contentType: req.file.mimetype,
-          fileName: `http://localhost:5173/uploads/${req.file.originalname}`,
+          fileName: `http://localhost:3001/uploads/${req.file.originalname}`,
         };
-        await Product.findByIdAndUpdate({ _id: req.params.id }, req.body);
+        await Product.findOneAndUpdate({ _id: req.params.id }, req.body, {
+          new: true,
+        });
       }
       res.status(status.StatusCodes.OK).json({
         success: true,
         message: 'Update successfully',
       });
+    } catch (error) {
+      return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Đã xảy ra lỗi khi lấy thông tin sản phẩm.',
+      });
+    }
+  }
+  async updateOrder(req, res, next) {
+    try {
+      const product = await Product.findById(req.body.id);
+      if (product) {
+        await Product.findByIdAndUpdate({ _id: req.body.id }, req.body);
+        res.status(status.StatusCodes.CREATED).json({
+          success: true,
+          message: 'Update successfully',
+        });
+      }
     } catch (error) {
       return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
         success: false,

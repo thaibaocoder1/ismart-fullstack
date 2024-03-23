@@ -37,8 +37,8 @@ async function renderDetailProduct({
     const { product } = data
     const mainImg = infoProductLeft.querySelector('#zoom')
     if (!mainImg) return
-    mainImg.src = `/images/${product.thumb.fileName}`
-    mainImg.setAttribute('data-zoom-image', `/images/${product.thumb.fileName}`)
+    mainImg.src = `${product.thumb.fileName}`
+    mainImg.setAttribute('data-zoom-image', `${product.thumb.fileName}`)
     mainImg.style = `width: 340px; height: 340px; display: block; object-fit: contain;`
     breadcrumbTitleEl.innerText = product.name
     infoProductRight.innerHTML = `<h3 class="product-name">${product.name}</h3>
@@ -98,7 +98,7 @@ async function renderListProductSameCategory({ idElement, swiperWrapper, categor
       divElement.dataset.id = item._id
       divElement.innerHTML = `
       <a href="product-detail.html?id=${item._id}" title="${item.name}" class="thumb">
-      <img src="/images/${item.thumb.fileName}" alt="${item.name}" />
+      <img src="${item.thumb.fileName}" alt="${item.name}" />
       </a>
       <a href="product-detail.html?id=${item._id}" title="${item.name}" class="product-name">${
         item.name
@@ -108,7 +108,7 @@ async function renderListProductSameCategory({ idElement, swiperWrapper, categor
         <span class="old">${formatCurrencyNumber(item.price)}</span>
       </div>
       <div class="action clearfix">
-        <a href="/cart.html" title="Thêm giỏ hàng" id="btn-cart" data-id=${
+        <a href="cart.html" title="Thêm giỏ hàng" id="btn-cart" data-id=${
           item._id
         } class="btn-custom add-cart fl-left">Thêm giỏ hàng</a>
         <a href="checkout.html" data-id=${

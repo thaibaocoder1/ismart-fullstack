@@ -46,5 +46,29 @@ class CommentController {
       });
     }
   }
+  async delete(req, res, next) {
+    try {
+      const { id } = req.params;
+      if (id) {
+        await Comment.deleteOne({ _id: id });
+        return res.status(status.StatusCodes.CREATED).json({
+          success: true,
+          data: {
+            message: 'Delete success!',
+          },
+        });
+      } else {
+        return res.status(status.StatusCodes.BAD_REQUEST).json({
+          success: false,
+          message: 'Thiếu thông tin.',
+        });
+      }
+    } catch (error) {
+      return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Đã xảy ra lỗi khi xoá thông tin bình luận.',
+      });
+    }
+  }
 }
 module.exports = new CommentController();

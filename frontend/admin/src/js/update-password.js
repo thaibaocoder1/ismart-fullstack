@@ -23,17 +23,19 @@ async function handleOnSubmitForm(formValues) {
 
 // main
 ;(async () => {
-  const infoUserStorage = JSON.parse(localStorage.getItem('user_info'))
-  const infoAdmin = infoUserStorage.find((user) => user?.roleID === 2)
+  const infoUserStorage = JSON.parse(localStorage.getItem('accessTokenAdmin'))
   showSpinner()
-  const defaultValues = await userApi.getById(infoAdmin.user_id)
+  const res = await userApi.getById(infoUserStorage.id)
   hideSpinner()
-  initFormPassword({
-    idForm: 'formChangePassword',
-    defaultValues,
-    onSubmit: handleOnSubmitForm,
-  })
-  registerShowHidePassword({
-    selector: '.icons-toggle',
-  })
+  if (res.success) {
+    const { user: defaultValues } = res
+    initFormPassword({
+      idForm: 'formChangePassword',
+      defaultValues,
+      onSubmit: handleOnSubmitForm,
+    })
+    registerShowHidePassword({
+      selector: '.icons-toggle',
+    })
+  }
 })()

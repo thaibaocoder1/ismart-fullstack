@@ -10,7 +10,7 @@ const orderDetailApi = {
     return axiosClient.get(url)
   },
   add(data) {
-    const url = `/orderDetails`
+    const url = `/orderDetails/add?_method=POST`
     return axiosClient.post(url, data)
   },
   update(data) {

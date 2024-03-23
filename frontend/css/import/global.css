@@ -173,3 +173,9 @@ div.product-sale {
   z-index: 10;
   font-size: 12px;
 }
+.is-show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0%);
+  padding-top: 20px;
+}

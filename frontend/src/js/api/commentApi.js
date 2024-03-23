@@ -18,7 +18,7 @@ const commentApi = {
     return axiosClient.patch(url, data)
   },
   delete(id) {
-    const url = `/comments/${id}`
+    const url = `/comments/delete/${id}?_method=DELETE`
     return axiosClient.delete(url)
   },
 }

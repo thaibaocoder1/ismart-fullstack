@@ -26,7 +26,7 @@ const productApi = {
     })
   },
   update(data) {
-    const url = `/products/${data.id}`
+    const url = `/products/update-order/${data.id}?_method=PATCH`
     return axiosClient.patch(url, data)
   },
   updateFormData(data) {

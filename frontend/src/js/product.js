@@ -40,7 +40,7 @@ async function renderListProduct({ selector, selectorCount, searchValueUrl }) {
           <span>${item.discount}%</span>
         </div>
         <a href="product-detail.html?id=${item._id}" title="" class="thumb">
-          <img src="/images/${item.thumb.fileName}" alt="${item.name}" />
+          <img src="${item.thumb.fileName}" alt="${item.name}" />
         </a>
         <a href="/product-detail.html?id=${item._id}" title="${item.name}" class="product-name">${
           item.name
@@ -69,7 +69,7 @@ async function renderListProduct({ selector, selectorCount, searchValueUrl }) {
           <span>${item.discount}%</span>
         </div>
         <a href="product-detail.html?id=${item._id}" title="${item.name}" class="thumb">
-          <img src="/images/${item.thumb.fileName}" alt="${item.name}" />
+          <img src="${item.thumb.fileName}" alt="${item.name}" />
         </a>
         <a href="/product-detail.html?id=${item._id}" title="${item.name}" class="product-name">${
           item.name
@@ -106,7 +106,7 @@ async function renderListFilter(value) {
       <span>${item.discount}%</span>
     </div>
     <a href="product-detail.html?id=${item._id}" title="" class="thumb">
-      <img src="/images/${item.thumb.fileName}" alt="${item.name}" />
+      <img src="${item.thumb.fileName}" alt="${item.name}" />
     </a>
     <a href="/product-detail.html?id=${item._id}" title="${item.name}" class="product-name">${
       item.name

@@ -19,7 +19,7 @@ export async function renderListProductSeller(selector) {
         liElement.innerHTML = `<a href="product-detail.html?id=${item._id}" title="${
           item.name
         }" class="thumb fl-left">
-        <img src="/images/${item.thumb.fileName}" alt="${item.name}" />
+        <img src="${item.thumb.fileName}" alt="${item.name}" />
         </a>
         <div class="info fl-right">
           <a href="product-detail.html?id=${item._id}" title="${item.name}" class="product-name">${

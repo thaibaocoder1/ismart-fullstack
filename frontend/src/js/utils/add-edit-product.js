@@ -8,9 +8,8 @@ function setFormValues(form, defaultValues) {
   setFieldValue(form, "input[name='quantity']", defaultValues?.quantity)
   setFieldValue(form, "input[name='description']", defaultValues?.description)
   setFieldValue(form, "textarea[name='content']", defaultValues?.content)
-  setFieldValue(form, "input[name='imageUrl']", `${defaultValues?.thumb}`)
   if (defaultValues?._id) {
-    setBackgroundImage(form, 'img#imageUrl', `/images/${defaultValues?.thumb.fileName}`)
+    setBackgroundImage(form, 'img#imageUrl', `${defaultValues?.thumb.fileName}`)
   }
 }
 function getFormValues(form) {
@@ -66,7 +65,6 @@ function initUploadImage(form) {
     const files = e.target.files[0]
     if (files) {
       const imageUrl = URL.createObjectURL(files)
-      setFieldValue(form, "input[name='imageUrl']", `${imageUrl}`)
       setBackgroundImage(form, 'img#imageUrl', `${imageUrl}`)
     }
   })
@@ -96,6 +94,16 @@ async function validateAdminForm(form, formValues) {
 export function initFormProduct({ idForm, defaultValues, onSubmit }) {
   const form = document.getElementById(idForm)
   if (!form) return
+  const child = form.querySelectorAll('*:not(div):not(label):not(span)')
+  child.forEach((item) => {
+    if (item.tagName === 'INPUT') {
+      item.addEventListener('blur', async () => {
+        const formValues = getFormValues(form)
+        const isValid = await validateAdminForm(form, formValues)
+        if (!isValid) return
+      })
+    }
+  })
   initUploadImage(form)
   setFormValues(form, defaultValues)
   let isSubmitting = false
