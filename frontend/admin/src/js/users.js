@@ -11,51 +11,67 @@ async function renderListUser({ idTable, idBreadcrumb }) {
   tbody.textContent = ''
   try {
     showSpinner()
-    const users = await userApi.getAll()
+    const res = await userApi.getAll()
     hideSpinner()
-    users?.forEach((item, index) => {
-      const tableRow = document.createElement('tr')
-      tableRow.innerHTML = `<td><input type="checkbox" name="checkItem" class="checkItem" /></td>
-      <td><span class="tbody-text">${index + 1}</span></td>
-      <td><span class="tbody-text">${item.id}</span></td>
-      <td><span class="tbody-text">${item.fullname}</span></td>
-      <td><span class="tbody-text">${item.username}</span></td>
-      <td><span class="tbody-text">${item.phone}</span></td>
-      <td><span class="tbody-text">${item.email}</span></td>
-      <td><span class="tbody-text">${+item.roleID === 1 ? 'Khách hàng' : 'Admin'}</span></td>
-      <td>
-        <button class="btn btn-primary" data-id="${item.id}" id="editUser">Chỉnh sửa</button>
-      </td>`
-      tbody.appendChild(tableRow)
-    })
-    breadcrumbUserEl.innerHTML = `<li class="all">
-    <a id="breadcrumbCategory" href="">Tất cả <span class="count">(${users.length})</span></a>
-  </li>`
+    if (res.success) {
+      const { users } = res
+      users?.forEach((item, index) => {
+        const tableRow = document.createElement('tr')
+        tableRow.innerHTML = `
+        <td><span class="tbody-text">${index + 1}</span></td>
+        <td><span class="tbody-text">${item._id}</span></td>
+        <td><span class="tbody-text">${item.fullname}</span></td>
+        <td><span class="tbody-text">${item.username}</span></td>
+        <td><span class="tbody-text">${item.phone}</span></td>
+        <td><span class="tbody-text">${item.email}</span></td>
+        <td><span class="tbody-text">${item.role}</span></td>
+        <td>
+          <button class="btn btn-primary btn-sm" data-id="${
+            item._id
+          }" id="editUser" style="background-position: unset;">Chỉnh sửa</button>
+          <button class="btn btn-secondary btn-sm" data-id="${
+            item._id
+          }" id="removeUser" style="background-position: unset;">Xoá</button>
+        </td>`
+        tbody.appendChild(tableRow)
+      })
+      breadcrumbUserEl.innerHTML = `<li class="all">
+      <a id="breadcrumbCategory" href="">Tất cả <span class="count">(${users.length})</span></a>
+     </li>`
+    }
   } catch (error) {
     console.log('failed to fetch data', error)
   }
 }
 async function handleFilterChange(value, tbodyEl) {
-  const users = await userApi.getAll()
-  const userApply = users.filter((user) =>
-    diacritics.remove(user?.fullname.toLowerCase()).includes(value.toLowerCase()),
-  )
-  tbodyEl.innerHTML = ''
-  userApply?.forEach((item, index) => {
-    const tableRow = document.createElement('tr')
-    tableRow.innerHTML = `<td><input type="checkbox" name="checkItem" class="checkItem" /></td>
+  const res = await userApi.getAll()
+  if (res.success) {
+    const { users } = res
+    const userApply = users.filter((user) =>
+      diacritics.remove(user?.fullname.toLowerCase()).includes(value.toLowerCase()),
+    )
+    tbodyEl.innerHTML = ''
+    userApply?.forEach((item, index) => {
+      const tableRow = document.createElement('tr')
+      tableRow.innerHTML = `
       <td><span class="tbody-text">${index + 1}</span></td>
-      <td><span class="tbody-text">${item.id}</span></td>
+      <td><span class="tbody-text">${item._id}</span></td>
       <td><span class="tbody-text">${item.fullname}</span></td>
       <td><span class="tbody-text">${item.username}</span></td>
       <td><span class="tbody-text">${item.phone}</span></td>
       <td><span class="tbody-text">${item.email}</span></td>
-      <td><span class="tbody-text">${+item.roleID === 1 ? 'Khách hàng' : 'Admin'}</span></td>
+      <td><span class="tbody-text">${item.role}</span></td>
       <td>
-        <button class="btn btn-primary" data-id="${item.id}" id="editUser">Chỉnh sửa</button>
+        <button class="btn btn-primary btn-sm" data-id="${
+          item._id
+        }" id="editUser" style="background-position: unset;">Chỉnh sửa</button>
+        <button class="btn btn-secondary btn-sm" data-id="${
+          item._id
+        }" id="removeUser" style="background-position: unset;">Xoá</button>
       </td>`
-    tbodyEl.appendChild(tableRow)
-  })
+      tbodyEl.appendChild(tableRow)
+    })
+  }
 }
 // main
 ;(() => {

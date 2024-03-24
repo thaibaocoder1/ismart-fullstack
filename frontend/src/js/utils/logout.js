@@ -1,10 +1,11 @@
+import userApi from '../api/userApi'
 import { toast } from './toast'
 
-export function checkLogoutAccount() {
-  const infoUserStorage = JSON.parse(localStorage.getItem('user_info'))
+export async function checkLogoutAccount() {
+  const infoUserStorage = JSON.parse(localStorage.getItem('accessTokenAdmin'))
   if (infoUserStorage) {
-    const newInfo = infoUserStorage.filter((user) => user?.roleID !== 2)
-    localStorage.setItem('user_info', JSON.stringify(newInfo))
+    await userApi.logout()
+    localStorage.removeItem('accessTokenAdmin')
     toast.info('Chuyển đến trang đăng nhập')
     setTimeout(() => {
       window.location.assign('/admin/login.html')

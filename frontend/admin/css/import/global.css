@@ -106,7 +106,7 @@ form#formProduct .form-right > .input-group input {
 }
 .grid-layout {
   display: grid;
-  grid-template-columns: repeat(3, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   grid-gap: 20px;
 }
 .grid-layout .input-group {
@@ -134,9 +134,8 @@ form#formProduct .form-right > .input-group input {
 }
 .section--custom {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
 }
 .textarea--custom {
   width: 100%;

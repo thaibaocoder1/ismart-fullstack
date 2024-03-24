@@ -26,8 +26,16 @@ const userApi = {
     return axiosClient.post(url, data)
   },
   update(data) {
-    const url = `/users/update/${data.id}?_method=PATCH`
+    const url = `/users/update-test/${data.id}?_method=PATCH`
     return axiosClient.patch(url, data)
+  },
+  updateFormData(data) {
+    const url = `/users/update/${data.get('id')}?_method=PATCH`
+    return axiosClient.patch(url, data, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
   },
   delete(id) {
     const url = `/users/${id}`

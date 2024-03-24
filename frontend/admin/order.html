@@ -62,7 +62,7 @@
                     >Thông tin tài khoản</a
                   >
                 </li>
-                <li><a href="#" title="Thoát">Thoát</a></li>
+                <li><a href="#" title="Thoát" id="logout-btn">Thoát</a></li>
               </ul>
             </div>
           </div>
@@ -153,6 +153,91 @@
                 </table>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div
+      class="modal fade modal-lg"
+      id="modal"
+      tabindex="-1"
+      aria-labelledby="exampleModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">Chi tiết đơn hàng</h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="info-order mb-4"></div>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">Tên sản phẩm</th>
+                  <th scope="col">Hình ảnh</th>
+                  <th scope="col">Giá</th>
+                  <th scope="col">Số lượng</th>
+                  <th scope="col">Tổng tiền</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="5" id="total"></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="modal fade"
+      id="modal-edit"
+      tabindex="-1"
+      aria-labelledby="exampleModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">Trạng thái đơn hàng</h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <select
+              class="form-select form-select-sm"
+              aria-label="Default select example"
+              id="select"
+              name="status"
+            ></select>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button
+              type="button"
+              class="btn btn-primary btn-confirm"
+              style="background-position: unset"
+            >
+              Save changes
+            </button>
           </div>
         </div>
       </div>

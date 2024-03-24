@@ -158,21 +158,23 @@ class UserController {
   }
   async update(req, res, next) {
     try {
-      const { id } = req.params;
-      const user = await User.findOneAndUpdate({ _id: id }, req.body, {
-        new: true,
-      });
-      if (user) {
-        return res.status(status.StatusCodes.OK).json({
-          success: true,
-          user,
-        });
+      const user = await User.findById(req.params.id);
+      if (!req.file) {
+        if (JSON.stringify(req.body) !== JSON.stringify(user.toObject())) {
+          await User.findOneAndUpdate({ _id: req.params.id }, req.body, {
+            new: true,
+          });
+        }
       } else {
-        return res.status(status.StatusCodes.NOT_FOUND).json({
-          success: false,
-          message: 'Không có tài khoản nào được tìm thấy.',
+        req.body.imageUrl = `http://localhost:3001/uploads/${req.file.originalname}`;
+        await User.findOneAndUpdate({ _id: req.params.id }, req.body, {
+          new: true,
         });
       }
+      res.status(status.StatusCodes.OK).json({
+        success: true,
+        message: 'Update successfully',
+      });
     } catch (error) {
       return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
         success: false,
@@ -327,29 +329,56 @@ class UserController {
   }
   async logout(req, res, next) {
     try {
-      const { refreshToken } = req.cookies;
-      const user = await User.findOneAndUpdate(
-        { refreshToken },
-        {
-          refreshToken: '',
-        },
-        {
-          new: true,
-        },
-      );
-      if (user) {
-        res.clearCookie('refreshToken');
-        res.status(status.StatusCodes.OK).json({
-          success: true,
-          data: {
-            message: 'Logout success!',
+      const { refreshToken, refreshTokenAdmin } = req.cookies;
+      let user;
+      if (refreshToken) {
+        user = await User.findOneAndUpdate(
+          { refreshToken },
+          {
+            refreshToken: '',
           },
-        });
+          {
+            new: true,
+          },
+        );
+        if (user) {
+          res.clearCookie('refreshToken');
+          res.status(status.StatusCodes.OK).json({
+            success: true,
+            data: {
+              message: 'Logout success!',
+            },
+          });
+        } else {
+          return res.status(status.StatusCodes.NOT_FOUND).json({
+            success: false,
+            message: 'Không có tài khoản nào được tìm thấy.',
+          });
+        }
       } else {
-        return res.status(status.StatusCodes.NOT_FOUND).json({
-          success: false,
-          message: 'Không có tài khoản nào được tìm thấy.',
-        });
+        user = await User.findOneAndUpdate(
+          { refreshToken: refreshTokenAdmin },
+          {
+            refreshToken: '',
+          },
+          {
+            new: true,
+          },
+        );
+        if (user) {
+          res.clearCookie('refreshTokenAdmin');
+          res.status(status.StatusCodes.OK).json({
+            success: true,
+            data: {
+              message: 'Logout success!',
+            },
+          });
+        } else {
+          return res.status(status.StatusCodes.NOT_FOUND).json({
+            success: false,
+            message: 'Không có tài khoản nào được tìm thấy.',
+          });
+        }
       }
     } catch (error) {
       res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({

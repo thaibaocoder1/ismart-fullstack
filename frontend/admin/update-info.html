@@ -62,7 +62,7 @@
                     >Thông tin tài khoản</a
                   >
                 </li>
-                <li><a href="#" title="Thoát">Thoát</a></li>
+                <li><a href="#" title="Thoát" id="logout-btn">Thoát</a></li>
               </ul>
             </div>
           </div>
@@ -111,9 +111,24 @@
           </div>
           <div class="section" id="detail-page">
             <div class="section-detail">
-              <form class="grid-layout" novalidate id="formAccountAdmin">
-                <div class="input-group">
+              <form
+                class="grid-layout"
+                novalidate
+                id="formAccountAdmin"
+                enctype="multipart/form-data"
+              >
+                <div class="input-group" style="display: block">
                   <label for="image">Hình ảnh</label>
+                  <div class="mb-3">
+                    <input
+                      class="form-control"
+                      type="file"
+                      id="formFile"
+                      name="imageUrl"
+                      accept="image/*"
+                    />
+                  </div>
+                  <span class="invalid-feedback"></span>
                   <img
                     src="https://placehold.co/200x200"
                     alt=""
@@ -121,32 +136,32 @@
                     style="width: 150px; height: 150px; object-fit: cover; border-radius: 50%"
                   />
                 </div>
-                <div class="input-group">
+                <div class="input-group" style="display: block">
                   <label for="fullname">Tên đầy đủ</label>
                   <input type="text" name="fullname" id="fullname" />
                   <span class="invalid-feedback"></span>
                 </div>
-                <div class="input-group">
+                <div class="input-group" style="display: block">
                   <label for="username">Tên đăng nhập</label>
                   <input type="text" name="username" id="username" />
                   <span class="invalid-feedback"></span>
                 </div>
-                <div class="input-group">
+                <div class="input-group" style="display: block">
                   <label for="phone">Số điện thoại</label>
                   <input type="text" name="phone" id="phone" />
                   <span class="invalid-feedback"></span>
                 </div>
-                <div class="input-group">
+                <div class="input-group" style="display: block">
                   <label for="email">Email</label>
                   <input type="text" name="email" id="email" />
                   <span class="invalid-feedback"></span>
                 </div>
-                <div class="input-group">
+                <div class="input-group" style="display: block">
                   <label for="role">Vai trò</label>
-                  <select name="role" id="role" class="input-group"></select>
+                  <input type="text" name="role" id="role" disabled />
                   <span class="invalid-feedback"></span>
                 </div>
-                <div class="input-group">
+                <div class="input-group" style="display: block">
                   <button class="btn">Cập nhật</button>
                 </div>
               </form>

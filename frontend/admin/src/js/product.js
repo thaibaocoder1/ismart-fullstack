@@ -22,7 +22,7 @@ async function renderListProductAdmin({ idElement }) {
     const { products } = data
     products?.forEach((item, index) => {
       const tableRow = document.createElement('tr')
-      tableRow.innerHTML = `<td><input type="checkbox" name="checkItem" class="checkItem" /></td>
+      tableRow.innerHTML = `
       <td><span class="tbody-text">${index + 1}</span></td>
       <td><span class="tbody-text">${item.code}</span></td>
       <td>
@@ -61,7 +61,7 @@ async function handleFilterChange(value, tbodyEl) {
   tbodyEl.innerHTML = ''
   productApply?.forEach((item, index) => {
     const tableRow = document.createElement('tr')
-    tableRow.innerHTML = `<td><input type="checkbox" name="checkItem" class="checkItem" /></td>
+    tableRow.innerHTML = `
     <td><span class="tbody-text">${index + 1}</span></td>
     <td><span class="tbody-text">${item.code}</span></td>
     <td>
@@ -107,5 +107,4 @@ async function handleFilterChange(value, tbodyEl) {
       })
     })
   }
-  // document.addEventListener('DOMContentLoaded', function () {})
 })()

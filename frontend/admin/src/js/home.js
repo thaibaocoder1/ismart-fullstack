@@ -85,11 +85,11 @@ async function initChart({ idElement }) {
       toast.success('Chào mừng admin đăng nhập')
     }
   }
-  document.addEventListener('click', function (e) {
+  document.addEventListener('click', async function (e) {
     const { target } = e
-    if (target.matches("a[title='Thoát']")) {
+    if (target.matches('a#logout-btn')) {
       e.preventDefault()
-      checkLogoutAccount()
+      await checkLogoutAccount()
     }
   })
 })()

@@ -1,5 +1,4 @@
 import userApi from '../../../src/js/api/userApi'
-import roleApi from '../../../src/js/api/roleApi'
 import {
   getRandomNumber,
   hideSpinner,
@@ -15,21 +14,10 @@ function setFormValues(form, infoUser) {
   setFieldValue(form, "[name='username']", infoUser?.username)
   setFieldValue(form, "[name='email']", infoUser?.email)
   setFieldValue(form, "[name='phone']", infoUser?.phone)
-  setFieldValue(form, "[name='imageUrl']", infoUser?.imageUrl)
+  setFieldValue(form, "[name='role']", infoUser?.role)
   setBackgroundImage(document, 'img#imageUrl', infoUser?.imageUrl)
 }
 
-function initRandomImage(form) {
-  if (!form) return
-  const buttonRandom = form.querySelector('#randomBtn')
-  if (buttonRandom) {
-    buttonRandom.addEventListener('click', function () {
-      const imageUrl = `https://picsum.photos/id/${getRandomNumber(1000)}/300/300`
-      setFieldValue(form, "input[name='imageUrl']", imageUrl)
-      setBackgroundImage(document, 'img#imageUrl', imageUrl)
-    })
-  }
-}
 function getSchema() {
   return yup.object({
     fullname: yup
@@ -49,7 +37,14 @@ function getSchema() {
       .string()
       .required('Không được để trống trường này')
       .matches(/^(84|0[3|5|7|8|9])+([0-9]{8})$/, 'Số điện thoại không hợp lệ'),
-    imageUrl: yup.string().required('Không được để trống').url('Chọn một đường dẫn hợp lệ'),
+    imageUrl: yup
+      .mixed()
+      .test('is-url', 'Chọn một đường dẫn hợp lệ', (value) => {
+        if (!(value instanceof File) || !value.name) {
+          return true
+        }
+      })
+      .required('Không được để trống'),
   })
 }
 
@@ -75,7 +70,6 @@ async function handleValidateForm(form, formValues) {
   if (!isValid) form.classList.add('was-validated')
   return isValid
 }
-
 function getFormValues(form) {
   if (!form) return
   const formValues = {}
@@ -85,19 +79,37 @@ function getFormValues(form) {
   }
   return formValues
 }
+function jsonToFormData(formValues) {
+  const formData = new FormData()
+  for (const key in formValues) {
+    formData.set(key, formValues[key])
+  }
+  return formData
+}
+function initUploadFile(form) {
+  const inputFile = form.querySelector('input#formFile')
+  if (inputFile) {
+    inputFile.addEventListener('change', (e) => {
+      const file = e.target.files[0]
+      if (file) {
+        const imageUrl = URL.createObjectURL(file)
+        setBackgroundImage(form, 'img#imageUrl', imageUrl)
+      }
+    })
+  }
+}
 async function registerInfoAccountAdmin({ idForm, idAccount, onSubmit }) {
   const form = document.getElementById(idForm)
   if (!form) return
   try {
     showSpinner()
-    const infoUser = await userApi.getById(idAccount)
+    const res = await userApi.getById(idAccount)
     hideSpinner()
-    setFormValues(form, infoUser)
-    await renderRoles({
-      idElement: 'role',
-      idAccount,
-    })
-    initRandomImage(form)
+    if (res.success) {
+      const { user: infoUser } = res
+      setFormValues(form, infoUser)
+    }
+    initUploadFile(form)
     form.addEventListener('submit', async function (e) {
       e.preventDefault()
       const formValues = getFormValues(form)
@@ -110,33 +122,14 @@ async function registerInfoAccountAdmin({ idForm, idAccount, onSubmit }) {
     console.log('failed to fetch data', error)
   }
 }
-async function renderRoles({ idElement, idAccount }) {
-  const element = document.getElementById(idElement)
-  if (!element) return
-  try {
-    showSpinner()
-    const roles = await roleApi.getAll()
-    hideSpinner()
-    roles.forEach((role) => {
-      const optionEl = document.createElement('option')
-      optionEl.value = +role.id
-      if (+role.id === idAccount) {
-        optionEl.selected = 'selected'
-      }
-      optionEl.innerHTML = `<option value="${role.id}">${role.title}</option>`
-      element.appendChild(optionEl)
-    })
-  } catch (error) {
-    console.log('failed to fetch data', error)
-  }
-}
 
 async function handleOnSubmitForm(formValues) {
   try {
+    const formData = jsonToFormData(formValues)
     showSpinner()
-    const updateUser = await userApi.update(formValues)
+    const updateUser = await userApi.updateFormData(formData)
     hideSpinner()
-    if (updateUser) toast.success('Cập nhật thành công')
+    if (updateUser.success) toast.success('Cập nhật thành công')
     setTimeout(() => {
       window.location.assign('/admin/account.html')
     }, 1000)
@@ -147,12 +140,11 @@ async function handleOnSubmitForm(formValues) {
 
 // main
 ;(() => {
-  const userInfoStorage = JSON.parse(localStorage.getItem('user_info'))
-  const isHasAdmin = userInfoStorage.find((user) => user.roleID === 2)
-  if (isHasAdmin) {
+  const userInfoStorage = JSON.parse(localStorage.getItem('accessTokenAdmin'))
+  if (userInfoStorage) {
     registerInfoAccountAdmin({
       idForm: 'formAccountAdmin',
-      idAccount: isHasAdmin.user_id,
+      idAccount: userInfoStorage.id,
       onSubmit: handleOnSubmitForm,
     })
   }

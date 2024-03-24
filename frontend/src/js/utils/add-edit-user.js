@@ -1,6 +1,5 @@
 import { getRandomNumber, setBackgroundImage, setFieldError, setFieldValue } from './common'
 import { hideSpinner, showSpinner } from './spinner'
-import roleApi from '../api/roleApi'
 import * as yup from 'yup'
 
 function setFormValues(form, defaultValues) {

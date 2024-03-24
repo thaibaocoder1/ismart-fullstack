@@ -6,7 +6,7 @@ const ordersApi = {
     return axiosClient.get(url)
   },
   getById(id) {
-    const url = `/orders/${id}`
+    const url = `/orders/detail/${id}`
     return axiosClient.get(url)
   },
   add(data) {
@@ -14,7 +14,7 @@ const ordersApi = {
     return axiosClient.post(url, data)
   },
   update(data) {
-    const url = `/orders/${data.id}`
+    const url = `/orders/update/${data.id}?_method=PATCH`
     return axiosClient.patch(url, data)
   },
   delete(id) {

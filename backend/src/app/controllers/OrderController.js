@@ -24,6 +24,28 @@ class OrderController {
       });
     }
   }
+  async detail(req, res, next) {
+    try {
+      const { id } = req.params;
+      const order = await Order.findById({ _id: id });
+      if (order) {
+        return res.status(status.StatusCodes.OK).json({
+          success: true,
+          order,
+        });
+      } else {
+        return res.status(status.StatusCodes.NOT_FOUND).json({
+          success: false,
+          message: 'Không có đơn hàng nào được tìm thấy.',
+        });
+      }
+    } catch (error) {
+      return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Đã xảy ra lỗi khi lấy thông tin đơn hàng.',
+      });
+    }
+  }
   async add(req, res, next) {
     try {
       const { ...data } = req.body;
@@ -43,6 +65,40 @@ class OrderController {
       return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: 'Đã xảy ra lỗi khi lưu thông tin đơn hàng.',
+      });
+    }
+  }
+  async update(req, res, next) {
+    try {
+      const { id, status: STATUS } = req.body;
+      if (id) {
+        if (status !== 1) {
+          const order = await Order.findOneAndUpdate(
+            { _id: id },
+            { status: STATUS },
+            { new: true },
+          );
+          return res.status(status.StatusCodes.CREATED).json({
+            success: true,
+            order,
+          });
+        } else {
+          return res.status(status.StatusCodes.OK).json({
+            success: true,
+            message: 'Cập nhật thành công.',
+          });
+        }
+      } else {
+        return res.status(status.StatusCodes.BAD_REQUEST).json({
+          success: false,
+          message: 'Thiếu thông tin.',
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Đã xảy ra lỗi khi cập nhật thông tin đơn hàng.',
       });
     }
   }

@@ -6,7 +6,9 @@ class DetailController {
     try {
       const { id } = req.params;
       if (id) {
-        const orders = await Detail.find({ orderID: id }).populate('productID');
+        const orders = await Detail.find({ orderID: id }).populate({
+          path: 'productID',
+        });
         if (orders) {
           return res.status(status.StatusCodes.OK).json({
             success: true,
