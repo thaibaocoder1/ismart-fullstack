@@ -1,6 +1,5 @@
 import userApi from '../../../src/js/api/userApi'
 import {
-  getRandomNumber,
   hideSpinner,
   setBackgroundImage,
   setFieldError,
@@ -37,14 +36,6 @@ function getSchema() {
       .string()
       .required('Không được để trống trường này')
       .matches(/^(84|0[3|5|7|8|9])+([0-9]{8})$/, 'Số điện thoại không hợp lệ'),
-    imageUrl: yup
-      .mixed()
-      .test('is-url', 'Chọn một đường dẫn hợp lệ', (value) => {
-        if (!(value instanceof File) || !value.name) {
-          return true
-        }
-      })
-      .required('Không được để trống'),
   })
 }
 

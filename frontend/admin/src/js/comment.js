@@ -15,10 +15,11 @@ async function renderListComment({ idElement }) {
     const res = await commentApi.getAll()
     hideSpinner()
     const { comments } = res
-    comments?.forEach(async (item, index) => {
-      const data = await productApi.getById(item.productID)
-      const tableRow = document.createElement('tr')
-      tableRow.innerHTML = `
+    if (Array.isArray(comments) && comments.length > 0) {
+      comments?.forEach(async (item, index) => {
+        const data = await productApi.getById(item.productID)
+        const tableRow = document.createElement('tr')
+        tableRow.innerHTML = `
       <td><span class="tbody-text">${index + 1}</span></td>
       <td><span class="tbody-text">${item._id}</span></td>
       <td><span class="tbody-text">${item.text}</span></td>
@@ -32,8 +33,14 @@ async function renderListComment({ idElement }) {
           item._id
         }">Xoá</button>
       </td>`
+        tbodyEl.appendChild(tableRow)
+      })
+    } else {
+      const tableRow = document.createElement('tr')
+      tableRow.setAttribute('colspan', '7')
+      tableRow.innerHTML = 'Chưa có bình luận nào!'
       tbodyEl.appendChild(tableRow)
-    })
+    }
   } catch (error) {
     console.log('failed to fetch data', error)
   }
@@ -46,10 +53,11 @@ async function handleFilterChange(value, tbodyEl) {
       diacritics.remove(comment?.text.toLowerCase()).includes(value.toLowerCase()),
     )
     tbodyEl.innerHTML = ''
-    commentApply?.forEach(async (item, index) => {
-      const data = await productApi.getById(item.productID)
-      const tableRow = document.createElement('tr')
-      tableRow.innerHTML = `
+    if (Array.isArray(comments) && comments.length > 0) {
+      comments?.forEach(async (item, index) => {
+        const data = await productApi.getById(item.productID)
+        const tableRow = document.createElement('tr')
+        tableRow.innerHTML = `
       <td><span class="tbody-text">${index + 1}</span></td>
       <td><span class="tbody-text">${item._id}</span></td>
       <td><span class="tbody-text">${item.text}</span></td>
@@ -63,8 +71,14 @@ async function handleFilterChange(value, tbodyEl) {
           item._id
         }">Xoá</button>
       </td>`
+        tbodyEl.appendChild(tableRow)
+      })
+    } else {
+      const tableRow = document.createElement('tr')
+      tableRow.setAttribute('colspan', '7')
+      tableRow.innerHTML = 'Chưa có bình luận nào!'
       tbodyEl.appendChild(tableRow)
-    })
+    }
   } else {
     toast.error('Có lỗi trong khi tìm kiếm')
     return

@@ -87,7 +87,7 @@ async function handleFilterChange(value, tbodyEl) {
   document.addEventListener('click', function (e) {
     const { target } = e
     if (target.matches('#editUser')) {
-      const userID = +target.dataset.id
+      const userID = target.dataset.id
       window.location.assign(`/admin/add-edit-user.html?id=${userID}`)
     }
   })

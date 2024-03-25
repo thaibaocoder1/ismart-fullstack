@@ -1,4 +1,4 @@
-import { getRandomNumber, setBackgroundImage, setFieldError, setFieldValue } from './common'
+import { setBackgroundImage, setFieldError, setFieldValue } from './common'
 import { hideSpinner, showSpinner } from './spinner'
 import * as yup from 'yup'
 
@@ -9,7 +9,6 @@ function setFormValues(form, defaultValues) {
   setFieldValue(form, "input[name='email']", defaultValues?.email)
   setFieldValue(form, "input[name='phone']", defaultValues?.phone)
   setFieldValue(form, "input[name='password']", defaultValues?.password)
-  setFieldValue(form, "input[name='imageUrl']", defaultValues?.imageUrl)
   setBackgroundImage(document, 'img#imageUrl', defaultValues?.imageUrl)
 }
 
@@ -23,37 +22,21 @@ function getFormValues(form) {
   return formValues
 }
 
-function initRandomImage(form) {
-  if (!form) return
-  const buttonRandom = form.querySelector('#randomBtn')
-  if (buttonRandom) {
-    buttonRandom.addEventListener('click', function () {
-      const imageUrl = `https://picsum.photos/id/${getRandomNumber(1000)}/300/300`
-      setFieldValue(form, "input[name='imageUrl']", imageUrl)
-      setBackgroundImage(document, 'img#imageUrl', imageUrl)
-    })
-  }
-}
-
 async function initRoleAccount(form, defaultValues) {
   if (!form) return
-  const selectEl = form.querySelector("[name='roleID']")
+  const selectEl = form.querySelector("[name='role']")
   if (!selectEl) return
+  selectEl.textContent = ''
   try {
-    showSpinner()
-    const listRole = await roleApi.getAll()
-    hideSpinner()
-    if (listRole.length > 0) {
-      listRole.forEach((role) => {
-        const optionEl = document.createElement('option')
-        optionEl.value = +role.id
-        if (+optionEl.value === defaultValues.roleID) {
-          optionEl.selected = 'selected'
-        }
-        optionEl.innerHTML = `${role.title}`
-        selectEl.appendChild(optionEl)
-      })
-    }
+    ;['Admin', 'User'].forEach((name) => {
+      const optionEl = document.createElement('option')
+      optionEl.value = name
+      if (defaultValues && name.toLowerCase() === defaultValues.role.toLowerCase()) {
+        optionEl.selected = true
+      }
+      optionEl.text = name
+      selectEl.appendChild(optionEl)
+    })
   } catch (error) {
     console.log('failed to fetch data', error)
   }
@@ -79,7 +62,6 @@ function getSchema() {
       .required('Không được để trống trường này')
       .matches(/^(84|0[3|5|7|8|9])+([0-9]{8})$/, 'Số điện thoại không hợp lệ'),
     password: yup.string().required('Không được để trống trường này'),
-    imageUrl: yup.string().required('Không được để trống').url('Chọn một đường dẫn hợp lệ'),
   })
 }
 
@@ -105,17 +87,28 @@ async function handleValidateForm(form, formValues) {
   if (!isValid) form.classList.add('was-validated')
   return isValid
 }
-
+function initUploadFile(form) {
+  const inputFile = form.querySelector('input#formFile')
+  if (inputFile) {
+    inputFile.addEventListener('change', (e) => {
+      const file = e.target.files[0]
+      if (file) {
+        const imageUrl = URL.createObjectURL(file)
+        setBackgroundImage(form, 'img#imageUrl', imageUrl)
+      }
+    })
+  }
+}
 export async function renderInfoUser({ idForm, defaultValues, onSubmit }) {
   const form = document.getElementById(idForm)
   if (!form) return
+  initUploadFile(form)
   await initRoleAccount(form, defaultValues)
-  initRandomImage(form)
   setFormValues(form, defaultValues)
   form.addEventListener('submit', async function (e) {
     e.preventDefault()
     const formValues = getFormValues(form)
-    formValues.id = defaultValues.id
+    formValues.id = defaultValues._id
     const isValid = await handleValidateForm(form, formValues)
     if (!isValid) return
     await onSubmit?.(formValues)

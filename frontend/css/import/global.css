@@ -179,3 +179,8 @@ div.product-sale {
   transform: translateY(0%);
   padding-top: 20px;
 }
+.disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+  user-select: none;
+}

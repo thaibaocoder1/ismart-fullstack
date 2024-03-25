@@ -1,7 +1,5 @@
 import productApi from '../api/productsApi'
 import { calcPrice, formatCurrencyNumber } from './format'
-import Swal from 'sweetalert2'
-import { toast } from './toast'
 
 export async function addCartToDom({ idListCart, cart, idNumOrder, idNum, idTotalPrice }) {
   const listCartElement = document.getElementById(idListCart)
@@ -24,7 +22,7 @@ export async function addCartToDom({ idListCart, cart, idNumOrder, idNum, idTota
       liElement.innerHTML = `<a href="product-detail.html?id=${item._id}" title="${
         productInfo.name
       }" class="thumb fl-left">
-        <img src="/images/${productInfo.thumb.fileName}" alt="${productInfo.name}" />
+        <img src="${productInfo.thumb.fileName}" alt="${productInfo.name}" />
         </a>
         <div class="info fl-right">
           <a href="product-detail.html?id=${item._id}" title="${

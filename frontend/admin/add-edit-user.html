@@ -111,12 +111,7 @@
           </div>
           <div class="section" id="detail-page">
             <div class="section-detail">
-              <form
-                class="grid-layout"
-                novalidate
-                id="formAccountAdmin"
-                enctype="multipart/form-data"
-              >
+              <form class="grid-layout" novalidate id="formAccount" enctype="multipart/form-data">
                 <div class="input-group" style="display: block">
                   <label for="image">Hình ảnh</label>
                   <div class="mb-3">
@@ -158,12 +153,11 @@
                 </div>
                 <div class="input-group" style="display: block">
                   <label for="role">Vai trò</label>
-                  <select class="form-select w-100" aria-label="Default select example">
-                    <option selected>Open this select menu</option>
-                    <option value="1">One</option>
-                    <option value="2">Two</option>
-                    <option value="3">Three</option>
-                  </select>
+                  <select
+                    class="form-select w-100"
+                    name="role"
+                    aria-label="Default select example"
+                  ></select>
                   <span class="invalid-feedback"></span>
                 </div>
                 <div class="input-group" style="display: block">
@@ -181,6 +175,6 @@
       </div>
     </div>
     <script type="module" src="src/js/home.js"></script>
-    <script type="module" src="/js/admin/add-edit-user.js"></script>
+    <script type="module" src="src/js/add-edit-user.js"></script>
   </body>
 </html>

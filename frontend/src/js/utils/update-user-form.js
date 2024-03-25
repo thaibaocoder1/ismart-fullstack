@@ -1,5 +1,6 @@
-import { getRandomNumber, setBackgroundImage, setFieldError, setFieldValue } from './common'
+import { setBackgroundImage, setFieldError } from './common'
 import * as yup from 'yup'
+
 function getFormValues(form) {
   if (!form) return
   const formValues = {}
@@ -9,18 +10,6 @@ function getFormValues(form) {
   }
   return formValues
 }
-
-function initRandomImage(form) {
-  if (!form) return
-  const btnRandom = form.querySelector('#btnRandom')
-  if (!btnRandom) return
-  btnRandom.addEventListener('click', function () {
-    const newUrl = `https://picsum.photos/id/${getRandomNumber(1000)}/300/300`
-    setFieldValue(form, "input[name='imageUrl']", newUrl)
-    setBackgroundImage(form, 'img#avatar', newUrl)
-  })
-}
-
 function getSchema() {
   return yup.object({
     fullname: yup
@@ -41,7 +30,6 @@ function getSchema() {
       .required('Không được để trống trường này')
       .matches(/^(84|0[3|5|7|8|9])+([0-9]{8})$/, 'Số điện thoại không hợp lệ'),
     password: yup.string().required('Không được để trống trường này'),
-    imageUrl: yup.string().required('Không được để trống').url('Chọn một đường dẫn hợp lệ'),
   })
 }
 
@@ -67,11 +55,22 @@ async function checkValidationForm(form, formValues) {
   if (!isValid) form.classList.add('was-validated')
   return isValid
 }
-
+function initUploadFile(form) {
+  const inputFile = form.querySelector('input#formFile')
+  if (inputFile) {
+    inputFile.addEventListener('change', (e) => {
+      const file = e.target.files[0]
+      if (file) {
+        const imageUrl = URL.createObjectURL(file)
+        setBackgroundImage(form, 'img#avatar', imageUrl)
+      }
+    })
+  }
+}
 export function handleUpdateInfoUser({ idForm, user, onSubmit }) {
   const form = document.getElementById(idForm)
   if (!form) return
-  initRandomImage(form)
+  initUploadFile(form)
   form.addEventListener('submit', async function (e) {
     e.preventDefault()
     const formValues = getFormValues(form)

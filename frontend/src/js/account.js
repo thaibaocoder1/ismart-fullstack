@@ -30,7 +30,6 @@ async function displayInfoUser(infoUserStorage, divInfoLeftEl, userAvatarEl) {
     setFieldValue(divInfoLeftEl, "input[name='phone']", user?.phone)
     setFieldValue(divInfoLeftEl, "input[name='email']", user?.email)
     setFieldValue(divInfoLeftEl, "input[name='password']", user?.password)
-    setFieldValue(userAvatarEl, "input[name='imageUrl']", user?.imageUrl)
     setBackgroundImage(userAvatarEl, 'img#avatar', user?.imageUrl)
   } catch (error) {
     console.log('failed to fetch data', error)
@@ -67,11 +66,19 @@ function handleOnClick() {
     }
   })
 }
+function jsonToFormData(formValues) {
+  const formData = new FormData()
+  for (const key in formValues) {
+    formData.set(key, formValues[key])
+  }
+  return formData
+}
 
 async function handleOnSubmitForm(formValues) {
+  const formData = jsonToFormData(formValues)
   try {
     showSpinner()
-    const updateUser = await userApi.update(formValues)
+    const updateUser = await userApi.updateFormData(formData)
     hideSpinner()
     if (updateUser) {
       toast.success('Cập nhật thông tin thành công')

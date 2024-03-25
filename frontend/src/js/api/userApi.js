@@ -25,8 +25,20 @@ const userApi = {
     const url = `/users/add`
     return axiosClient.post(url, data)
   },
+  addFormData(data) {
+    const url = `/users/add/form`
+    return axiosClient.post(url, data, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+  },
   update(data) {
-    const url = `/users/update-test/${data.id}?_method=PATCH`
+    const url = `/users/update/${data.id}?_method=PATCH`
+    return axiosClient.patch(url, data)
+  },
+  updateFields(data) {
+    const url = `/users/update-field/${data.id}?_method=PATCH`
     return axiosClient.patch(url, data)
   },
   updateFormData(data) {

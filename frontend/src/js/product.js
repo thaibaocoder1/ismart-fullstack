@@ -4,7 +4,6 @@ import {
   hideSpinner,
   showSpinner,
   renderListCategory,
-  renderListProductWithCateID,
   addCartToDom,
   sweetAlert,
   addProductToCart,
@@ -15,19 +14,15 @@ import {
   calcPrice,
 } from './utils'
 
-async function renderListProduct({ selector, selectorCount, searchValueUrl }) {
+async function renderListProduct({ selector, selectorCount, products, searchValueUrl }) {
   const ulElement = document.querySelector(selector)
   const countProductEl = document.querySelector(selectorCount)
   if (!ulElement || !countProductEl) return
   ulElement.textContent = ''
   try {
-    showSpinner()
-    const data = await productApi.getAll()
-    hideSpinner()
-    const { products } = data
     let dataApply = []
     if (searchValueUrl !== null) {
-      dataApply = data.filter((item) =>
+      dataApply = products.filter((item) =>
         item?.name.toLowerCase().includes(searchValueUrl.toLowerCase()),
       )
     }
@@ -61,10 +56,11 @@ async function renderListProduct({ selector, selectorCount, searchValueUrl }) {
       })
       countProductEl.innerHTML = `Hiển thị ${dataApply.length} trên ${dataApply.length} sản phẩm`
     } else {
-      products.forEach((item) => {
-        const liElement = document.createElement('li')
-        liElement.dataset.id = item._id
-        liElement.innerHTML = `
+      if (products.length > 0) {
+        products.forEach((item) => {
+          const liElement = document.createElement('li')
+          liElement.dataset.id = item._id
+          liElement.innerHTML = `
         <div class='product-sale'>
           <span>${item.discount}%</span>
         </div>
@@ -72,8 +68,8 @@ async function renderListProduct({ selector, selectorCount, searchValueUrl }) {
           <img src="${item.thumb.fileName}" alt="${item.name}" />
         </a>
         <a href="/product-detail.html?id=${item._id}" title="${item.name}" class="product-name">${
-          item.name
-        }</a>
+            item.name
+          }</a>
         <div class="price">
           <span class="new">${formatCurrencyNumber(calcPrice(item))}</span>
           <span class="old">${formatCurrencyNumber(item.price)}</span>
@@ -86,9 +82,15 @@ async function renderListProduct({ selector, selectorCount, searchValueUrl }) {
               : `<span>Hết hàng</span>`
           }
         </div>`
-        ulElement.appendChild(liElement)
-      })
-      countProductEl.innerHTML = `Hiển thị ${data.results} trên ${data.results} sản phẩm`
+          ulElement.appendChild(liElement)
+        })
+        countProductEl.innerHTML = `Hiển thị ${products.length} trên ${products.length} sản phẩm`
+      } else {
+        toast.info('Sản phẩm đang phát triển')
+        const textElement = document.createElement('span')
+        textElement.innerHTML = 'Sản phẩm đang phát triển!!!'
+        ulElement.appendChild(textElement)
+      }
     }
   } catch (error) {
     console.log('failed to fetch data', error)
@@ -127,8 +129,86 @@ async function renderListFilter(value) {
   })
   countProductEl.innerHTML = `Hiển thị ${value.length} trên ${value.length} sản phẩm`
 }
+function renderPagination(pagination) {
+  if (!pagination) return
+  const { currentPage, totalRows, limit } = pagination
+  const totalPages = Math.ceil(totalRows / limit)
+  const ulPagination = document.getElementById('pagination')
+  ulPagination.dataset.totalPages = totalPages
+  ulPagination.dataset.page = currentPage
+  if (currentPage <= 1) ulPagination.firstElementChild?.classList.add('disabled')
+  else ulPagination.firstElementChild?.classList.remove('disabled')
+
+  if (currentPage >= totalPages) ulPagination.lastElementChild?.classList.add('disabled')
+  else ulPagination.lastElementChild?.classList.remove('disabled')
+}
+async function handleFilterChange(filterName, filterValue) {
+  const url = new URL(window.location)
+  url.searchParams.set(filterName, filterValue)
+  history.pushState({}, '', url)
+
+  const data = await productApi.getAll(url.searchParams)
+  const { products, pagination } = data
+  renderListProduct({
+    selector: '#listProduct',
+    selectorCount: '#countProduct',
+    products,
+    searchValueUrl: url.searchParams.get('searchTerm'),
+  })
+  renderPagination(pagination)
+}
+function handlePrevClick(e) {
+  e.preventDefault()
+  const ulPagination = document.getElementById('pagination')
+  if (!ulPagination) return
+  const page = Number.parseInt(ulPagination.dataset.page) || 1
+  if (page <= 1) return
+  handleFilterChange('page', page - 1)
+}
+function handleNextClick(e) {
+  e.preventDefault()
+  const ulPagination = document.getElementById('pagination')
+  if (!ulPagination) return
+  const page = Number.parseInt(ulPagination.dataset.page) || 1
+  const totalPages = Number.parseInt(ulPagination.dataset.totalPages)
+  if (page >= totalPages) return
+  handleFilterChange('page', page + 1)
+}
+function initPagination() {
+  const ulPagination = document.getElementById('pagination')
+  if (!ulPagination) return
+  const prevLink = ulPagination.firstElementChild?.firstElementChild
+  if (prevLink) {
+    prevLink.addEventListener('click', handlePrevClick)
+  }
+  const nextLink = ulPagination.lastElementChild?.lastElementChild
+  if (nextLink) {
+    nextLink.addEventListener('click', handleNextClick)
+  }
+}
+function initURL() {
+  const url = new URL(window.location)
+  if (!url.searchParams.get('page')) url.searchParams.set('page', 1)
+  if (!url.searchParams.get('limit')) url.searchParams.set('limit', 4)
+  history.pushState({}, '', url)
+}
 // main
-;(() => {
+;(async () => {
+  const params = new URLSearchParams(window.location.search)
+  // init pagination
+  initPagination()
+  initURL()
+  showSpinner()
+  const data = await productApi.getAll(params)
+  hideSpinner()
+  const { products, pagination } = data
+  renderListProduct({
+    selector: '#listProduct',
+    selectorCount: '#countProduct',
+    products,
+    searchValueUrl: params.get('searchTerm'),
+  })
+  renderPagination(pagination)
   renderListCategory('#listCategory')
   // get cart from localStorage
   let cart = localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : []
@@ -148,24 +228,8 @@ async function renderListFilter(value) {
       isCartAdded = true
     }
   }
-  // get params from URL
-  const searchParams = new URLSearchParams(location.search)
-  if (Boolean(searchParams.get('slug'))) {
-    renderListProductWithCateID({
-      selector: '#listProduct',
-      selectorCount: '#countProduct',
-      productHeading: '#productHeading',
-      slug: searchParams.get('slug'),
-    })
-  } else {
-    renderListProduct({
-      selector: '#listProduct',
-      selectorCount: '#countProduct',
-      searchValueUrl: searchParams.get('searchTerm'),
-    })
-  }
-  if (Boolean(searchParams.get('searchTerm'))) {
-    const searchValueUrl = searchParams.get('searchTerm')
+  if (Boolean(params.get('searchTerm'))) {
+    const searchValueUrl = params.get('searchTerm')
     initSearchForm({
       idForm: 'searchForm',
       idElement: 'searchList',

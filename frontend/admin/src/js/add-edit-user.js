@@ -1,24 +1,36 @@
 import userApi from '../../../src/js/api/userApi'
 import { toast } from '../../../src/js/utils'
+import { renderInfoUser } from '../../../src/js/utils/add-edit-user'
+
+function jsonToFormData(formValues) {
+  const formData = new FormData()
+  for (const key in formValues) {
+    formData.append(key, formValues[key])
+  }
+  return formData
+}
 async function handleOnSubmitForm(formValues) {
+  const formData = jsonToFormData(formValues)
   try {
-    formValues['password_confirmation'] = formValues.password
-    const savedUser = Boolean(formValues.id)
-      ? await userApi.update(formValues)
-      : await userApi.add(formValues)
+    const savedUser =
+      formData.get('id') && formData.get('id') !== 'undefined'
+        ? await userApi.updateFormData(formData)
+        : await userApi.addFormData(formData)
     if (savedUser) toast.success('Thao tác thành công')
     setTimeout(() => {
       window.location.assign('/admin/users.html')
     }, 1000)
   } catch (error) {
-    toast.error('Có lỗi trong khi xử lý')
+    const { data } = error.response
+    if (!data.success) {
+      toast.error(data.message)
+    }
   }
 }
 // main
-import { renderInfoUser } from '../../../src/js/utils/add-edit-user'
 ;(async () => {
   const searchParams = new URLSearchParams(location.search)
-  const userID = +searchParams.get('id')
+  const userID = searchParams.get('id')
   const defaultValues = Boolean(userID)
     ? await userApi.getById(userID)
     : {
@@ -28,12 +40,18 @@ import { renderInfoUser } from '../../../src/js/utils/add-edit-user'
         phone: '',
         password: '',
         password_confirmation: '',
-        roleID: '',
-        imageUrl: '',
+        role: '',
+        imageUrl: 'https://placehold.co/200x200',
       }
+  let values = {}
+  if (defaultValues.success) {
+    values = defaultValues.user
+  } else {
+    values = defaultValues
+  }
   renderInfoUser({
     idForm: 'formAccount',
-    defaultValues,
+    defaultValues: values,
     onSubmit: handleOnSubmitForm,
   })
 })()

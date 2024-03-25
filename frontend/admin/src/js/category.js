@@ -16,7 +16,7 @@ async function renderListProductAdmin({ idElement, idBreadcrumb }) {
     const { catalogs } = data
     catalogs?.forEach((item, index) => {
       const tableRow = document.createElement('tr')
-      tableRow.innerHTML = `<td><input type="checkbox" name="checkItem" class="checkItem" /></td>
+      tableRow.innerHTML = `
       <td><span class="tbody-text">${index + 1}</span></td>
       <td><span class="tbody-text">${item._id}</span></td>
       <td><span class="tbody-text">${item.title}</span></td>
@@ -43,7 +43,7 @@ async function handleFilterChange(value, tbodyEl) {
   tbodyEl.innerHTML = ''
   categoryApply?.forEach((item, index) => {
     const tableRow = document.createElement('tr')
-    tableRow.innerHTML = `<td><input type="checkbox" name="checkItem" class="checkItem" /></td>
+    tableRow.innerHTML = `
     <td><span class="tbody-text">${index + 1}</span></td>
     <td><span class="tbody-text">${item._id}</span></td>
     <td><span class="tbody-text">${item.title}</span></td>

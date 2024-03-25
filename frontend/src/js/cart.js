@@ -55,7 +55,7 @@ async function renderListProductInCart({ idTable, cart }) {
           <a href="product-detail.html?id=${productInfo._id}" title="${
         productInfo.name
       }" class="thumb">
-            <img src="/images/${productInfo.thumb.fileName}" alt="${productInfo.name}" />
+            <img src="${productInfo.thumb.fileName}" alt="${productInfo.name}" />
           </a>
         </td>
         <td>
@@ -151,22 +151,16 @@ async function renderListProductInCart({ idTable, cart }) {
       if (cart.length === 0) {
         toast.error('Không có sản phẩm trong giỏ hàng')
       } else {
-        if (Object.keys(infoUserStorage).length > 0 && !isAnyCheckboxChecked) {
-          listCheckbox.forEach((checkbox) => {
-            if (checkbox.checked) {
-              isAnyCheckboxChecked = true
-              window.location.assign('checkout.html')
-            }
-          })
-        } else {
-          if (isAnyCheckboxChecked && Object.keys(infoUserStorage).length > 0) {
-            toast.error('Chọn 1 sản phẩm để thanh toán')
-          } else {
-            toast.error('Đăng nhập để thanh toán')
-            setTimeout(() => {
-              window.location.assign('login.html')
-            }, 2000)
+        listCheckbox.forEach((checkbox) => {
+          if (checkbox.checked) {
+            isAnyCheckboxChecked = true
+            window.location.assign('checkout.html')
           }
+        })
+        if (!isAnyCheckboxChecked && Object.keys(infoUserStorage).length > 0) {
+          toast.error('Chọn 1 sản phẩm để thanh toán')
+        } else {
+          toast.error('Đăng nhập để thanh toán')
         }
       }
     } else if (e.target.closest('.del-product')) {

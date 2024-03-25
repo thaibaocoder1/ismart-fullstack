@@ -32,7 +32,50 @@ async function renderListOrder({ idElement }) {
     hideSpinner()
     if (res.success) {
       const { orders } = res
-      orders.forEach((item, index) => {
+      if (Array.isArray(orders) && orders.length > 0) {
+        orders.forEach((item, index) => {
+          const tableRow = document.createElement('tr')
+          tableRow.innerHTML = `
+          <td><span class="tbody-text">${index + 1}</span></td>
+          <td><span class="tbody-text">${item._id}</span></td>
+          <td><span class="tbody-text">${item.fullname}</span></td>
+          <td><span class="tbody-text">${item.email}</span></td>
+          <td><span class="tbody-text">0${item.phone}</span></td>
+          <td><span class="tbody-text">${dayjs(item.orderDate).format('DD/MM/YYYY')}</span></td>
+          <td><span class="tbody-text">${item.userID}</span></td>
+          <td>
+            <button class="btn btn-primary btn-sm" id="viewOrder" data-id="${
+              item._id
+            }" style="background-position: unset;" data-bs-toggle="modal" data-bs-target="#modal">Chi tiết</button>
+            <button class="btn btn-info btn-sm" id="editOrder" ${
+              +item.status === 4 ? 'hidden' : ''
+            } data-id="${
+            item._id
+          }" style="background-position: unset;" data-bs-toggle="modal" data-bs-target="#modal-edit">Chỉnh sửa</button>
+          </td>`
+          tbodyEl.appendChild(tableRow)
+        })
+      } else {
+        const tableRow = document.createElement('tr')
+        tableRow.setAttribute('colspan', '8')
+        tableRow.innerHTML = 'Hiện tại chưa có đơn hàng mới nào!'
+        tbodyEl.appendChild(tableRow)
+      }
+    }
+  } catch (error) {
+    console.log('failed to fetch data', error)
+  }
+}
+async function handleFilterChange(value, tbodyEl) {
+  const res = await orderApi.getAll()
+  if (res.success) {
+    const { orders } = res
+    const orderApply = orders.filter((order) =>
+      diacritics.remove(order?.fullname.toLowerCase()).includes(value.toLowerCase()),
+    )
+    tbodyEl.innerHTML = ''
+    if (Array.isArray(orderApply) && orderApply.length > 0) {
+      orderApply.forEach((item, index) => {
         const tableRow = document.createElement('tr')
         tableRow.innerHTML = `
         <td><span class="tbody-text">${index + 1}</span></td>
@@ -54,43 +97,12 @@ async function renderListOrder({ idElement }) {
         </td>`
         tbodyEl.appendChild(tableRow)
       })
-    }
-  } catch (error) {
-    console.log('failed to fetch data', error)
-  }
-}
-async function handleFilterChange(value, tbodyEl) {
-  showSpinner()
-  const res = await orderApi.getAll()
-  hideSpinner()
-  if (res.success) {
-    const { orders } = res
-    const orderApply = orders.filter((order) =>
-      diacritics.remove(order?.fullname.toLowerCase()).includes(value.toLowerCase()),
-    )
-    tbodyEl.innerHTML = ''
-    orderApply?.forEach((item, index) => {
+    } else {
       const tableRow = document.createElement('tr')
-      tableRow.innerHTML = `
-      <td><span class="tbody-text">${index + 1}</span></td>
-      <td><span class="tbody-text">${item._id}</span></td>
-      <td><span class="tbody-text">${item.fullname}</span></td>
-      <td><span class="tbody-text">${item.email}</span></td>
-      <td><span class="tbody-text">0${item.phone}</span></td>
-      <td><span class="tbody-text">${dayjs(item.orderDate).format('DD/MM/YYYY')}</span></td>
-      <td><span class="tbody-text">${item.userID}</span></td>
-      <td>
-        <button class="btn btn-primary btn-sm" id="viewOrder" data-id="${
-          item._id
-        }" style="background-position: unset;" data-bs-toggle="modal" data-bs-target="#modal">Chi tiết</button>
-        <button class="btn btn-info btn-sm" id="editOrder" ${
-          +item.status === 4 ? 'hidden' : ''
-        } data-id="${
-        item._id
-      }" style="background-position: unset;" data-bs-toggle="modal" data-bs-target="#modal-edit">Chỉnh sửa</button>
-        </td>`
+      tableRow.setAttribute('colspan', '8')
+      tableRow.innerHTML = 'Hiện tại chưa có đơn hàng mới nào!'
       tbodyEl.appendChild(tableRow)
-    })
+    }
   }
 }
 

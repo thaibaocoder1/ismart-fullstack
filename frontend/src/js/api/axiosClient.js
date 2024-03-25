@@ -71,10 +71,8 @@ axiosClient.interceptors.request.use(
       }
       const { accessToken, expireIns } = await axiosClient.getLocalAccessTokenAdmin()
       const now = new Date().getTime()
-      console.log(`Now: ${now} - Expire: ${expireIns}`)
       if (expireIns < now) {
         try {
-          console.log('Token het han')
           const refreshToken = await axiosClient.getRefershTokenAdmin()
           if (refreshToken.success) {
             await axiosClient.setLocalStorageAdmin(refreshToken.data)

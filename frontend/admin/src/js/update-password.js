@@ -9,15 +9,16 @@ async function handleOnSubmitForm(formValues) {
       password: formValues.password,
       password_confirmation: formValues.retypePassword,
     }
-    showSpinner()
-    const dataUpdate = await userApi.update(populateValues)
-    hideSpinner()
+    const dataUpdate = await userApi.updateFields(populateValues)
     if (dataUpdate) toast.success('Đổi mật khẩu thành công')
     setTimeout(() => {
       window.location.assign('/admin/account.html')
     }, 1000)
   } catch (error) {
-    toast.error('Có lỗi trong khi xử lý')
+    const { data } = error.response
+    if (!data.success) {
+      toast.error(data.message)
+    }
   }
 }
 

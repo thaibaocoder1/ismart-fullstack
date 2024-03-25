@@ -1,5 +1,6 @@
 import { setFieldError, setFieldValue } from './common'
 import * as yup from 'yup'
+
 function setFormValues(form, defaultValues) {
   if (!form && !defaultValues) return
   setFieldValue(form, "input[name='oldPassword']", defaultValues?.password)
@@ -53,7 +54,7 @@ export function initFormPassword({ idForm, defaultValues, onSubmit }) {
   form.addEventListener('submit', async function (e) {
     e.preventDefault()
     const formValues = getFormValues(form)
-    formValues.id = defaultValues.id
+    formValues.id = defaultValues._id
     const isValid = await handleValidateForm(form, formValues)
     if (!isValid) return
     await onSubmit?.(formValues)
