@@ -5,19 +5,55 @@ const status = require('http-status-codes');
 class ProductController {
   // [GET] /products
   async index(req, res, next) {
+    const slug = req.query.slug;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 4;
+    console.log(page, limit);
     try {
-      const products = await Product.find({}).sort('-updatedAt');
-      if (products && products.length > 0) {
+      if (slug) {
+        const category = await Catalog.findOne({ slug });
+        const skip = (page - 1) * limit;
+        const products = await Product.find({ categoryID: category._id })
+          .sort('-updatedAt')
+          .skip(skip)
+          .limit(limit);
+        const totalProducts = await Product.countDocuments({
+          categoryID: category._id,
+        });
         return res.status(status.StatusCodes.OK).json({
           success: true,
           results: products.length,
           products,
+          pagination: {
+            limit,
+            currentPage: page,
+            totalRows: totalProducts,
+          },
         });
       } else {
-        return res.status(status.StatusCodes.NOT_FOUND).json({
-          success: false,
-          message: 'Không có sản phẩm nào được tìm thấy.',
-        });
+        const skip = (page - 1) * limit;
+        const products = await Product.find({})
+          .sort('-updatedAt')
+          .skip(skip)
+          .limit(limit);
+        const totalProducts = await Product.countDocuments();
+        if (products && products.length > 0) {
+          return res.status(status.StatusCodes.OK).json({
+            success: true,
+            results: products.length,
+            products,
+            pagination: {
+              limit,
+              currentPage: page,
+              totalRows: totalProducts,
+            },
+          });
+        } else {
+          return res.status(status.StatusCodes.NOT_FOUND).json({
+            success: false,
+            message: 'Không có sản phẩm nào được tìm thấy.',
+          });
+        }
       }
     } catch (error) {
       return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
@@ -62,7 +98,7 @@ class ProductController {
           products,
         });
       } else {
-        return res.status(status.StatusCodes.NOT_FOUND).json({
+        return res.status(status.StatusCodes.OK).json({
           success: false,
           message: 'Không có sản phẩm nào được tìm thấy.',
         });

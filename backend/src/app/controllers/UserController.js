@@ -93,7 +93,7 @@ class UserController {
   }
   async index(req, res, next) {
     try {
-      const users = await User.find({});
+      const users = await User.find({}).sort('-createdAt');
       if (users) {
         return res.status(status.StatusCodes.OK).json({
           success: true,
@@ -125,6 +125,32 @@ class UserController {
         return res.status(status.StatusCodes.NOT_FOUND).json({
           success: false,
           message: 'Lỗi khi tạo tài khoản.',
+        });
+      }
+    } catch (error) {
+      return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Đã xảy ra lỗi khi lưu thông tin tài khoản.',
+      });
+    }
+  }
+  async addForm(req, res, next) {
+    try {
+      const { ...data } = req.body;
+      if (req.file) {
+        data.imageUrl = `http://localhost:3001/uploads/${req.file.originalname}`;
+      }
+      const user = await User.findOne({ email: data.email });
+      if (user) {
+        return res.status(status.StatusCodes.CONFLICT).json({
+          success: false,
+          message: 'User is exist! Please try again with another email!',
+        });
+      } else {
+        await User.create(data);
+        return res.status(status.StatusCodes.CREATED).json({
+          success: true,
+          data: user,
         });
       }
     } catch (error) {
@@ -175,6 +201,35 @@ class UserController {
         success: true,
         message: 'Update successfully',
       });
+    } catch (error) {
+      return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Đã xảy ra lỗi khi lấy thông tin tài khoản.',
+      });
+    }
+  }
+  async updateField(req, res, next) {
+    try {
+      const { id, password, password_confirmation } = req.body;
+      const user = await User.findById({ _id: id });
+      if (user) {
+        if (user.password === password_confirmation) {
+          return res.status(status.StatusCodes.CONFLICT).json({
+            success: false,
+            message: 'Mật khẩu mới không được trùng với mật khẩu cũ.',
+          });
+        } else {
+          await User.findOneAndUpdate(
+            { _id: id },
+            { password, password_confirmation },
+            { new: true },
+          );
+          return res.status(status.StatusCodes.CREATED).json({
+            success: true,
+            message: 'Đổi mật khẩu thành công',
+          });
+        }
+      }
     } catch (error) {
       return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
         success: false,

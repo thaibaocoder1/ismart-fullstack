@@ -11,13 +11,22 @@ const User = new Schema(
     username: String,
     email: String,
     phone: String,
-    password: String,
-    password_confirmation: String,
+    password: {
+      type: String,
+      default: 'passwordtemp',
+    },
+    password_confirmation: {
+      type: String,
+      default: 'passwordtemp',
+    },
     role: {
       type: String,
       default: 'User',
     },
-    imageUrl: String,
+    imageUrl: {
+      type: String,
+      default: 'https://placehold.co/200x200',
+    },
     refreshToken: String,
   },
   { timestamps: true },
