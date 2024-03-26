@@ -6,7 +6,8 @@ async function handleOnSubmitForm(data) {
     showSpinner()
     const user = await userApi.check(data)
     hideSpinner()
-    if (user.success) {
+    console.log(user)
+    if (user && user.success) {
       toast.success('Đăng nhập thành công')
       if (user.data.role === 'User') {
         localStorage.setItem('accessToken', JSON.stringify(user.data))
@@ -19,6 +20,9 @@ async function handleOnSubmitForm(data) {
           window.location.assign('/admin/index.html')
         }, 500)
       }
+    } else {
+      toast.error('Login error! Please try again')
+      return
     }
   } catch (error) {
     toast.error('Đăng nhập thất bại')

@@ -13,13 +13,14 @@ async function handleOnSubmitForm(data) {
       }, 500)
     }
   } catch (error) {
-    toast.error('Đăng nhập thất bại')
+    toast.error('Tài khoản không tồn tại!')
+    return
   }
 }
 // main
 ;(() => {
   Validator({
-    formID: '#form-1',
+    formID: '#form-admin-login',
     formGroupSelector: '.form-group',
     errorSelector: '.form-message',
     rules: [

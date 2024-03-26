@@ -122,6 +122,7 @@ async function handleFilterChange(value, tbodyEl) {
     const { target } = e
     if (target.matches('#viewOrder')) {
       const orderID = target.dataset.id
+      modal.dataset.id = orderID
       const modalBody = modal && modal.querySelector('.modal-body')
       if (!orderID || !modalBody) return
       const tableBody = modalBody.querySelector('tbody')
@@ -210,6 +211,12 @@ async function handleFilterChange(value, tbodyEl) {
         toast.error('Có lỗi trong khi cập nhật')
         return
       }
+    } else if (target.matches('.btn-invoice')) {
+      const orderID = modal.dataset.id
+      showSpinner()
+      const res = await orderApi.invoice(orderID)
+      hideSpinner()
+      console.log(res)
     }
   })
 })()

@@ -14,9 +14,9 @@ async function renderListUser({ idTable, idBreadcrumb }) {
     const res = await userApi.getAll()
     hideSpinner()
     if (res.success) {
-      const { users } = res
+      const { users, usersRemove } = res
       const { countDeleted } = res
-      users?.forEach((item, index) => {
+      usersRemove?.forEach((item, index) => {
         const tableRow = document.createElement('tr')
         tableRow.innerHTML = `
         <td><span class="tbody-text">${index + 1}</span></td>
@@ -29,7 +29,7 @@ async function renderListUser({ idTable, idBreadcrumb }) {
         <td>
           <button class="btn btn-primary btn-sm" data-id="${
             item._id
-          }" id="editUser" style="background-position: unset;">Chỉnh sửa</button>
+          }" id="editUser" style="background-position: unset;">Khôi phục</button>
           <button class="btn btn-secondary btn-sm" data-id="${
             item._id
           }" id="removeUser" data-bs-toggle="modal"
@@ -38,7 +38,7 @@ async function renderListUser({ idTable, idBreadcrumb }) {
         tbody.appendChild(tableRow)
       })
       breadcrumbUserEl.innerHTML = `<li class="all">
-      <a id="breadcrumbCategory" href="">Tất cả <span class="count">(${users.length})</span></a>
+      <a id="breadcrumbCategory" href="/admin/users.html">Tất cả <span class="count">(${users.length})</span></a>
      </li>
      <li class="all">
       <a id="breadcrumbCategory" href="/admin/users-trash.html">Thùng rác <span class="count">(${countDeleted})</span></a>
@@ -51,8 +51,8 @@ async function renderListUser({ idTable, idBreadcrumb }) {
 async function handleFilterChange(value, tbodyEl) {
   const res = await userApi.getAll()
   if (res.success) {
-    const { users } = res
-    const userApply = users.filter((user) =>
+    const { usersRemove } = res
+    const userApply = usersRemove.filter((user) =>
       diacritics.remove(user?.fullname.toLowerCase()).includes(value.toLowerCase()),
     )
     tbodyEl.innerHTML = ''
@@ -69,7 +69,7 @@ async function handleFilterChange(value, tbodyEl) {
       <td>
         <button class="btn btn-primary btn-sm" data-id="${
           item._id
-        }" id="editUser" style="background-position: unset;">Chỉnh sửa</button>
+        }" id="editUser" style="background-position: unset;">Khôi phục</button>
         <button class="btn btn-secondary btn-sm" data-id="${
           item._id
         }" id="removeUser" data-bs-toggle="modal"
@@ -95,7 +95,17 @@ async function handleFilterChange(value, tbodyEl) {
     const { target } = e
     if (target.matches('#editUser')) {
       const userID = target.dataset.id
-      window.location.assign(`/admin/add-edit-user.html?id=${userID}`)
+      if (userID) {
+        showSpinner()
+        const res = await userApi.restore(userID)
+        hideSpinner()
+        if (res.success) {
+          toast.success(res.message)
+          setTimeout(() => {
+            window.location.assign('/admin/users.html')
+          }, 1000)
+        }
+      }
     } else if (target.matches('#removeUser')) {
       const userID = target.dataset.id
       modal.dataset.id = userID
@@ -109,7 +119,7 @@ async function handleFilterChange(value, tbodyEl) {
           toast.success(res.message)
           setTimeout(() => {
             window.location.reload()
-          }, 1000)
+          }, 2000)
         } else {
           toast.error(res.message)
           return

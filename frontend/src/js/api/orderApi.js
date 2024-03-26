@@ -21,5 +21,9 @@ const ordersApi = {
     const url = `/orders/delete/${id}?_method=DELETE`
     return axiosClient.delete(url)
   },
+  invoice(id) {
+    const url = `/orders/invoice/${id}`
+    return axiosClient.get(url)
+  },
 }
 export default ordersApi

@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { toast } from '../utils'
 
 const axiosClient = axios.create({
   baseURL: 'http://localhost:3001/',
@@ -98,17 +99,18 @@ axiosClient.interceptors.response.use(
   function (response) {
     return response.data
   },
-  function (error) {
+  async function (error) {
     if (!error.response) {
       throw new Error('Network error. Please try again later')
     }
-    // Redirect to login if not login
-    if (error.response.status === 401) {
+    const { data } = error.response
+    if (!data.success && data.isRedirect) {
+      await axiosClient.removeLocalStorage()
       window.location.assign('/login.html')
-      return
     }
-    // Any status codes that falls outside the range of 2xx cause this function to trigger
-    // Do something with response error
+    if (error.response.status === 401) {
+      toast.error('Tài khoản đã bị xoá!')
+    }
     return Promise.reject(error)
   },
 )

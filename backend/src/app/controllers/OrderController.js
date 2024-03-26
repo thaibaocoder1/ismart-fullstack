@@ -1,5 +1,9 @@
 const Order = require('../models/Order');
+const Detail = require('../models/Detail');
 const status = require('http-status-codes');
+const PDFDocument = require('pdfkit-table');
+const path = require('path');
+const fs = require('fs');
 
 class OrderController {
   async index(req, res, next) {
@@ -40,6 +44,55 @@ class OrderController {
         });
       }
     } catch (error) {
+      return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Đã xảy ra lỗi khi lấy thông tin đơn hàng.',
+      });
+    }
+  }
+  async invoice(req, res, next) {
+    try {
+      const { id } = req.params;
+      const order = await Order.findById({ _id: id });
+      const orderDetail = await Detail.find({ orderID: id });
+      if (order) {
+        const invoiceFolderPath = 'src/public/invoice';
+        const fileName = `invoice.pdf`;
+        const filePath = path.join(invoiceFolderPath, fileName);
+        const fontPath = 'src/fonts/Roboto-Regular.ttf';
+        const doc = new PDFDocument();
+        const writeStream = fs.createWriteStream(filePath);
+        doc.pipe(writeStream);
+
+        doc
+          .font(fontPath)
+          .fontSize(20)
+          .text('Hoá đơn thanh toán - iSmart', { align: 'center' });
+        doc.moveDown();
+        const table = {
+          title: 'Title',
+          subtitle: 'Subtitle',
+          headers: ['Quantity', 'Price', 'Total'],
+          rows: orderDetail.map((item) => [
+            item.quantity,
+            item.price,
+            item.quantity * item.price,
+          ]),
+        };
+        await doc.table(table, {
+          width: 300,
+          columnsSize: [200, 100, 100],
+        });
+        // done!
+        doc.end();
+      } else {
+        return res.status(status.StatusCodes.NOT_FOUND).json({
+          success: false,
+          message: 'Không có đơn hàng nào được tìm thấy.',
+        });
+      }
+    } catch (error) {
+      console.log(error);
       return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: 'Đã xảy ra lỗi khi lấy thông tin đơn hàng.',

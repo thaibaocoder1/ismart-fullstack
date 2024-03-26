@@ -50,8 +50,12 @@ const userApi = {
     })
   },
   delete(id) {
-    const url = `/users/${id}`
+    const url = `/users/delete/${id}?_method=DELETE`
     return axiosClient.delete(url)
+  },
+  restore(id) {
+    const url = `/users/restore/${id}?_method=PATCH`
+    return axiosClient.patch(url)
   },
 }
 export default userApi

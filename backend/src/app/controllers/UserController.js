@@ -3,14 +3,215 @@ const status = require('http-status-codes');
 const authMethod = require('../../auth/AuthController');
 
 class UserController {
+  // Get all
+  async index(req, res, next) {
+    try {
+      const users = await User.find({}).sort('-createdAt');
+      const countDeleted = await User.countDocumentsWithDeleted({
+        deleted: true,
+      });
+      const usersRemove = await User.findWithDeleted({ deleted: true });
+      if (users) {
+        return res.status(status.StatusCodes.OK).json({
+          success: true,
+          results: users.length,
+          countDeleted,
+          usersRemove,
+          users,
+        });
+      } else {
+        return res.status(status.StatusCodes.NOT_FOUND).json({
+          success: false,
+          message: 'Không có tài khoản nào được tìm thấy.',
+        });
+      }
+    } catch (error) {
+      return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Đã xảy ra lỗi khi lấy thông tin tài khoản.',
+      });
+    }
+  }
+  // Add
+  async add(req, res, next) {
+    try {
+      const user = await User.create(req.body);
+      if (user) {
+        return res.status(status.StatusCodes.OK).json({
+          success: true,
+          user,
+        });
+      } else {
+        return res.status(status.StatusCodes.NOT_FOUND).json({
+          success: false,
+          message: 'Lỗi khi tạo tài khoản.',
+        });
+      }
+    } catch (error) {
+      return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Đã xảy ra lỗi khi lưu thông tin tài khoản.',
+      });
+    }
+  }
+  async addForm(req, res, next) {
+    try {
+      const { ...data } = req.body;
+      if (req.file) {
+        data.imageUrl = `http://localhost:3001/uploads/${req.file.originalname}`;
+      }
+      const user = await User.findOne({ email: data.email });
+      if (user) {
+        return res.status(status.StatusCodes.CONFLICT).json({
+          success: false,
+          message: 'User is exist! Please try again with another email!',
+        });
+      } else {
+        await User.create(data);
+        return res.status(status.StatusCodes.CREATED).json({
+          success: true,
+          data: user,
+        });
+      }
+    } catch (error) {
+      return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Đã xảy ra lỗi khi lưu thông tin tài khoản.',
+      });
+    }
+  }
+  // Get one
+  async detail(req, res, next) {
+    try {
+      const { id } = req.params;
+      const user = await User.findOne({
+        _id: id,
+      });
+      if (user !== null) {
+        return res.status(status.StatusCodes.OK).json({
+          success: true,
+          user,
+        });
+      } else {
+        res.clearCookie(refreshToken);
+        return res.status(status.StatusCodes.NOT_FOUND).json({
+          success: false,
+          isRedirect: true,
+          message: 'Không có tài khoản nào được tìm thấy.',
+        });
+      }
+    } catch (error) {
+      return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Đã xảy ra lỗi khi lấy thông tin tài khoản.',
+      });
+    }
+  }
+  // Update
+  async update(req, res, next) {
+    try {
+      const user = await User.findById(req.params.id);
+      if (!req.file) {
+        if (JSON.stringify(req.body) !== JSON.stringify(user.toObject())) {
+          await User.findOneAndUpdate({ _id: req.params.id }, req.body, {
+            new: true,
+          });
+        }
+      } else {
+        req.body.imageUrl = `http://localhost:3001/uploads/${req.file.originalname}`;
+        await User.findOneAndUpdate({ _id: req.params.id }, req.body, {
+          new: true,
+        });
+      }
+      res.status(status.StatusCodes.OK).json({
+        success: true,
+        message: 'Update successfully',
+      });
+    } catch (error) {
+      return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Đã xảy ra lỗi khi lấy thông tin tài khoản.',
+      });
+    }
+  }
+  async updateField(req, res, next) {
+    try {
+      const { id, password, password_confirmation } = req.body;
+      const user = await User.findById({ _id: id });
+      if (user) {
+        if (user.password === password_confirmation) {
+          return res.status(status.StatusCodes.CONFLICT).json({
+            success: false,
+            message: 'Mật khẩu mới không được trùng với mật khẩu cũ.',
+          });
+        } else {
+          await User.findOneAndUpdate(
+            { _id: id },
+            { password, password_confirmation },
+            { new: true },
+          );
+          return res.status(status.StatusCodes.CREATED).json({
+            success: true,
+            message: 'Đổi mật khẩu thành công',
+          });
+        }
+      }
+    } catch (error) {
+      return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Đã xảy ra lỗi khi lấy thông tin tài khoản.',
+      });
+    }
+  }
+  // Delete
+  async delete(req, res, next) {
+    try {
+      const { id } = req.params;
+      const user = await User.findById({ _id: id });
+      if (user) {
+        if (user.role.toLowerCase() === 'user') {
+          await User.delete({ _id: id });
+          res.status(status.StatusCodes.OK).json({
+            success: true,
+            message: 'Remove successfully!',
+          });
+        } else {
+          res.status(status.StatusCodes.OK).json({
+            success: false,
+            message: "Can't remove admin account!",
+          });
+        }
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+  // Restore
+  async restore(req, res, next) {
+    try {
+      const { id } = req.params;
+      const user = await User.findOneDeleted({ _id: id });
+      if (user) {
+        await User.restore({ _id: id });
+        res.status(status.StatusCodes.OK).json({
+          success: true,
+          message: 'Restore successfully!',
+        });
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+  // Auth
   async check(req, res, next) {
     try {
       const { email, password } = req.body;
       const user = await User.findOne({ email: email });
       if (!user) {
-        return res
-          .status(status.StatusCodes.UNAUTHORIZED)
-          .send('Email không tồn tại.');
+        return res.status(status.StatusCodes.UNAUTHORIZED).json({
+          success: false,
+          message: 'Tài khoản không tồn tại hoặc đã bị xoá.',
+        });
       }
       const isPasswordValid = user.password === password;
       if (!isPasswordValid) {
@@ -89,152 +290,6 @@ class UserController {
       }
     } catch (error) {
       return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).send('Error');
-    }
-  }
-  async index(req, res, next) {
-    try {
-      const users = await User.find({}).sort('-createdAt');
-      if (users) {
-        return res.status(status.StatusCodes.OK).json({
-          success: true,
-          results: users.length,
-          users,
-        });
-      } else {
-        return res.status(status.StatusCodes.NOT_FOUND).json({
-          success: false,
-          message: 'Không có tài khoản nào được tìm thấy.',
-        });
-      }
-    } catch (error) {
-      return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: 'Đã xảy ra lỗi khi lấy thông tin tài khoản.',
-      });
-    }
-  }
-  async add(req, res, next) {
-    try {
-      const user = await User.create(req.body);
-      if (user) {
-        return res.status(status.StatusCodes.OK).json({
-          success: true,
-          user,
-        });
-      } else {
-        return res.status(status.StatusCodes.NOT_FOUND).json({
-          success: false,
-          message: 'Lỗi khi tạo tài khoản.',
-        });
-      }
-    } catch (error) {
-      return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: 'Đã xảy ra lỗi khi lưu thông tin tài khoản.',
-      });
-    }
-  }
-  async addForm(req, res, next) {
-    try {
-      const { ...data } = req.body;
-      if (req.file) {
-        data.imageUrl = `http://localhost:3001/uploads/${req.file.originalname}`;
-      }
-      const user = await User.findOne({ email: data.email });
-      if (user) {
-        return res.status(status.StatusCodes.CONFLICT).json({
-          success: false,
-          message: 'User is exist! Please try again with another email!',
-        });
-      } else {
-        await User.create(data);
-        return res.status(status.StatusCodes.CREATED).json({
-          success: true,
-          data: user,
-        });
-      }
-    } catch (error) {
-      return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: 'Đã xảy ra lỗi khi lưu thông tin tài khoản.',
-      });
-    }
-  }
-  async detail(req, res, next) {
-    try {
-      const { id } = req.params;
-      const user = await User.findOne({ _id: id });
-      if (user) {
-        return res.status(status.StatusCodes.OK).json({
-          success: true,
-          user,
-        });
-      } else {
-        return res.status(status.StatusCodes.NOT_FOUND).json({
-          success: false,
-          message: 'Không có tài khoản nào được tìm thấy.',
-        });
-      }
-    } catch (error) {
-      return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: 'Đã xảy ra lỗi khi lấy thông tin tài khoản.',
-      });
-    }
-  }
-  async update(req, res, next) {
-    try {
-      const user = await User.findById(req.params.id);
-      if (!req.file) {
-        if (JSON.stringify(req.body) !== JSON.stringify(user.toObject())) {
-          await User.findOneAndUpdate({ _id: req.params.id }, req.body, {
-            new: true,
-          });
-        }
-      } else {
-        req.body.imageUrl = `http://localhost:3001/uploads/${req.file.originalname}`;
-        await User.findOneAndUpdate({ _id: req.params.id }, req.body, {
-          new: true,
-        });
-      }
-      res.status(status.StatusCodes.OK).json({
-        success: true,
-        message: 'Update successfully',
-      });
-    } catch (error) {
-      return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: 'Đã xảy ra lỗi khi lấy thông tin tài khoản.',
-      });
-    }
-  }
-  async updateField(req, res, next) {
-    try {
-      const { id, password, password_confirmation } = req.body;
-      const user = await User.findById({ _id: id });
-      if (user) {
-        if (user.password === password_confirmation) {
-          return res.status(status.StatusCodes.CONFLICT).json({
-            success: false,
-            message: 'Mật khẩu mới không được trùng với mật khẩu cũ.',
-          });
-        } else {
-          await User.findOneAndUpdate(
-            { _id: id },
-            { password, password_confirmation },
-            { new: true },
-          );
-          return res.status(status.StatusCodes.CREATED).json({
-            success: true,
-            message: 'Đổi mật khẩu thành công',
-          });
-        }
-      }
-    } catch (error) {
-      return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: 'Đã xảy ra lỗi khi lấy thông tin tài khoản.',
-      });
     }
   }
   async refresh(req, res, next) {

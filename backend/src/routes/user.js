@@ -22,6 +22,8 @@ router.post(
 router.post('/add/form', upload.single('imageUrl'), userController.addForm);
 router.patch('/update/:id', upload.single('imageUrl'), userController.update);
 router.patch('/update-field/:id', userController.updateField);
+router.patch('/restore/:id', userController.restore);
+router.delete('/delete/:id', userController.delete);
 router.get('/', userController.index);
 
 module.exports = router;
