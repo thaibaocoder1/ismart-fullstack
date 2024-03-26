@@ -19,6 +19,7 @@ async function renderStatusOrder(status) {
     case 3:
       return 'Đã nhận hàng'
     default:
+      return 'Đã huỷ'
   }
 }
 async function renderListOrder({ idElement }) {
@@ -183,20 +184,24 @@ async function handleFilterChange(value, tbodyEl) {
           if (+optionEl.value === order.status) {
             optionEl.selected = true
           }
+          if (order.status === 3) {
+            if (i !== 2) {
+              optionEl.disabled = true
+            }
+          }
           optionEl.innerHTML = `${tagArr[i]}`
           selectEl.appendChild(optionEl)
         }
       }
+      selectEl.addEventListener('change', (e) => {
+        modalEdit.dataset.status = Number(e.target.value)
+      })
     } else if (target.matches('.btn-confirm')) {
       const orderID = target.dataset.id
       const modalEdit = document.getElementById('modal-edit')
-      const selectEl = modalEdit.querySelector('#select')
-      selectEl.addEventListener('change', (e) => {
-        target.dataset.status = Number(e.target.value)
-      })
       const payload = {
         id: orderID,
-        status: Number.parseInt(target.dataset.status),
+        status: Number.parseInt(modalEdit.dataset.status) || 1,
       }
       const update = await orderApi.update(payload)
       if (update.success) {

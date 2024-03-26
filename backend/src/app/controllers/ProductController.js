@@ -6,9 +6,8 @@ class ProductController {
   // [GET] /products
   async index(req, res, next) {
     const slug = req.query.slug;
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 4;
-    console.log(page, limit);
+    const page = parseInt(req.query.page);
+    const limit = parseInt(req.query.limit);
     try {
       if (slug) {
         const category = await Catalog.findOne({ slug });

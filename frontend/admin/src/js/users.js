@@ -31,7 +31,8 @@ async function renderListUser({ idTable, idBreadcrumb }) {
           }" id="editUser" style="background-position: unset;">Chỉnh sửa</button>
           <button class="btn btn-secondary btn-sm" data-id="${
             item._id
-          }" id="removeUser" style="background-position: unset;">Xoá</button>
+          }" id="removeUser" data-bs-toggle="modal"
+          data-bs-target="#removeModal" style="background-position: unset;">Xoá</button>
         </td>`
         tbody.appendChild(tableRow)
       })
@@ -67,7 +68,8 @@ async function handleFilterChange(value, tbodyEl) {
         }" id="editUser" style="background-position: unset;">Chỉnh sửa</button>
         <button class="btn btn-secondary btn-sm" data-id="${
           item._id
-        }" id="removeUser" style="background-position: unset;">Xoá</button>
+        }" id="removeUser" data-bs-toggle="modal"
+        data-bs-target="#removeModal" style="background-position: unset;">Xoá</button>
       </td>`
       tbodyEl.appendChild(tableRow)
     })
@@ -89,6 +91,8 @@ async function handleFilterChange(value, tbodyEl) {
     if (target.matches('#editUser')) {
       const userID = target.dataset.id
       window.location.assign(`/admin/add-edit-user.html?id=${userID}`)
+    } else if (target.matches('#removeUser')) {
+      const userID = target.dataset.id
     }
   })
 })()

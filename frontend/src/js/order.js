@@ -37,11 +37,11 @@ async function handleCancelOrder(orderID) {
   let isSuccess = false
   try {
     showSpinner()
-    const order = await orderApi.getById(orderID)
-    const orderDetail = await orderDetailApi.getAll()
-    const orderDetailApply = orderDetail.filter((item) => item.orderID === orderID)
+    const res = await orderApi.getById(orderID)
+    const orderDetail = await orderDetailApi.getById(orderID)
     hideSpinner()
-    if (order) {
+    if (res.success && orderDetail.success) {
+      const { order } = res
       const orderStatus = +order.status
       if (orderStatus === 1) {
         const data = {
@@ -49,19 +49,20 @@ async function handleCancelOrder(orderID) {
           id: orderID,
         }
         await orderApi.update(data)
-        for (const item of orderDetailApply) {
+        for (const item of orderDetail.orders) {
           const { productID, quantity } = item
-          const productInfo = await productApi.getById(productID)
+          const productInfo = await productApi.getById(productID._id)
+          const { product } = productInfo
           const payload = {
-            id: productID,
-            quantity: +productInfo.quantity + quantity,
+            id: productID._id,
+            quantity: Number.parseInt(product.quantity) + quantity,
           }
           await productApi.update(payload)
         }
         isSuccess = true
-      } else {
-        toast.error('Không thể huỷ đơn hàng')
       }
+    } else {
+      toast.error('Có lỗi trong khi huỷ đơn hàng!')
     }
   } catch (error) {
     console.log('failed to fetch data', error)
@@ -113,13 +114,25 @@ function handleOnClick() {
       }
     } else if (target.matches('#cancelOrder')) {
       const orderID = target.dataset.id
+      const modal = document.getElementById('modal-cancel')
+      modal && modal.classList.add('is-show')
+      modal.dataset.order = orderID
+    } else if (target.closest('.btn-confirm')) {
+      const modal = document.getElementById('modal-cancel')
+      const orderID = modal.dataset.order
       const isCancel = await handleCancelOrder(orderID)
       if (isCancel) {
         toast.success('Huỷ đơn hàng thành công')
-        const cancelBtn = target
-        cancelBtn.innerHTML = 'Đã huỷ'
-        cancelBtn.disabled = true
+        setTimeout(() => {
+          window.location.reload()
+        }, 1000)
       }
+    } else if (target.matches('.modal')) {
+      const modal = document.getElementById('modal')
+      modal && modal.classList.remove('is-show')
+    } else if (target.closest('.btn-close')) {
+      const modal = document.getElementById('modal')
+      modal && modal.classList.remove('is-show')
     }
   })
 }

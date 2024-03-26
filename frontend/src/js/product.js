@@ -146,7 +146,6 @@ async function handleFilterChange(filterName, filterValue) {
   const url = new URL(window.location)
   url.searchParams.set(filterName, filterValue)
   history.pushState({}, '', url)
-
   const data = await productApi.getAll(url.searchParams)
   const { products, pagination } = data
   renderListProduct({
@@ -194,10 +193,10 @@ function initURL() {
 }
 // main
 ;(async () => {
+  initURL()
   const params = new URLSearchParams(window.location.search)
   // init pagination
   initPagination()
-  initURL()
   showSpinner()
   const data = await productApi.getAll(params)
   hideSpinner()
