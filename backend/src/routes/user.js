@@ -20,6 +20,7 @@ router.post(
   userController.add,
 );
 router.post('/add/form', upload.single('imageUrl'), userController.addForm);
+router.post('/forgot', userController.forgot);
 router.patch('/update/:id', upload.single('imageUrl'), userController.update);
 router.patch('/update-field/:id', userController.updateField);
 router.patch('/restore/:id', userController.restore);

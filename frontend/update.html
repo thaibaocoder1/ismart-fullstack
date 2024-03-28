@@ -11,22 +11,10 @@
 
     <div class="main">
       <form method="POST" class="form" id="form-1">
-        <h3 class="heading">Thành viên đăng nhập</h3>
+        <h3 class="heading">Thay đổi mật khẩu</h3>
         <p class="desc">Cùng nhau trở thành thành viên của iSmart ngay hôm nay ❤️</p>
 
         <div class="spacer"></div>
-
-        <div class="form-group">
-          <label for="email" class="form-label">Email</label>
-          <input
-            id="email"
-            name="email"
-            type="text"
-            placeholder="VD: abc@gmail.com"
-            class="form-control"
-          />
-          <span class="form-message"></span>
-        </div>
 
         <div class="form-group">
           <label for="password" class="form-label">Mật khẩu</label>
@@ -40,15 +28,26 @@
           <span class="form-message"></span>
         </div>
 
-        <button class="form-submit">Đăng nhập</button>
-        <div class="spacer actions actions--custom">
-          <a href="/register.html">Đăng ký ngay</a>
-          <a href="/forgot.html">Quên mật khẩu</a>
+        <div class="form-group">
+          <label for="password_confirmation" class="form-label">Nhập lại mật khẩu</label>
+          <input
+            id="password_confirmation"
+            name="password_confirmation"
+            placeholder="Nhập lại mật khẩu"
+            type="password"
+            class="form-control"
+          />
+          <span class="form-message"></span>
+        </div>
+
+        <button class="form-submit">Xác nhận</button>
+        <div class="spacer actions">
+          <p>Bạn chưa có tài khoản? <a href="/register.html">Đăng ký ngay</a></p>
         </div>
       </form>
     </div>
 
     <script src="/src/js/utils/validator.js"></script>
-    <script type="module" src="/src/js/login.js"></script>
+    <script type="module" src="/src/js/update.js"></script>
   </body>
 </html>

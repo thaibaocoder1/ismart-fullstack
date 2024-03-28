@@ -6,7 +6,6 @@ async function handleOnSubmitForm(data) {
     showSpinner()
     const user = await userApi.check(data)
     hideSpinner()
-    console.log(user)
     if (user && user.success) {
       toast.success('Đăng nhập thành công')
       if (user.data.role === 'User') {

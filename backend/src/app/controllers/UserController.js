@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const status = require('http-status-codes');
 const authMethod = require('../../auth/AuthController');
+const mailer = require('../../middlewares/mailer');
 
 class UserController {
   // Get all
@@ -437,6 +438,38 @@ class UserController {
       });
     }
   }
+  async forgot(req, res, next) {
+    try {
+      const { email } = req.body;
+      const user = await User.findOne({ email });
+      const content = `<b>Vui lòng click vào đường link này để xác thực việc lấy lại mật khẩu. <a href="http://localhost:5173/update.html?id=${user._id}">Xác thực</a></b>`;
+      if (user) {
+        await mailer.sendMail({
+          from: 'Ismart admin',
+          to: 'baohoangdevfs@gmail.com',
+          subject: 'Xác thực việc lấy lại mật khẩu tại iSmart ✔',
+          text: 'Xác thực việc lấy lại mật khẩu tại iSmart',
+          html: content,
+        });
+        res.status(status.StatusCodes.OK).json({
+          success: true,
+          message: 'Kiểm tra email để xác thực',
+        });
+      } else {
+        return res.status(status.StatusCodes.NOT_FOUND).json({
+          success: false,
+          message: 'Không có tài khoản nào được tìm thấy.',
+        });
+      }
+    } catch (error) {
+      res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        data: {
+          message: 'Error from SERVER!',
+        },
+      });
+    }
+  }
   async logout(req, res, next) {
     try {
       const { refreshToken, refreshTokenAdmin } = req.cookies;
@@ -452,7 +485,7 @@ class UserController {
           },
         );
         if (user) {
-          res.clearCookie('refreshToken');
+          res.clearCookie('refreshToken', { path: '/' });
           res.status(status.StatusCodes.OK).json({
             success: true,
             data: {

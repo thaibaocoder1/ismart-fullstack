@@ -120,3 +120,11 @@ html {
   display: flex;
   justify-content: flex-end;
 }
+.actions--custom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.actions--custom > * {
+  font-size: 14px;
+}

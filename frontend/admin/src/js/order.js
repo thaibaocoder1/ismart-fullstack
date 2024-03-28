@@ -216,7 +216,12 @@ async function handleFilterChange(value, tbodyEl) {
       showSpinner()
       const res = await orderApi.invoice(orderID)
       hideSpinner()
-      console.log(res)
+      if (res.success) {
+        toast.success(data.message)
+      } else {
+        toast.error('Có lỗi trong khi xử lý!')
+        return
+      }
     }
   })
 })()
