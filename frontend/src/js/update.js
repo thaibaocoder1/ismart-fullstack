@@ -7,16 +7,25 @@ async function handleOnSubmitForm(data) {
   data.id = id
   try {
     showSpinner()
-    const update = await userApi.update(data)
+    const update = await userApi.reset(data)
     hideSpinner()
     if (update.success) {
       toast.success(update.message)
       setTimeout(() => {
         window.location.assign('/login.html')
       }, 1000)
+    } else {
+      toast.error(update.message)
+      return
     }
   } catch (error) {
-    toast.error('Email không tồn tại!')
+    const { response } = error
+    if (!response.data.success) {
+      toast.error(response.data.message)
+      setTimeout(() => {
+        window.location.assign('/forgot.html')
+      }, 1000)
+    }
   }
 }
 // main

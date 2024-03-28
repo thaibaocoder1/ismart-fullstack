@@ -61,5 +61,9 @@ const userApi = {
     const url = `/users/restore/${id}?_method=PATCH`
     return axiosClient.patch(url)
   },
+  reset(data) {
+    const url = `/users/reset/${data.id}?_method=PATCH`
+    return axiosClient.patch(url, data)
+  },
 }
 export default userApi

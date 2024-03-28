@@ -159,6 +159,7 @@ async function renderListOrder({ idTable, infoUserStorage }) {
       if (Object.keys(infoUserStorage).length > 0 && orders.length > 0) {
         const userID = infoUserStorage.id
         const listOrderApply = orders.filter((order) => order.userID === userID)
+        console.log(listOrderApply)
         if (listOrderApply.length === 0) {
           toast.info('Bạn chưa có đơn hàng nào')
           return
@@ -183,6 +184,9 @@ async function renderListOrder({ idTable, infoUserStorage }) {
           </td>`
           tbodyEl.appendChild(tableRow)
         })
+      } else {
+        toast.info('Bạn chưa có đơn hàng nào')
+        return
       }
     }
   } catch (error) {

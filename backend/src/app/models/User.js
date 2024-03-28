@@ -29,6 +29,7 @@ const User = new Schema(
       default: 'https://placehold.co/200x200',
     },
     refreshToken: String,
+    resetedAt: Number,
   },
   { timestamps: true },
 );

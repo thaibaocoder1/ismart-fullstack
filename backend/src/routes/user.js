@@ -24,6 +24,7 @@ router.post('/forgot', userController.forgot);
 router.patch('/update/:id', upload.single('imageUrl'), userController.update);
 router.patch('/update-field/:id', userController.updateField);
 router.patch('/restore/:id', userController.restore);
+router.patch('/reset/:id', userController.reset);
 router.delete('/delete/:id', userController.delete);
 router.get('/', userController.index);
 

@@ -203,6 +203,35 @@ class UserController {
       next(error);
     }
   }
+  // Reset password
+  async reset(req, res, next) {
+    try {
+      const { id } = req.body;
+      const user = await User.findOne({ _id: id });
+      if (user) {
+        const now = Math.floor(Date.now() / 1000);
+        const timer = Math.floor(user.resetedAt / 1000);
+        if (now - timer > 300) {
+          res.status(status.StatusCodes.NOT_FOUND).json({
+            success: false,
+            message: 'Reset failed!',
+          });
+        } else {
+          req.body.resetedAt = 0;
+          await User.findOneAndUpdate({ _id: id }, req.body);
+          res.status(status.StatusCodes.OK).json({
+            success: true,
+            message: 'Reset successfully!',
+          });
+        }
+      }
+    } catch (error) {
+      res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Error from SERVER!',
+      });
+    }
+  }
   // Auth
   async check(req, res, next) {
     try {
@@ -446,11 +475,15 @@ class UserController {
       if (user) {
         await mailer.sendMail({
           from: 'Ismart admin',
-          to: 'baohoangdevfs@gmail.com',
+          to: user.email,
           subject: 'Xác thực việc lấy lại mật khẩu tại iSmart ✔',
           text: 'Xác thực việc lấy lại mật khẩu tại iSmart',
           html: content,
         });
+        await User.findOneAndUpdate(
+          { email },
+          { $set: { resetedAt: new Date().getTime() } },
+        );
         res.status(status.StatusCodes.OK).json({
           success: true,
           message: 'Kiểm tra email để xác thực',

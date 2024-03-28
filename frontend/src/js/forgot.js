@@ -12,6 +12,9 @@ async function handleOnSubmitForm(data) {
     }
   } catch (error) {
     toast.error('Email không tồn tại!')
+    setTimeout(() => {
+      window.location.reload()
+    }, 1500)
   }
 }
 // main
