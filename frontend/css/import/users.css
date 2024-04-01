@@ -231,11 +231,29 @@
   width: 493px;
   position: absolute;
   z-index: 10;
+  overflow-y: scroll;
   transition: all 0.25s linear;
 }
+.search::-webkit-scrollbar-track {
+  -webkit-box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  background-color: #f5f5f5;
+}
+
+.search::-webkit-scrollbar {
+  width: 6px;
+  background-color: #f5f5f5;
+}
+
+.search::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  -webkit-box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+  background-color: #555;
+}
+
 .search-item {
   display: flex;
-  gap: 0 10px;
+  gap: 0 15px;
   padding: 5px;
 }
 .search-item:not(:last-child) {
@@ -249,7 +267,7 @@
   width: 100%;
   height: 100%;
   border-radius: 0 0 2px 2px;
-  flex-shrink: 0;
+  object-fit: cover;
 }
 .is-out-quantity {
   background: #ef5350;

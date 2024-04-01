@@ -1,33 +1,35 @@
 import productApi from '../api/productsApi'
-import { formatCurrencyNumber } from './format'
+import { renderListProduct, renderPagination } from '../product'
+import { calcPrice, formatCurrencyNumber } from './format'
 import { hideSpinner, showSpinner } from './spinner'
 import { toast } from './toast'
 import debounce from 'lodash.debounce'
 
 export async function renderListProductSearch(listProduct, search) {
-  if (!search || !listProduct || listProduct.length === 0) return
+  if (!search || listProduct.length === 0) return
   search.textContent = ''
-  listProduct.forEach((item) => {
-    const searchItem = document.createElement('search')
-    searchItem.classList.add('search-item')
-    searchItem.innerHTML = `<figure class="search-thumb">
-    <a href="/product-detail.html?id=${item.id}">
-      <img src="public/images/${item.thumb}" alt="${item.name}" class="search-img" />
+  if (listProduct.length > 0) {
+    listProduct.forEach((item) => {
+      const searchItem = document.createElement('search')
+      search.style.height = `${listProduct.length > 0 ? '200px' : '0px'}`
+      searchItem.classList.add('search-item')
+      searchItem.innerHTML = `<figure class="search-thumb">
+    <a href="product-detail.html?id=${item._id}">
+      <img src="${item.thumb.fileName}" alt="${item.name}" class="search-img" />
     </a>
     </figure>
     <div class="search-content">
       <h3 class="search-name">
-        <a href="/product-detail.html?id=${item.id}">${item.name}</a>
+        <a href="product-detail.html?id=${item._id}">${item.name}</a>
       </h3>
       <div class="search-price">
-        <span>${formatCurrencyNumber(
-          item.price * ((100 - Number.parseInt(item.discount)) / 100),
-        )}</span>
+        <span>${formatCurrencyNumber(calcPrice(item))}</span>
         <span style="font-size: 12px;">Giảm ${item.discount}%</span>
       </div>
     </div>`
-    search.appendChild(searchItem)
-  })
+      search.appendChild(searchItem)
+    })
+  }
 }
 
 export function initSearchForm({ idForm, idElement, searchValueUrl }) {
@@ -41,16 +43,19 @@ export function initSearchForm({ idForm, idElement, searchValueUrl }) {
   const debounceSearch = debounce(async (e) => {
     const { target } = e
     const value = target.value
-    let productApply = []
+    let listProduct = []
     if (value.length === 0) {
       search.textContent = ''
-      await renderListProductSearch(productApply, search)
+      await renderListProductSearch(listProduct, search)
     } else {
-      const products = await productApi.getAll()
-      productApply = products.filter((item) =>
-        item?.name.toLowerCase().includes(value.toLowerCase()),
-      )
-      await renderListProductSearch(productApply, search)
+      const res = await productApi.getAll()
+      if (res.success) {
+        const { products } = res
+        listProduct = products.filter((item) =>
+          item?.name.toLowerCase().includes(value.toLowerCase()),
+        )
+      }
+      await renderListProductSearch(listProduct, search)
     }
   }, 500)
   searchTerm.addEventListener('input', debounceSearch)
@@ -70,49 +75,39 @@ export function initFormFilter({ idForm, searchValueUrl, onChange }) {
   form.addEventListener('submit', function (e) {
     e.preventDefault()
   })
+  const params = new URLSearchParams(window.location.search)
   if (selectEl) {
     selectEl.addEventListener('change', async function (e) {
-      showSpinner()
-      const products = await productApi.getAll()
-      hideSpinner()
+      const res = await productApi.getAll(params)
       let productApply = []
-      let productClone = [...products]
+      let productClone = [...res.products]
       if (searchValueUrl && searchValueUrl !== null) {
         productClone = products.filter((item) =>
           item?.name.toLowerCase().includes(searchValueUrl.toLowerCase()),
         )
       }
-      const value = +e.target.value
+      const value = e.target.value
+
       switch (value) {
-        case 1:
-          productApply = productClone.sort((a, b) => {
-            const nameA = a.name.toUpperCase()
-            const nameB = b.name.toUpperCase()
-            return nameB > nameA ? -1 : 1
-          })
+        case 'discount':
+          productApply = productClone.sort((a, b) => b.discount - a.discount)
           break
-        case 2:
+        case 'decrease':
           productApply = productClone.sort((a, b) => {
-            const nameA = a.name.toUpperCase()
-            const nameB = b.name.toUpperCase()
-            return nameB > nameA ? 1 : -1
-          })
-          break
-        case 3:
-          productApply = productClone.sort((a, b) => {
-            const priceA = a.price * ((100 - Number.parseInt(a.discount)) / 100)
-            const priceB = b.price * ((100 - Number.parseInt(b.discount)) / 100)
+            const priceA = calcPrice(a)
+            const priceB = calcPrice(b)
             return priceB - priceA
           })
           break
-        case 4:
+        case 'increase':
           productApply = productClone.sort((a, b) => {
-            const priceA = a.price * ((100 - Number.parseInt(a.discount)) / 100)
-            const priceB = b.price * ((100 - Number.parseInt(b.discount)) / 100)
+            const priceA = calcPrice(a)
+            const priceB = calcPrice(b)
             return priceA - priceB
           })
           break
         default:
+          productApply = productClone
           break
       }
       await onChange?.(productApply)
@@ -120,62 +115,77 @@ export function initFormFilter({ idForm, searchValueUrl, onChange }) {
   }
 }
 
-const filters = {
-  priceMin: null,
-  priceMax: null,
-  brand: null,
+export function initFilterProduct(selector) {
+  const button = document.getElementById(selector)
+  if (!button) return
+  const modalFilter = document.getElementById('filter-wrapper')
+  const applyBtn = document.getElementById('apply-btn')
+  const resetBtn = document.getElementById('reset-btn')
+
+  applyBtn.addEventListener('click', applyFilters)
+  resetBtn.addEventListener('click', resetFilters)
+  button.addEventListener('click', (e) => {
+    modalFilter && modalFilter.classList.add('is-active')
+  })
+  window.addEventListener('click', (e) => {
+    if (e.target.classList.contains('filter-wrapper')) {
+      modalFilter && modalFilter.classList.remove('is-active')
+    }
+  })
 }
+async function applyFilters() {
+  const brandFilters = document.querySelectorAll('input[name="brand"]:checked')
+  const minPrice = document.querySelector('input[name="min-price"]').value
+  const maxPrice = document.querySelector('input[name="max-price"]').value
 
-function handleRadioChange(event, filterType) {
-  const value = event.target.value
+  const queryParams = {}
 
-  if (filterType === 'price') {
-    const minMax = value.split('-')
-    filters.priceMin = minMax[0] ? parseInt(minMax[0]) : null
-    filters.priceMax = minMax[1] ? parseInt(minMax[1]) : null
-  } else {
-    filters[filterType] = value
+  if (brandFilters.length > 0) {
+    const brands = []
+    brandFilters.forEach((filter) => brands.push(filter.value))
+    queryParams.brand = brands.join(',')
   }
 
-  return filters
-}
+  if (minPrice !== '') {
+    queryParams.minPrice = minPrice
+  }
 
-export function initFilterPrice({ idForm, onChange }) {
-  const form = document.getElementById(idForm)
-  if (!form) return
-  const listRadio = form.querySelectorAll("input[type='radio']")
-  if (listRadio) {
-    ;[...listRadio].forEach((radio) => {
-      radio.addEventListener('click', async function (e) {
-        showSpinner()
-        const products = await productApi.getAll()
-        hideSpinner()
-        let productApply = []
-        const filterType = e.target.name.split('-')[1]
-        handleRadioChange(e, filterType)
-        if (Object.values(filters).every((value) => value !== null)) {
-          productApply = products.filter((item) => {
-            const price = item.price * ((100 - Number.parseInt(item.discount)) / 100)
-            const priceCondition = price >= filters.priceMin && price <= filters.priceMax
-            const brandCondition = item?.name.toLowerCase().includes(filters.brand.toLowerCase())
-            return priceCondition && brandCondition
-          })
-        } else {
-          if (filters.brand) {
-            const brandName = filters.brand
-            productApply = products.filter((item) =>
-              item?.name.toLowerCase().includes(brandName.toLowerCase()),
-            )
-          } else {
-            productApply = products.filter((item) => {
-              const price = item.price * ((100 - Number.parseInt(item.discount)) / 100)
-              const priceCondition = price >= filters.priceMin && price <= filters.priceMax
-              return priceCondition
-            })
-          }
-        }
-        await onChange?.(productApply)
-      })
+  if (maxPrice !== '') {
+    queryParams.maxPrice = maxPrice
+  }
+
+  if (Number(minPrice) > Number(maxPrice)) {
+    toast.error('Kiểm tra lại khoảng giá tìm kiếm!')
+    return
+  }
+
+  if (queryParams) {
+    const searchParams = new URLSearchParams(location.search)
+    const combinedParams = new URLSearchParams(searchParams)
+    Object.entries(queryParams).forEach(([key, value]) => {
+      combinedParams.append(key, value)
     })
+    combinedParams.set('page', 1)
+    showSpinner()
+    const data = await productApi.getAll(combinedParams)
+    hideSpinner()
+    const { products, pagination, allProducts } = data
+    renderListProduct({
+      selector: '#listProduct',
+      selectorCount: '#countProduct',
+      products,
+      allProducts,
+      pagination,
+      searchValueUrl: combinedParams.get('searchTerm'),
+    })
+    renderPagination(pagination)
   }
+}
+
+function resetFilters() {
+  document
+    .querySelectorAll('input[name="brand"]:checked')
+    .forEach((checkbox) => (checkbox.checked = false))
+  document.querySelector('input[name="min-price"]').value = ''
+  document.querySelector('input[name="max-price"]').value = ''
 }

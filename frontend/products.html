@@ -126,20 +126,19 @@
         </div>
         <div class="main-content fl-right">
           <div class="section" id="list-product-wp">
+            <h3 class="section-title fl-left" id="productHeading">Sản phẩm</h3>
             <div class="section-head clearfix">
-              <h3 class="section-title fl-left" id="productHeading">Sản phẩm</h3>
+              <button class="btn" id="btn-filter">Lọc</button>
               <div class="filter-wp fl-right">
                 <p class="desc" id="countProduct">Hiển thị 0 trên 0 sản phẩm</p>
                 <div class="form-filter">
-                  <form id="formFilter">
+                  <form id="formFilter" method="POST">
                     <select name="select">
-                      <option value="0">Sắp xếp</option>
-                      <option value="1">Từ A-Z</option>
-                      <option value="2">Từ Z-A</option>
-                      <option value="3">Giá cao xuống thấp</option>
-                      <option value="4">Giá thấp lên cao</option>
+                      <option value="all">Sắp xếp</option>
+                      <option value="discount">Giảm giá</option>
+                      <option value="decrease">Giá cao xuống thấp</option>
+                      <option value="increase">Giá thấp lên cao</option>
                     </select>
-                    <button type="submit">Lọc</button>
                   </form>
                 </div>
               </div>
@@ -168,73 +167,6 @@
             </div>
             <div class="secion-detail">
               <ul class="list-item" id="listCategory"></ul>
-            </div>
-          </div>
-          <div class="section" id="filter-product-wp">
-            <div class="section-head">
-              <h3 class="section-title">Bộ lọc</h3>
-            </div>
-            <div class="section-detail">
-              <form id="formFilterPrice">
-                <table>
-                  <thead>
-                    <tr>
-                      <td colspan="2">Khoảng giá</td>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td><input type="radio" name="r-price" value="500000 - 1000000" /></td>
-                      <td>500.000đ - 1.000.000đ</td>
-                    </tr>
-                    <tr>
-                      <td><input type="radio" name="r-price" value="1000000 - 3000000" /></td>
-                      <td>1.000.000đ - 3.000.000đ</td>
-                    </tr>
-                    <tr>
-                      <td><input type="radio" name="r-price" value="3000000 - 5000000" /></td>
-                      <td>3.000.000đ - 5.000.000đ</td>
-                    </tr>
-                    <tr>
-                      <td><input type="radio" name="r-price" value="5000000 - 50000000" /></td>
-                      <td>Trên 5.000.000đ</td>
-                    </tr>
-                  </tbody>
-                </table>
-                <table>
-                  <thead>
-                    <tr>
-                      <td colspan="2">Hãng</td>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td><input type="radio" name="r-brand" value="Acer" /></td>
-                      <td>Acer</td>
-                    </tr>
-                    <tr>
-                      <td><input type="radio" name="r-brand" value="Sony" /></td>
-                      <td>Sony</td>
-                    </tr>
-                    <tr>
-                      <td><input type="radio" name="r-brand" value="Asus" /></td>
-                      <td>Asus</td>
-                    </tr>
-                    <tr>
-                      <td><input type="radio" name="r-brand" value="Lenovo" /></td>
-                      <td>Lenovo</td>
-                    </tr>
-                    <tr>
-                      <td><input type="radio" name="r-brand" value="Samsung" /></td>
-                      <td>Samsung</td>
-                    </tr>
-                    <tr>
-                      <td><input type="radio" name="r-brand" value="Iphone" /></td>
-                      <td>Iphone</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </form>
             </div>
           </div>
           <div class="section" id="banner-wp">
@@ -313,6 +245,29 @@
         </div>
       </div>
     </div>
+    <!-- Modal -->
+    <div class="filter-wrapper" id="filter-wrapper">
+      <div class="filter-container">
+        <h2>Lọc Sản phẩm</h2>
+        <div class="filter-options">
+          <div class="filter-category">
+            <h3>Thương hiệu</h3>
+            <label><input type="checkbox" name="brand" value="Samsung" /> Samsung</label>
+            <label><input type="checkbox" name="brand" value="Apple" /> Apple</label>
+            <label><input type="checkbox" name="brand" value="Xiaomi" /> Xiaomi</label>
+            <label><input type="checkbox" name="brand" value="Asus" /> Asus</label>
+          </div>
+          <div class="filter-category">
+            <h3>Giá</h3>
+            <input type="number" name="min-price" placeholder="Từ" />
+            <input type="number" name="max-price" placeholder="Đến" />
+          </div>
+        </div>
+        <button id="apply-btn">Áp dụng</button>
+        <button id="reset-btn">Thiết lập lại</button>
+      </div>
+    </div>
+
     <div id="menu-respon">
       <a href="?page=home" title="" class="logo">VSHOP</a>
       <div id="menu-respon-wp">

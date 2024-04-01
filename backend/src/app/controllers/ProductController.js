@@ -8,6 +8,9 @@ class ProductController {
     const slug = req.query.slug;
     const page = parseInt(req.query.page);
     const limit = parseInt(req.query.limit);
+    const allProducts = await Product.find({});
+    const brand = req.query.brand;
+
     try {
       if (slug) {
         const category = await Catalog.findOne({ slug });
@@ -22,6 +25,7 @@ class ProductController {
         return res.status(status.StatusCodes.OK).json({
           success: true,
           results: products.length,
+          allProducts,
           products,
           pagination: {
             limit,
@@ -30,28 +34,58 @@ class ProductController {
           },
         });
       } else {
-        const skip = (page - 1) * limit;
-        const products = await Product.find({})
-          .sort('-updatedAt')
-          .skip(skip)
-          .limit(limit);
-        const totalProducts = await Product.countDocuments();
-        if (products && products.length > 0) {
-          return res.status(status.StatusCodes.OK).json({
-            success: true,
-            results: products.length,
-            products,
-            pagination: {
-              limit,
-              currentPage: page,
-              totalRows: totalProducts,
-            },
-          });
+        if (brand) {
+          const brands = brand.split(',');
+          const brandRegexArray = brands.map((brand) => new RegExp(brand, 'i'));
+          const brandQuery = {
+            $or: brandRegexArray.map((brandRegex) => ({
+              name: { $regex: brandRegex },
+            })),
+          };
+          const skip = (page - 1) * limit;
+          const products = await Product.find(brandQuery)
+            .sort('-updatedAt')
+            .skip(skip)
+            .limit(limit);
+          const totalProducts = await Product.countDocuments(brandQuery);
+          if (products && products.length > 0) {
+            return res.status(status.StatusCodes.OK).json({
+              success: true,
+              results: products.length,
+              allProducts,
+              products,
+              pagination: {
+                limit,
+                currentPage: page,
+                totalRows: totalProducts,
+              },
+            });
+          }
         } else {
-          return res.status(status.StatusCodes.NOT_FOUND).json({
-            success: false,
-            message: 'Không có sản phẩm nào được tìm thấy.',
-          });
+          const skip = (page - 1) * limit;
+          const products = await Product.find({})
+            .sort('-updatedAt')
+            .skip(skip)
+            .limit(limit);
+          const totalProducts = await Product.countDocuments();
+          if (products && products.length > 0) {
+            return res.status(status.StatusCodes.OK).json({
+              success: true,
+              results: products.length,
+              allProducts,
+              products,
+              pagination: {
+                limit,
+                currentPage: page,
+                totalRows: totalProducts,
+              },
+            });
+          } else {
+            return res.status(status.StatusCodes.NOT_FOUND).json({
+              success: false,
+              message: 'Không có sản phẩm nào được tìm thấy.',
+            });
+          }
         }
       }
     } catch (error) {

@@ -10,11 +10,18 @@ import {
   toast,
   initSearchForm,
   initFormFilter,
-  initFilterPrice,
   calcPrice,
+  initFilterProduct,
 } from './utils'
 
-async function renderListProduct({ selector, selectorCount, products, searchValueUrl }) {
+export async function renderListProduct({
+  selector,
+  selectorCount,
+  products,
+  allProducts,
+  pagination,
+  searchValueUrl,
+}) {
   const ulElement = document.querySelector(selector)
   const countProductEl = document.querySelector(selectorCount)
   if (!ulElement || !countProductEl) return
@@ -22,7 +29,7 @@ async function renderListProduct({ selector, selectorCount, products, searchValu
   try {
     let dataApply = []
     if (searchValueUrl !== null) {
-      dataApply = products.filter((item) =>
+      dataApply = allProducts.filter((item) =>
         item?.name.toLowerCase().includes(searchValueUrl.toLowerCase()),
       )
     }
@@ -37,7 +44,7 @@ async function renderListProduct({ selector, selectorCount, products, searchValu
         <a href="product-detail.html?id=${item._id}" title="" class="thumb">
           <img src="${item.thumb.fileName}" alt="${item.name}" />
         </a>
-        <a href="/product-detail.html?id=${item._id}" title="${item.name}" class="product-name">${
+        <a href="product-detail.html?id=${item._id}" title="${item.name}" class="product-name">${
           item.name
         }</a>
         <div class="price">
@@ -67,7 +74,7 @@ async function renderListProduct({ selector, selectorCount, products, searchValu
         <a href="product-detail.html?id=${item._id}" title="${item.name}" class="thumb">
           <img src="${item.thumb.fileName}" alt="${item.name}" />
         </a>
-        <a href="/product-detail.html?id=${item._id}" title="${item.name}" class="product-name">${
+        <a href="product-detail.html?id=${item._id}" title="${item.name}" class="product-name">${
             item.name
           }</a>
         <div class="price">
@@ -84,7 +91,7 @@ async function renderListProduct({ selector, selectorCount, products, searchValu
         </div>`
           ulElement.appendChild(liElement)
         })
-        countProductEl.innerHTML = `Hiển thị ${products.length} trên ${products.length} sản phẩm`
+        countProductEl.innerHTML = `Hiển thị ${products.length} trên ${pagination.totalRows} sản phẩm`
       } else {
         toast.info('Sản phẩm đang phát triển')
         const textElement = document.createElement('span')
@@ -110,7 +117,7 @@ async function renderListFilter(value) {
     <a href="product-detail.html?id=${item._id}" title="" class="thumb">
       <img src="${item.thumb.fileName}" alt="${item.name}" />
     </a>
-    <a href="/product-detail.html?id=${item._id}" title="${item.name}" class="product-name">${
+    <a href="product-detail.html?id=${item._id}" title="${item.name}" class="product-name">${
       item.name
     }</a>
     <div class="price">
@@ -129,7 +136,7 @@ async function renderListFilter(value) {
   })
   countProductEl.innerHTML = `Hiển thị ${value.length} trên ${value.length} sản phẩm`
 }
-function renderPagination(pagination) {
+export function renderPagination(pagination) {
   if (!pagination) return
   const { currentPage, totalRows, limit } = pagination
   const totalPages = Math.ceil(totalRows / limit)
@@ -147,11 +154,13 @@ async function handleFilterChange(filterName, filterValue) {
   url.searchParams.set(filterName, filterValue)
   history.pushState({}, '', url)
   const data = await productApi.getAll(url.searchParams)
-  const { products, pagination } = data
+  const { products, pagination, allProducts } = data
   renderListProduct({
     selector: '#listProduct',
     selectorCount: '#countProduct',
     products,
+    allProducts,
+    pagination,
     searchValueUrl: url.searchParams.get('searchTerm'),
   })
   renderPagination(pagination)
@@ -200,15 +209,19 @@ function initURL() {
   showSpinner()
   const data = await productApi.getAll(params)
   hideSpinner()
-  const { products, pagination } = data
+  const { products, pagination, allProducts } = data
   renderListProduct({
     selector: '#listProduct',
     selectorCount: '#countProduct',
     products,
+    allProducts,
+    pagination,
     searchValueUrl: params.get('searchTerm'),
   })
   renderPagination(pagination)
   renderListCategory('#listCategory')
+  // init filter product
+  initFilterProduct('btn-filter')
   // get cart from localStorage
   let cart = localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : []
   let infoUserStorage = localStorage.getItem('accessToken')
@@ -227,6 +240,7 @@ function initURL() {
       isCartAdded = true
     }
   }
+
   if (Boolean(params.get('searchTerm'))) {
     const searchValueUrl = params.get('searchTerm')
     initSearchForm({
@@ -251,11 +265,6 @@ function initURL() {
       onChange: renderListFilter,
     })
   }
-  // init filter price
-  initFilterPrice({
-    idForm: 'formFilterPrice',
-    onChange: renderListFilter,
-  })
   // event delegations
   document.addEventListener('click', async function (e) {
     const { target } = e
