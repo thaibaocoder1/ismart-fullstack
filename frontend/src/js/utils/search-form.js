@@ -1,10 +1,111 @@
 import productApi from '../api/productsApi'
-import { renderListProduct, renderPagination } from '../product'
 import { calcPrice, formatCurrencyNumber } from './format'
 import { hideSpinner, showSpinner } from './spinner'
 import { toast } from './toast'
 import debounce from 'lodash.debounce'
 
+function renderPagination(pagination) {
+  if (!pagination) return
+  const { currentPage, totalRows, limit } = pagination
+  const totalPages = Math.ceil(totalRows / limit)
+  const ulPagination = document.getElementById('pagination')
+  ulPagination.dataset.totalPages = totalPages
+  ulPagination.dataset.page = currentPage
+  if (currentPage <= 1) ulPagination.firstElementChild?.classList.add('disabled')
+  else ulPagination.firstElementChild?.classList.remove('disabled')
+
+  if (currentPage >= totalPages) ulPagination.lastElementChild?.classList.add('disabled')
+  else ulPagination.lastElementChild?.classList.remove('disabled')
+}
+async function renderListProduct({
+  selector,
+  selectorCount,
+  products,
+  allProducts,
+  pagination,
+  searchValueUrl,
+}) {
+  const ulElement = document.querySelector(selector)
+  const countProductEl = document.querySelector(selectorCount)
+  if (!ulElement || !countProductEl) return
+  ulElement.textContent = ''
+  try {
+    let dataApply = []
+    if (searchValueUrl !== null) {
+      dataApply = allProducts.filter((item) =>
+        item?.name.toLowerCase().includes(searchValueUrl.toLowerCase()),
+      )
+    }
+    if (dataApply.length > 0) {
+      dataApply.forEach((item) => {
+        const liElement = document.createElement('li')
+        liElement.dataset.id = item._id
+        liElement.innerHTML = `
+        <div class='product-sale'>
+          <span>${item.discount}%</span>
+        </div>
+        <a href="product-detail.html?id=${item._id}" title="" class="thumb">
+          <img src="${item.thumb.fileName}" alt="${item.name}" />
+        </a>
+        <a href="product-detail.html?id=${item._id}" title="${item.name}" class="product-name">${
+          item.name
+        }</a>
+        <div class="price">
+          <span class="new">${formatCurrencyNumber(calcPrice(item))}</span>
+          <span class="old">${formatCurrencyNumber(item.price)}</span>
+        </div>
+        <div class="action clearfix action--custom">
+          ${
+            Number.parseInt(item.quantity) > 0 && Number.parseInt(item.status) === 1
+              ? `<a href="cart.html" title="Thêm giỏ hàng" data-id=${item._id} class="add-cart fl-left">Thêm giỏ hàng</a>
+                <a title="Mua ngay" data-id=${item._id} style="cursor: pointer;" class="buy-now fl-right">Mua ngay</a>`
+              : `<span>Hết hàng</span>`
+          }
+        </div>`
+        ulElement.appendChild(liElement)
+      })
+      countProductEl.innerHTML = `Hiển thị ${dataApply.length} trên ${dataApply.length} sản phẩm`
+    } else {
+      if (products.length > 0) {
+        products.forEach((item) => {
+          const liElement = document.createElement('li')
+          liElement.dataset.id = item._id
+          liElement.innerHTML = `
+        <div class='product-sale'>
+          <span>${item.discount}%</span>
+        </div>
+        <a href="product-detail.html?id=${item._id}" title="${item.name}" class="thumb">
+          <img src="${item.thumb.fileName}" alt="${item.name}" />
+        </a>
+        <a href="product-detail.html?id=${item._id}" title="${item.name}" class="product-name">${
+            item.name
+          }</a>
+        <div class="price">
+          <span class="new">${formatCurrencyNumber(calcPrice(item))}</span>
+          <span class="old">${formatCurrencyNumber(item.price)}</span>
+        </div>
+        <div class="action clearfix action--custom">
+          ${
+            Number.parseInt(item.quantity) > 0 && Number.parseInt(item.status) === 1
+              ? `<a href="cart.html" title="Thêm giỏ hàng" data-id=${item._id} class="add-cart fl-left">Thêm giỏ hàng</a>
+          <a title="Mua ngay" data-id=${item._id} style="cursor: pointer;" class="buy-now fl-right">Mua ngay</a>`
+              : `<span>Hết hàng</span>`
+          }
+        </div>`
+          ulElement.appendChild(liElement)
+        })
+        countProductEl.innerHTML = `Hiển thị ${products.length} trên ${pagination.totalRows} sản phẩm`
+      } else {
+        toast.info('Sản phẩm đang phát triển')
+        const textElement = document.createElement('span')
+        textElement.innerHTML = 'Sản phẩm đang phát triển!!!'
+        ulElement.appendChild(textElement)
+      }
+    }
+  } catch (error) {
+    console.log('failed to fetch data', error)
+  }
+}
 export async function renderListProductSearch(listProduct, search) {
   if (!search || listProduct.length === 0) return
   search.textContent = ''

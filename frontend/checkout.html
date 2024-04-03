@@ -156,7 +156,7 @@
             <form action="" name="form-checkout" id="formCheckout" novalidate>
               <div class="form-row clearfix">
                 <div class="form-col fl-left">
-                  <label for="fullname">Họ tên</label>
+                  <label for="fullname">Họ và tên</label>
                   <input type="text" name="fullname" id="fullname" />
                   <span class="invalid-feedback"></span>
                 </div>
@@ -166,9 +166,47 @@
                   <span class="invalid-feedback"></span>
                 </div>
               </div>
+              <div style="display: flex; justify-content: space-between; gap: 0 10px">
+                <div class="col-md-4 form-group" style="width: calc(100% / 3)">
+                  <label>Tỉnh/Thành phố</label>
+                  <select
+                    class="form-control"
+                    aria-label="Default select example"
+                    name="province"
+                    id="province"
+                  >
+                    <option value="">Chọn 1 tỉnh/thành phố</option>
+                  </select>
+                  <span class="invalid-feedback"></span>
+                </div>
+                <div class="col-md-4 form-group" style="width: calc(100% / 3)">
+                  <label>Quận/Huyện</label>
+                  <select
+                    class="form-control"
+                    aria-label="Default select example"
+                    name="district"
+                    id="district"
+                  >
+                    <option value="">Chọn 1 quận/huyện</option>
+                  </select>
+                  <span class="invalid-feedback"></span>
+                </div>
+                <div class="col-md-4 form-group" style="width: calc(100% / 3)">
+                  <label>Phường/Xã</label>
+                  <select
+                    class="form-control"
+                    aria-label="Default select example"
+                    name="ward"
+                    id="ward"
+                  >
+                    <option value="">Chọn 1 phường/xã</option>
+                  </select>
+                  <span class="invalid-feedback"></span>
+                </div>
+              </div>
               <div class="form-row clearfix">
                 <div class="form-col fl-left">
-                  <label for="address">Địa chỉ nhận hàng</label>
+                  <label for="address">Địa chỉ</label>
                   <input type="text" name="address" id="address" />
                   <span class="invalid-feedback"></span>
                 </div>
@@ -179,9 +217,12 @@
                 </div>
               </div>
               <div class="form-row">
-                <div class="form-col">
+                <div class="form-col" style="width: 100%; padding-right: 0px">
                   <label for="notes">Ghi chú</label>
-                  <textarea name="note"></textarea>
+                  <textarea
+                    name="note"
+                    style="display: block; width: 100%; height: 60px"
+                  ></textarea>
                   <span class="invalid-feedback"></span>
                 </div>
               </div>

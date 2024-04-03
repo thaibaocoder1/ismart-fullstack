@@ -4,6 +4,8 @@ const upload = require('../middlewares/multer');
 
 const productController = require('../app/controllers/ProductController');
 
+router.get('/with-params', productController.params);
+
 router.get('/detail/:id', productController.detail);
 router.get('/:slug', productController.slug);
 

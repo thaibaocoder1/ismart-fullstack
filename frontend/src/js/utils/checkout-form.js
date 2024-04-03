@@ -1,4 +1,5 @@
 import userApi from '../api/userApi'
+import { getAllProvinces } from './api-address'
 import { setFieldError, setFieldValue } from './common'
 import * as yup from 'yup'
 
@@ -37,13 +38,16 @@ function getCheckoutSchema() {
       .required('Không được để trống trường này')
       .matches(/^[0-9]{10}$/, 'Số điện thoại không hợp lệ')
       .typeError('Trường này chỉ nhập số'),
+    province: yup.string().required('Province is required'),
+    district: yup.string().required('District is required'),
+    ward: yup.string().required('Ward is required'),
     note: yup.string(),
   })
 }
 async function validateCheckoutForm(formCheckout, formValues) {
   try {
-    ;['fullname', 'email', 'address', 'phone', 'note'].forEach((name) =>
-      setFieldError(formCheckout, name, ''),
+    ;['fullname', 'email', 'address', 'phone', 'note', 'province', 'district', 'ward'].forEach(
+      (name) => setFieldError(formCheckout, name, ''),
     )
     const schema = getCheckoutSchema()
     await schema.validate(formValues, {
@@ -62,36 +66,34 @@ async function validateCheckoutForm(formCheckout, formValues) {
   if (!isValid) formCheckout.classList.add('was-validated')
   return isValid
 }
+function removeUnusedFiedls(values) {
+  const formValues = { ...values }
+  formValues.address = `${formValues.province}, ${formValues.district}, ${formValues.ward}, ${formValues.address}`
+  formValues.status = 1
+  delete formValues.province
+  delete formValues.district
+  delete formValues.ward
+  return formValues
+}
 export async function initFormCheckout({ idForm, cart, infoUserStorage, onSubmit }) {
   const formCheckout = document.querySelector(idForm)
   if (!formCheckout) return
   let isSubmitting = false
   if (infoUserStorage && Object.keys(infoUserStorage).length > 0) {
-    document.addEventListener('DOMContentLoaded', function () {
-      navigator.geolocation.getCurrentPosition(
-        async function (position) {
-          const lat = position.coords.latitude
-          const lng = position.coords.longitude
-          const googleMapsLink = `https://www.google.com/maps?q=${lat},${lng}`
-          document.querySelector("input[name='address']").value = googleMapsLink
-        },
-        function (error) {
-          toast.info('Bật vị trí để có thể nhập địa chỉ nhanh hơn')
-        },
-      )
-    })
     const data = await userApi.getById(infoUserStorage.id)
     if (data.success) {
       const { user } = data
       setValuesForm(formCheckout, user)
     }
+    await getAllProvinces('province')
     formCheckout.addEventListener('submit', async function (e) {
       e.preventDefault()
       if (isSubmitting) return
       const formValues = getValuesForm(formCheckout)
       const isValid = await validateCheckoutForm(formCheckout, formValues)
       if (!isValid) return
-      onSubmit?.(formValues, infoUserStorage.id, cart)
+      const formValuesFinal = removeUnusedFiedls(formValues)
+      onSubmit?.(formValuesFinal, infoUserStorage.id, cart)
       isSubmitting = true
     })
   } else {

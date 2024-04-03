@@ -1,4 +1,3 @@
-import productApi from './api/productsApi'
 import {
   formatCurrencyNumber,
   hideSpinner,
@@ -13,8 +12,9 @@ import {
   calcPrice,
   initFilterProduct,
 } from './utils'
+import productApi from './api/productsApi'
 
-export async function renderListProduct({
+async function renderListProduct({
   selector,
   selectorCount,
   products,
@@ -136,7 +136,7 @@ async function renderListFilter(value) {
   })
   countProductEl.innerHTML = `Hiển thị ${value.length} trên ${value.length} sản phẩm`
 }
-export function renderPagination(pagination) {
+function renderPagination(pagination) {
   if (!pagination) return
   const { currentPage, totalRows, limit } = pagination
   const totalPages = Math.ceil(totalRows / limit)
@@ -153,7 +153,7 @@ async function handleFilterChange(filterName, filterValue) {
   const url = new URL(window.location)
   url.searchParams.set(filterName, filterValue)
   history.pushState({}, '', url)
-  const data = await productApi.getAll(url.searchParams)
+  const data = await productApi.getWithParams(url.searchParams)
   const { products, pagination, allProducts } = data
   renderListProduct({
     selector: '#listProduct',
@@ -195,10 +195,12 @@ function initPagination() {
   }
 }
 function initURL() {
-  const url = new URL(window.location)
-  if (!url.searchParams.get('page')) url.searchParams.set('page', 1)
-  if (!url.searchParams.get('limit')) url.searchParams.set('limit', 4)
-  history.pushState({}, '', url)
+  if (window.location.pathname === '/products.html') {
+    const url = new URL(window.location)
+    if (!url.searchParams.get('page')) url.searchParams.set('page', 1)
+    if (!url.searchParams.get('limit')) url.searchParams.set('limit', 4)
+    history.pushState({}, '', url)
+  }
 }
 // main
 ;(async () => {
@@ -207,10 +209,10 @@ function initURL() {
   // init pagination
   initPagination()
   showSpinner()
-  const data = await productApi.getAll(params)
+  const data = await productApi.getWithParams(params)
   hideSpinner()
   const { products, pagination, allProducts } = data
-  renderListProduct({
+  await renderListProduct({
     selector: '#listProduct',
     selectorCount: '#countProduct',
     products,
@@ -219,7 +221,7 @@ function initURL() {
     searchValueUrl: params.get('searchTerm'),
   })
   renderPagination(pagination)
-  renderListCategory('#listCategory')
+  await renderListCategory('#listCategory')
   // init filter product
   initFilterProduct('btn-filter')
   // get cart from localStorage

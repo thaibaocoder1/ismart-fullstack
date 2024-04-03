@@ -154,13 +154,19 @@ async function renderListProductInCart({ idTable, cart }) {
         listCheckbox.forEach((checkbox) => {
           if (checkbox.checked) {
             isAnyCheckboxChecked = true
-            window.location.assign('checkout.html')
           }
         })
-        if (!isAnyCheckboxChecked && Object.keys(infoUserStorage).length > 0) {
-          toast.error('Chọn 1 sản phẩm để thanh toán')
+        if (isAnyCheckboxChecked) {
+          if (Object.keys(infoUserStorage).length > 0) {
+            window.location.assign('checkout.html')
+          } else {
+            toast.error('Đăng nhập để thanh toán')
+            setTimeout(() => {
+              window.location.assign('/login.html')
+            }, 500)
+          }
         } else {
-          toast.error('Đăng nhập để thanh toán')
+          toast.error('Chọn ít nhất một sản phẩm để thanh toán')
         }
       }
     } else if (e.target.closest('.del-product')) {

@@ -1,7 +1,4 @@
-import productApi from '../api/productsApi'
 import categoryApi from '../api/categoryApi'
-import { calcPrice, formatCurrencyNumber } from './format'
-import { showSpinner, hideSpinner } from './spinner'
 export async function renderListCategory(selector) {
   const ulElement = document.querySelector(selector)
   if (!ulElement) return

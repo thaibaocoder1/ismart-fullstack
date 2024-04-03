@@ -1,4 +1,4 @@
-import productApi from './api/productsApi'
+const { default: productApi } = await import('./api/productsApi')
 import {
   formatCurrencyNumber,
   hideSpinner,
@@ -11,8 +11,8 @@ import {
   toast,
   initSearchForm,
   calcPrice,
+  renderListProductSeller,
 } from './utils'
-import { renderListProductSeller } from './utils'
 
 async function renderListProductWithName({ idElement, tagName }) {
   const ulElement = document.querySelector(idElement)
@@ -59,7 +59,7 @@ async function renderListProductWithName({ idElement, tagName }) {
 }
 
 // main
-;(() => {
+;(async () => {
   // get cart from localStorage
   let cart = localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : []
   let infoUserStorage = localStorage.getItem('accessToken')
@@ -78,14 +78,14 @@ async function renderListProductWithName({ idElement, tagName }) {
       isCartAdded = true
     }
   }
-  renderListCategory('#listCategory')
-  renderListProductSeller('#listItemSeller')
-  displaySwiper('.swiper-wrapper')
-  renderListProductWithName({
+  await renderListCategory('#listCategory')
+  await renderListProductSeller('#listItemSeller')
+  await displaySwiper('.swiper-wrapper')
+  await renderListProductWithName({
     idElement: '#listProductPhone',
     tagName: 'dien-thoai',
   })
-  renderListProductWithName({
+  await renderListProductWithName({
     idElement: '#listProductLaptop',
     tagName: 'laptop',
   })

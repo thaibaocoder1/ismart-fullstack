@@ -5,6 +5,23 @@ const status = require('http-status-codes');
 class ProductController {
   // [GET] /products
   async index(req, res, next) {
+    try {
+      console.log(123);
+      const products = await Product.find({}).sort('-updatedAt');
+      res.status(status.StatusCodes.OK).json({
+        success: true,
+        results: products.length,
+        products,
+      });
+    } catch (error) {
+      res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Error from server!',
+      });
+    }
+  }
+  // [GET] /products/params
+  async params(req, res, next) {
     const slug = req.query.slug;
     const page = parseInt(req.query.page);
     const limit = parseInt(req.query.limit);
