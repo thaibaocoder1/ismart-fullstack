@@ -29,13 +29,12 @@ function getSchema() {
       .string()
       .required('Không được để trống trường này')
       .matches(/^(84|0[3|5|7|8|9])+([0-9]{8})$/, 'Số điện thoại không hợp lệ'),
-    password: yup.string().required('Không được để trống trường này'),
   })
 }
 
 async function checkValidationForm(form, formValues) {
   try {
-    ;['fullname', 'username', 'email', 'phone', 'password', 'imageUrl'].forEach((name) =>
+    ;['fullname', 'username', 'email', 'phone', 'imageUrl'].forEach((name) =>
       setFieldError(form, name, ''),
     )
     const schema = getSchema()

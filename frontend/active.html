@@ -8,6 +8,12 @@
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="msapplication-TileColor" content="#da532c" />
     <meta name="theme-color" content="#ffffff" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="msapplication-TileColor" content="#da532c" />
+    <meta name="theme-color" content="#ffffff" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="/css/bootstrap/bootstrap-theme.min.css" rel="stylesheet" type="text/css" />
@@ -34,9 +40,9 @@
         <div id="header-wp">
           <div id="head-top" class="clearfix">
             <div class="wp-inner">
-              <a href="/account.html" title="" id="payment-link" class="fl-left"
-                >iSmart xin chào quý khách</a
-              >
+              <a href="/account.html" title="" id="payment-link" class="fl-left">
+                iSmart xin chào quý khách
+              </a>
               <div id="main-menu-wp" class="fl-right">
                 <ul id="main-menu" class="clearfix">
                   <li>
@@ -116,70 +122,17 @@
     </div>
 
     <!-- main -->
-    <div id="main-content-wp" class="clearfix category-product-page">
+    <div id="main-content-wp" class="home-page clearfix">
       <div class="wp-inner">
-        <div class="secion" id="breadcrumb-wp">
-          <div class="secion-detail">
-            <ul class="list-item clearfix">
-              <li>
-                <a href="/index.html" title="">Trang chủ</a>
-              </li>
-              <li>
-                <a href="/products.html" title="">Sản phẩm</a>
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div class="main-content fl-right">
-          <div class="section" id="list-product-wp">
-            <h3 class="section-title fl-left" id="productHeading">Sản phẩm</h3>
-            <div class="section-head clearfix">
-              <div class="filter-wp fl-right">
-                <p class="desc" id="countProduct">Hiển thị 0 trên 0 sản phẩm</p>
-                <div class="form-filter">
-                  <form id="formFilter" method="POST">
-                    <select name="select">
-                      <option value="all">Sắp xếp</option>
-                      <option value="discount">Giảm giá</option>
-                      <option value="decrease">Giá cao xuống thấp</option>
-                      <option value="increase">Giá thấp lên cao</option>
-                    </select>
-                  </form>
-                </div>
+        <div class="modal" tabindex="-1" id="modal">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h3 class="modal-title">Kích hoạt tài khoản thành công</h3>
               </div>
-            </div>
-            <button class="btn btn-primary" id="btn-filter">Lọc</button>
-            <div class="section-detail">
-              <ul class="list-item clearfix" id="listProduct"></ul>
-            </div>
-          </div>
-          <div class="section" id="paging-wp">
-            <div class="section-detail">
-              <ul class="list-item clearfix" id="pagination">
-                <li>
-                  <a href="" title="">Prev</a>
-                </li>
-                <li>
-                  <a href="" title="">Next</a>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-        <div class="sidebar fl-left">
-          <div class="section" id="category-product-wp">
-            <div class="section-head">
-              <h3 class="section-title">Danh mục sản phẩm</h3>
-            </div>
-            <div class="secion-detail">
-              <ul class="list-item" id="listCategory"></ul>
-            </div>
-          </div>
-          <div class="section" id="banner-wp">
-            <div class="section-detail" style="background-color: red">
-              <a href="/product-detail.html" title="" class="thumb">
-                <img src="/images/banner.png" alt="" />
-              </a>
+              <div class="modal-body">
+                <p>Chờ trong 1s để chuyển đến trang đăng nhập</p>
+              </div>
             </div>
           </div>
         </div>
@@ -251,39 +204,6 @@
         </div>
       </div>
     </div>
-    <!-- Modal -->
-    <div class="filter-wrapper" id="filter-wrapper">
-      <div class="filter-container">
-        <h2>Lọc Sản phẩm</h2>
-        <div class="filter-options">
-          <div class="filter-category">
-            <h3>Thương hiệu</h3>
-            <div class="filter-brands">
-              <label><input type="checkbox" name="brand" value="Samsung" /> Samsung</label>
-              <label><input type="checkbox" name="brand" value="Iphone" /> Iphone</label>
-              <label><input type="checkbox" name="brand" value="Xiaomi" /> Xiaomi</label>
-              <label><input type="checkbox" name="brand" value="Asus" /> Asus</label>
-              <label><input type="checkbox" name="brand" value="Sony" /> Sony</label>
-              <label><input type="checkbox" name="brand" value="Huawei" /> Huawei</label>
-              <label><input type="checkbox" name="brand" value="Acer" /> Acer</label>
-              <label><input type="checkbox" name="brand" value="Lenovo" /> Lenovo</label>
-            </div>
-          </div>
-          <div class="filter-category">
-            <h3>Giá</h3>
-            <div class="filter-price">
-              <input type="number" min="1" name="min-price" placeholder="Từ" />
-              <input type="number" min="1" name="max-price" placeholder="Đến" />
-            </div>
-          </div>
-        </div>
-        <div class="filter-action">
-          <button id="apply-btn" class="btn btn-primary btn-sm">Áp dụng</button>
-          <button id="reset-btn" class="btn btn-secondary btn-sm">Thiết lập lại</button>
-        </div>
-      </div>
-    </div>
-
     <div id="menu-respon">
       <a href="?page=home" title="" class="logo">VSHOP</a>
       <div id="menu-respon-wp">
@@ -344,6 +264,6 @@
         fjs.parentNode.insertBefore(js, fjs)
       })(document, 'script', 'facebook-jssdk')
     </script>
-    <script type="module" src="/src/js/product.js"></script>
+    <script type="module" src="/src/js/active.js"></script>
   </body>
 </html>

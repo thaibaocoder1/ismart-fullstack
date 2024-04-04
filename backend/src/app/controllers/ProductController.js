@@ -27,7 +27,7 @@ class ProductController {
     const limit = parseInt(req.query.limit);
     const allProducts = await Product.find({});
     const brand = req.query.brand;
-
+    console.log(req.query);
     try {
       if (slug) {
         const category = await Catalog.findOne({ slug });

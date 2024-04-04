@@ -14,16 +14,16 @@
 }
 #breadcrumb-wp .list-item li:first-child a:before {
   position: absolute;
-  content: "\f015";
-  font-family: "FontAwesome";
+  content: '\f015';
+  font-family: 'FontAwesome';
   top: 1px;
   left: 0;
   line-height: normal;
 }
 #breadcrumb-wp .list-item li:nth-child(n + 2) a:before {
   position: absolute;
-  content: "\f105";
-  font-family: "FontAwesome";
+  content: '\f105';
+  font-family: 'FontAwesome';
   top: 1px;
   left: 8px;
   line-height: normal;
@@ -31,9 +31,7 @@
 .category-product-page #list-product-wp .section-title {
   margin: 0;
 }
-.category-product-page #list-product-wp .section-head {
-  margin-bottom: 25px;
-}
+
 .filter-wp .desc {
   margin-bottom: 5px;
   color: #666;

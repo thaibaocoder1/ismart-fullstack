@@ -15,12 +15,14 @@ async function handleOnSubmitForm(data) {
         if (user.email === data.email) {
           toast.error('Duplicate user. Please check again')
         } else {
+          showSpinner()
           const infoUser = await userApi.add(data)
+          hideSpinner()
           if (infoUser) {
-            toast.success('Register successfully')
+            toast.success('Register successfully, check email for active!')
             setTimeout(() => {
               window.location.assign('/login.html')
-            }, 2000)
+            }, 500)
           } else {
             toast.error('Register failed')
           }
@@ -29,7 +31,7 @@ async function handleOnSubmitForm(data) {
     } else {
       const infoUser = await userApi.add(data)
       if (infoUser) {
-        toast.success('Register successfully')
+        toast.success('Register successfully, check email for active!')
         setTimeout(() => {
           window.location.assign('/login.html')
         }, 2000)

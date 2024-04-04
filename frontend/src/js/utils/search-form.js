@@ -17,6 +17,57 @@ function renderPagination(pagination) {
   if (currentPage >= totalPages) ulPagination.lastElementChild?.classList.add('disabled')
   else ulPagination.lastElementChild?.classList.remove('disabled')
 }
+async function handleFilterChange(combinedParams) {
+  const url = new URL(window.location)
+  const data = await productApi.getWithParams(combinedParams)
+  const { products, pagination, allProducts } = data
+  console.log(products)
+  console.log(data)
+  await renderListProduct({
+    selector: '#listProduct',
+    selectorCount: '#countProduct',
+    products,
+    allProducts,
+    pagination,
+    searchValueUrl: url.searchParams.get('searchTerm'),
+  })
+  renderPagination(pagination)
+}
+function handlePrevClick(combinedParams) {
+  e.preventDefault()
+  const ulPagination = document.getElementById('pagination')
+  if (!ulPagination) return
+  const page = Number.parseInt(ulPagination.dataset.page) || 1
+  if (page <= 1) return
+  handleFilterChange(combinedParams, page - 1)
+}
+function handleNextClick(combinedParams) {
+  e.preventDefault()
+  const ulPagination = document.getElementById('pagination')
+  if (!ulPagination) return
+  const page = Number.parseInt(ulPagination.dataset.page) || 1
+  const totalPages = Number.parseInt(ulPagination.dataset.totalPages)
+  if (page >= totalPages) return
+  handleFilterChange(combinedParams, page + 1)
+}
+function initPagination(combinedParams) {
+  const ulPagination = document.getElementById('pagination')
+  if (!ulPagination) return
+  const prevLink = ulPagination.firstElementChild?.firstElementChild
+  if (prevLink) {
+    prevLink.addEventListener('click', (e) => {
+      e.preventDefault()
+      handlePrevClick(combinedParams)
+    })
+  }
+  const nextLink = ulPagination.lastElementChild?.lastElementChild
+  if (nextLink) {
+    nextLink.addEventListener('click', (e) => {
+      e.preventDefault()
+      handleNextClick(combinedParams)
+    })
+  }
+}
 async function renderListProduct({
   selector,
   selectorCount,
@@ -266,12 +317,16 @@ async function applyFilters() {
     Object.entries(queryParams).forEach(([key, value]) => {
       combinedParams.append(key, value)
     })
-    combinedParams.set('page', 1)
+    // if (combinedParams.get('brand')) {
+    //   combinedParams.set('page', 1)
+    // }
     showSpinner()
-    const data = await productApi.getAll(combinedParams)
+    const data = await productApi.getWithParams(combinedParams)
     hideSpinner()
     const { products, pagination, allProducts } = data
-    renderListProduct({
+    console.log(data)
+    console.log(products)
+    await renderListProduct({
       selector: '#listProduct',
       selectorCount: '#countProduct',
       products,
@@ -280,6 +335,7 @@ async function applyFilters() {
       searchValueUrl: combinedParams.get('searchTerm'),
     })
     renderPagination(pagination)
+    initPagination()
   }
 }
 

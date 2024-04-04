@@ -24,6 +24,10 @@ const User = new Schema(
       type: String,
       default: 'User',
     },
+    isActive: {
+      type: Boolean,
+      default: false,
+    },
     imageUrl: {
       type: String,
       default: 'https://placehold.co/200x200',

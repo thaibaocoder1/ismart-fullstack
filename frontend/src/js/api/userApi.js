@@ -13,6 +13,10 @@ const userApi = {
     const url = `/users/login`
     return axiosClient.post(url, data)
   },
+  active(id) {
+    const url = `/users/active/${id}`
+    return axiosClient.post(url)
+  },
   forgot(data) {
     const url = `/users/forgot`
     return axiosClient.post(url, data)

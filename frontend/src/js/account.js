@@ -29,7 +29,6 @@ async function displayInfoUser(infoUserStorage, divInfoLeftEl, userAvatarEl) {
     setFieldValue(divInfoLeftEl, "input[name='username']", user?.username)
     setFieldValue(divInfoLeftEl, "input[name='phone']", user?.phone)
     setFieldValue(divInfoLeftEl, "input[name='email']", user?.email)
-    setFieldValue(divInfoLeftEl, "input[name='password']", user?.password)
     setBackgroundImage(userAvatarEl, 'img#avatar', user?.imageUrl)
   } catch (error) {
     console.log('failed to fetch data', error)

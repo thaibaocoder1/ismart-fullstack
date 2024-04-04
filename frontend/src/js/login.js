@@ -20,7 +20,7 @@ async function handleOnSubmitForm(data) {
         }, 500)
       }
     } else {
-      toast.error('Login error! Please try again')
+      toast.error(user.message)
       return
     }
   } catch (error) {

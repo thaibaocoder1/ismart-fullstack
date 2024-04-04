@@ -155,7 +155,7 @@ async function handleFilterChange(filterName, filterValue) {
   history.pushState({}, '', url)
   const data = await productApi.getWithParams(url.searchParams)
   const { products, pagination, allProducts } = data
-  renderListProduct({
+  await renderListProduct({
     selector: '#listProduct',
     selectorCount: '#countProduct',
     products,

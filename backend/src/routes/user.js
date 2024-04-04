@@ -10,6 +10,7 @@ router.post('/login', userController.check);
 router.get('/auth/refresh', userController.refresh);
 router.get('/auth/refreshAdmin', userController.refreshAdmin);
 router.get('/verify/:id', userController.verify);
+router.post('/active/:id', userController.active);
 router.get('/logout', userController.logout);
 
 router.get('/:id', userController.detail);

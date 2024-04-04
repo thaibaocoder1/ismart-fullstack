@@ -2,6 +2,7 @@ const User = require('../models/User');
 const status = require('http-status-codes');
 const authMethod = require('../../auth/AuthController');
 const mailer = require('../../middlewares/mailer');
+const bcrypt = require('bcrypt');
 
 class UserController {
   // Get all
@@ -36,8 +37,22 @@ class UserController {
   // Add
   async add(req, res, next) {
     try {
-      const user = await User.create(req.body);
-      if (user) {
+      const { ...data } = req.body;
+      const salt = bcrypt.genSaltSync(10);
+      const hashPassword = bcrypt.hashSync(data.password, salt);
+      const hashCPassowrd = bcrypt.hashSync(data.password_confirmation, salt);
+      data.password = hashPassword;
+      data.password_confirmation = hashCPassowrd;
+      const user = await User.create(data);
+      const content = `<b>Vui lòng click vào đường link này để xác thực việc kích hoạt tài khoản. <a href="http://localhost:5173/active.html?id=${user._id}">Xác thực</a></b>`;
+      const send = await mailer.sendMail({
+        from: 'iSmart Admin',
+        to: user.email,
+        subject: 'Kích hoạt tài khoản tại hệ thống iSmart ✔',
+        text: 'Kích hoạt tài khoản tại hệ thống iSmart',
+        html: content,
+      });
+      if (user && send) {
         return res.status(status.StatusCodes.OK).json({
           success: true,
           user,
@@ -111,16 +126,19 @@ class UserController {
   // Update
   async update(req, res, next) {
     try {
+      const { ...payload } = req.body;
       const user = await User.findById(req.params.id);
       if (!req.file) {
-        if (JSON.stringify(req.body) !== JSON.stringify(user.toObject())) {
-          await User.findOneAndUpdate({ _id: req.params.id }, req.body, {
+        if (JSON.stringify(payload) !== JSON.stringify(user.toObject())) {
+          delete payload.password;
+          await User.findOneAndUpdate({ _id: req.params.id }, payload, {
             new: true,
           });
         }
       } else {
         req.body.imageUrl = `http://localhost:3001/uploads/${req.file.originalname}`;
-        await User.findOneAndUpdate({ _id: req.params.id }, req.body, {
+        delete payload.password;
+        await User.findOneAndUpdate({ _id: req.params.id }, payload, {
           new: true,
         });
       }
@@ -238,16 +256,23 @@ class UserController {
       const { email, password } = req.body;
       const user = await User.findOne({ email: email });
       if (!user) {
-        return res.status(status.StatusCodes.UNAUTHORIZED).json({
+        return res.status(status.StatusCodes.OK).json({
           success: false,
           message: 'Tài khoản không tồn tại hoặc đã bị xoá.',
         });
       }
-      const isPasswordValid = user.password === password;
-      if (!isPasswordValid) {
-        return res
-          .status(status.StatusCodes.UNAUTHORIZED)
-          .send('Mật khẩu không chính xác.');
+      if (!user.isActive) {
+        return res.status(status.StatusCodes.OK).json({
+          success: false,
+          message: 'Tài khoản chưa được kích hoạt.',
+        });
+      }
+      const validPassword = await bcrypt.compare(password, user.password);
+      if (!validPassword) {
+        return res.status(status.StatusCodes.OK).json({
+          success: false,
+          message: 'Mật khẩu không chính xác.',
+        });
       }
       if (!email || !password) {
         return res.status(status.StatusCodes.BAD_REQUEST).json({
@@ -457,6 +482,44 @@ class UserController {
           success: false,
           message: 'Không có tài khoản nào được tìm thấy.',
         });
+      }
+    } catch (error) {
+      res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        data: {
+          message: 'Error from SERVER!',
+        },
+      });
+    }
+  }
+  async active(req, res, next) {
+    try {
+      const { id } = req.params;
+      const data = await User.findById({ _id: id });
+      const now = Math.floor(Date.now());
+      const timeCreated = Math.floor(data.createdAt);
+      if (data.isActive) {
+        res.status(status.StatusCodes.OK).json({
+          success: true,
+        });
+      } else {
+        if (now - timeCreated < 300) {
+          await User.deleteOne({ _id: id });
+          return res.status(status.StatusCodes.UNAUTHORIZED).json({
+            success: false,
+            message: 'Tài khoản đã hết hạn active.',
+          });
+        } else {
+          const user = await User.findOneAndUpdate(
+            { _id: id },
+            { isActive: true },
+            { new: true },
+          );
+          res.status(status.StatusCodes.CREATED).json({
+            success: true,
+            user,
+          });
+        }
       }
     } catch (error) {
       res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
