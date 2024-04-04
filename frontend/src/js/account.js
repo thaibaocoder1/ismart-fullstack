@@ -1,3 +1,4 @@
+import Swal from 'sweetalert2'
 import userApi from './api/userApi'
 import {
   addCartToDom,
@@ -66,9 +67,11 @@ function handleOnClick() {
   })
 }
 function jsonToFormData(formValues) {
+  const values = { ...formValues }
+  values.password_confirmation = values.password
   const formData = new FormData()
-  for (const key in formValues) {
-    formData.set(key, formValues[key])
+  for (const key in values) {
+    formData.set(key, values[key])
   }
   return formData
 }
@@ -79,14 +82,14 @@ async function handleOnSubmitForm(formValues) {
     showSpinner()
     const updateUser = await userApi.updateFormData(formData)
     hideSpinner()
-    if (updateUser) {
+    if (updateUser.success) {
       toast.success('Cập nhật thông tin thành công')
       setTimeout(() => {
         window.location.assign('/account.html')
       }, 1000)
     }
   } catch (error) {
-    console.log('failed to fetch data', error)
+    console.log(error)
   }
 }
 

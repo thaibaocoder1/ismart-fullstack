@@ -8,6 +8,9 @@ async function handleOnSubmitForm(data) {
     hideSpinner()
     if (check.success) {
       toast.success(check.message)
+      setTimeout(() => {
+        window.location.assign('/login.html')
+      }, 500)
       return
     }
   } catch (error) {

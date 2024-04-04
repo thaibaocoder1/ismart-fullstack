@@ -29,7 +29,9 @@ async function handleOnSubmitForm(data) {
         }
       })
     } else {
+      showSpinner()
       const infoUser = await userApi.add(data)
+      hideSpinner()
       if (infoUser) {
         toast.success('Register successfully, check email for active!')
         setTimeout(() => {

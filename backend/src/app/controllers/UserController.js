@@ -128,25 +128,61 @@ class UserController {
     try {
       const { ...payload } = req.body;
       const user = await User.findById(req.params.id);
-      if (!req.file) {
+      const salt = bcrypt.genSaltSync(10);
+      const hashPassword = bcrypt.hashSync(payload.password, salt);
+      const hashCPassowrd = bcrypt.hashSync(
+        payload.password_confirmation,
+        salt,
+      );
+      payload.password = hashPassword;
+      payload.password_confirmation = hashCPassowrd;
+      if (!req.file && payload.password === '') {
         if (JSON.stringify(payload) !== JSON.stringify(user.toObject())) {
           delete payload.password;
+          delete payload.password_confirmation;
           await User.findOneAndUpdate({ _id: req.params.id }, payload, {
             new: true,
           });
         }
       } else {
-        req.body.imageUrl = `http://localhost:3001/uploads/${req.file.originalname}`;
-        delete payload.password;
-        await User.findOneAndUpdate({ _id: req.params.id }, payload, {
-          new: true,
+        if (req.file && payload.password !== '') {
+          payload.imageUrl = `http://localhost:3001/uploads/${req.file.originalname}`;
+          payload.password = hashPassword;
+          payload.password_confirmation = hashCPassowrd;
+          await User.findOneAndUpdate({ _id: req.params.id }, payload, {
+            new: true,
+          });
+        } else {
+          if (req.file) {
+            payload.imageUrl = `http://localhost:3001/uploads/${req.file.originalname}`;
+            delete payload.password;
+            delete payload.password_confirmation;
+            await User.findOneAndUpdate({ _id: req.params.id }, payload, {
+              new: true,
+            });
+          } else {
+            payload.password = hashPassword;
+            payload.password_confirmation = hashCPassowrd;
+            await User.findOneAndUpdate({ _id: req.params.id }, payload, {
+              new: true,
+            });
+          }
+        }
+      }
+      if (payload.password !== '' && payload.password_confirmation !== '') {
+        res.status(status.StatusCodes.OK).json({
+          success: true,
+          isLogout: true,
+          message: 'Update successfully',
+        });
+      } else {
+        res.status(status.StatusCodes.OK).json({
+          success: true,
+          message: 'Update successfully',
         });
       }
-      res.status(status.StatusCodes.OK).json({
-        success: true,
-        message: 'Update successfully',
-      });
     } catch (error) {
+      console.log(error);
       return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: 'Đã xảy ra lỗi khi lấy thông tin tài khoản.',
@@ -236,6 +272,14 @@ class UserController {
           });
         } else {
           req.body.resetedAt = 0;
+          const salt = bcrypt.genSaltSync(10);
+          const hashPassword = bcrypt.hashSync(req.body.password, salt);
+          const hashCPassword = bcrypt.hashSync(
+            req.body.password_confirmation,
+            salt,
+          );
+          req.body.password = hashPassword;
+          req.body.password_confirmation = hashCPassword;
           await User.findOneAndUpdate({ _id: id }, req.body);
           res.status(status.StatusCodes.OK).json({
             success: true,
@@ -451,7 +495,6 @@ class UserController {
             data: {
               id: user._id,
               role: user.role,
-              user,
               accessToken: newAccessToken,
               expireIns: Date.now() + 60000 * 10,
             },
