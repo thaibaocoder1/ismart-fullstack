@@ -1,6 +1,7 @@
 import productApi from '../../../src/js/api/productsApi'
 import userApi from '../../../src/js/api/userApi'
 import orderApi from '../../../src/js/api/orderApi'
+import orderDetailApi from '../../../src/js/api/orderDetailApi'
 import { toast, checkLogoutAccount, showSpinner, hideSpinner } from '../../../src/js/utils'
 import { Chart } from 'chart.js/auto'
 
@@ -31,9 +32,6 @@ async function initChart({ idElement }) {
     const users = await userApi.getAll()
     const orders = await orderApi.getAll()
     hideSpinner()
-    const productCount = products.length
-    const userCount = users.length
-    const orderCount = orders.length
     const myChart = new Chart(ctx, {
       type: 'bar',
       data: {
@@ -41,7 +39,7 @@ async function initChart({ idElement }) {
         datasets: [
           {
             label: 'Thống kê',
-            data: [productCount, userCount, orderCount],
+            data: [products.results, users.results, orders.results],
             backgroundColor: [
               'rgba(255, 99, 132, 0.2)',
               'rgba(54, 162, 235, 0.2)',
@@ -69,11 +67,69 @@ async function initChart({ idElement }) {
     toast.error('Có lỗi trong khi xử lý dữ liệu')
   }
 }
+async function initChartOrder({ idElement }) {
+  const element = document.getElementById(idElement)
+  if (!element) return
+  const monthlyRevenue = []
+  const res = await orderDetailApi.getWithStatus()
+  const { orders } = res
+  for (let i = 1; i <= 12; i++) {
+    const ordersInMonth = orders.filter((order) => {
+      const orderMonth = new Date(order.createdAt).getMonth() + 1
+      return orderMonth === i
+    })
+    const totalRevenueInMonth = ordersInMonth.reduce(
+      (total, order) => total + order.price * order.quantity,
+      0,
+    )
+    monthlyRevenue.push(totalRevenueInMonth)
+  }
+  const monthNames = [
+    'Tháng 1',
+    'Tháng 2',
+    'Tháng 3',
+    'Tháng 4',
+    'Tháng 5',
+    'Tháng 6',
+    'Tháng 7',
+    'Tháng 8',
+    'Tháng 9',
+    'Tháng 10',
+    'Tháng 11',
+    'Tháng 12',
+  ]
+  const ctx = element.getContext('2d')
+  const myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: monthNames,
+      datasets: [
+        {
+          label: 'Doanh thu trong năm',
+          data: monthlyRevenue,
+          fill: false,
+          borderColor: 'rgb(75, 192, 192)',
+          tension: 0.1,
+        },
+      ],
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+        },
+      },
+    },
+  })
+}
 // main
 ;(async () => {
-  // initChart({
-  //   idElement: 'myChart',
-  // })
+  await initChart({
+    idElement: 'myChart',
+  })
+  await initChartOrder({
+    idElement: 'myChartOrder',
+  })
   let infoUserStorage = localStorage.getItem('accessTokenAdmin')
     ? JSON.parse(localStorage.getItem('accessTokenAdmin'))
     : {}

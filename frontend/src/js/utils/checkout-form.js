@@ -38,9 +38,9 @@ function getCheckoutSchema() {
       .required('Không được để trống trường này')
       .matches(/^[0-9]{10}$/, 'Số điện thoại không hợp lệ')
       .typeError('Trường này chỉ nhập số'),
-    province: yup.string().required('Province is required'),
-    district: yup.string().required('District is required'),
-    ward: yup.string().required('Ward is required'),
+    province: yup.string().required('Chọn 1 tỉnh/thành phố'),
+    district: yup.string().required('Chọn 1 quận/huyện'),
+    ward: yup.string().required('Chọn 1 phường/xã'),
     note: yup.string(),
   })
 }

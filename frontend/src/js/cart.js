@@ -214,6 +214,7 @@ async function renderListProductInCart({ idTable, cart }) {
       }
     } else if (e.target.matches("input[type='number'].num-order")) {
       const inputValue = parseInt(+e.target.value, 10)
+      console.log(inputValue)
       const productID = e.target.dataset.id
       const index = cart.findIndex((item) => item.productID === productID)
       const data = await productApi.getById(productID)

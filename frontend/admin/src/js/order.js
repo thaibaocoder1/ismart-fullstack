@@ -22,6 +22,16 @@ async function renderStatusOrder(status) {
       return 'Đã huỷ'
   }
 }
+function checkStatusOrder(status) {
+  switch (status) {
+    case (1, 2, 3):
+      return true
+    case 4:
+      return false
+    default:
+      return false
+  }
+}
 async function renderListOrder({ idElement }) {
   const table = document.getElementById(idElement)
   if (!table) return
@@ -135,6 +145,7 @@ async function handleFilterChange(value, tbodyEl) {
       if (res.success && resOrder.success) {
         const { orders } = res
         const { order } = resOrder
+        modal.dataset.status = order.status
         infoOrder.innerHTML = `<ul class="grid-layout">
         <li>Họ và tên: ${order.fullname}</li>
         <li>Email: ${order.email}</li>
@@ -213,14 +224,22 @@ async function handleFilterChange(value, tbodyEl) {
       }
     } else if (target.matches('.btn-invoice')) {
       const orderID = modal.dataset.id
-      showSpinner()
-      const res = await orderApi.invoice(orderID)
-      hideSpinner()
-      if (res.success) {
-        toast.success(data.message)
+      const statusOrder = Number(modal.dataset.status)
+      const isSend = checkStatusOrder(statusOrder)
+      if (isSend) {
+        showSpinner()
+        const res = await orderApi.invoice(orderID)
+        hideSpinner()
+        if (res.success) {
+          const { data } = res
+          toast.success(data.message)
+        } else {
+          toast.error('Có lỗi trong khi xử lý!')
+          return
+        }
       } else {
-        toast.error('Có lỗi trong khi xử lý!')
-        return
+        toast.error('Đơn hàng đã huỷ!!!')
+        target.disabled = true
       }
     }
   })

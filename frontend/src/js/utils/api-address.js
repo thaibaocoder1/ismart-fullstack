@@ -7,8 +7,8 @@ async function handleChangeProvince(e) {
     } else {
       const wardElement = document.getElementById('ward')
       const districtElement = document.getElementById('district')
-      wardElement.innerHTML = `<option value="">Select one ward</option>`
-      districtElement.innerHTML = `<option value="">Select one district</option>`
+      wardElement.innerHTML = `<option value="">Chọn 1 quận/huyện</option>`
+      districtElement.innerHTML = `<option value="">Chọn 1 phường/xã</option>`
     }
   } catch (error) {
     console.log(error)
@@ -23,7 +23,7 @@ async function handleChangeWard(e) {
       await getAllWards(districtID, 'ward')
     } else {
       const wardElement = document.getElementById('ward')
-      wardElement.innerHTML = `<option value="">Select one ward</option>`
+      wardElement.innerHTML = `<option value="">Chọn 1 quận/huyện</option>`
     }
   } catch (error) {
     console.log(error)
@@ -32,16 +32,13 @@ async function handleChangeWard(e) {
 
 async function getAllDistricts(provinceID, selector) {
   const districtElement = document.getElementById(selector)
+  districtElement.innerHTML = `<option value="">Chọn 1 quận/huyện</option>`
   try {
     const response = await fetch('https://vapi.vnappmob.com/api/province/district/' + provinceID)
     const data = await response.json()
     const results = data.results
     results.forEach((district) => {
-      const optionEl = document.createElement('option')
-      optionEl.dataset.id = district.district_id
-      optionEl.value = district.district_name
-      optionEl.text = district.district_name
-      districtElement.add(optionEl)
+      districtElement.innerHTML += `<option data-id=${district.district_id} value="${district.district_name}">${district.district_name}</option>`
     })
     districtElement.addEventListener('change', handleChangeWard)
   } catch (error) {
@@ -50,17 +47,14 @@ async function getAllDistricts(provinceID, selector) {
 }
 
 async function getAllWards(districtID, selector) {
-  const districtElement = document.getElementById(selector)
+  const wardElement = document.getElementById(selector)
+  wardElement.innerHTML = `<option value="">Chọn 1 phường/xã</option>`
   try {
     const response = await fetch('https://vapi.vnappmob.com/api/province/ward/' + districtID)
     const data = await response.json()
     const results = data.results
     results.forEach((ward) => {
-      const optionEl = document.createElement('option')
-      optionEl.dataset.id = ward.ward_id
-      optionEl.value = ward.ward_name
-      optionEl.text = ward.ward_name
-      districtElement.add(optionEl)
+      wardElement.innerHTML += `<option data-id=${ward.ward_id} value="${ward.ward_name}">${ward.ward_name}</option>`
     })
   } catch (error) {
     console.error('Error:', error)
@@ -74,11 +68,7 @@ export async function getAllProvinces(selector) {
     const data = await response.json()
     const results = data.results
     results.forEach((province) => {
-      const optionEl = document.createElement('option')
-      optionEl.dataset.id = province.province_id
-      optionEl.value = province.province_name
-      optionEl.text = province.province_name
-      provinceElement.add(optionEl)
+      provinceElement.innerHTML += `<option data-id=${province.province_id} value="${province.province_name}">${province.province_name}</option>`
     })
     provinceElement.addEventListener('change', handleChangeProvince)
   } catch (error) {

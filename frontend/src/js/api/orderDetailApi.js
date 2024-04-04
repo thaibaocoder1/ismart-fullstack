@@ -9,6 +9,10 @@ const orderDetailApi = {
     const url = `/orderDetails/${id}`
     return axiosClient.get(url)
   },
+  getWithStatus() {
+    const url = `/orderDetails/statistical`
+    return axiosClient.get(url)
+  },
   add(data) {
     const url = `/orderDetails/add?_method=POST`
     return axiosClient.post(url, data)

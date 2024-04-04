@@ -29,6 +29,32 @@ class DetailController {
       });
     }
   }
+  async statistical(req, res, next) {
+    try {
+      const details = await Detail.find().populate({
+        path: 'orderID',
+        match: { status: 3 },
+      });
+      const orders = details.filter((detail) => detail.orderID !== null);
+      if (orders) {
+        return res.status(status.StatusCodes.OK).json({
+          success: true,
+          results: orders.length,
+          orders,
+        });
+      } else {
+        return res.status(status.StatusCodes.NOT_FOUND).json({
+          success: false,
+          message: 'Không có đơn hàng nào được tìm thấy.',
+        });
+      }
+    } catch (error) {
+      return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Đã xảy ra lỗi khi lấy thông tin đơn hàng.',
+      });
+    }
+  }
   async add(req, res, next) {
     try {
       const { ...data } = req.body;
