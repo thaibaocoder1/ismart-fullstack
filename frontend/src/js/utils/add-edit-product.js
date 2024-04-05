@@ -36,7 +36,7 @@ function getSchema() {
       .test('contain-string', 'Mã sản phẩm bắt đầu bằng BAODEV', (value) =>
         value.startsWith('BAODEV'),
       ),
-    content: yup.string().required('Không được để trống trường này'),
+    content: yup.string(),
     price: yup
       .number()
       .required()
@@ -59,7 +59,7 @@ function getSchema() {
   })
 }
 function initUploadImage(form) {
-  const imageEl = form.querySelector('input#image')
+  const imageEl = form.querySelector('input#formFile')
   if (!imageEl) return
   imageEl.addEventListener('change', function (e) {
     const files = e.target.files[0]

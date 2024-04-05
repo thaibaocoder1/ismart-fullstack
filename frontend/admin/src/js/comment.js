@@ -27,7 +27,8 @@ async function renderListComment({ idElement }) {
         'DD/MM/YYYY HH:mm:ss',
       )}</span></td>
       <td><span class="tbody-text">${data.product.name}</span></td>
-      <td><span class="tbody-text">${item.userID}</span></td>
+      <td><span class="tbody-text">${item.userID._id}</span></td>
+      <td><span class="tbody-text">${item.userID.email}</span></td>
       <td>
         <button class="btn btn-danger btn-sm btn--style" id="removeBtn" data-id="${
           item._id
@@ -65,7 +66,8 @@ async function handleFilterChange(value, tbodyEl) {
         'DD/MM/YYYY HH:mm:ss',
       )}</span></td>
       <td><span class="tbody-text">${data.product.name}</span></td>
-      <td><span class="tbody-text">${item.userID}</span></td>
+      <td><span class="tbody-text">${item.userID._id}</span></td>
+      <td><span class="tbody-text">${item.userID.email}</span></td>
       <td>
         <button class="btn btn-danger btn-sm btn--style" id="removeBtn" data-id="${
           item._id

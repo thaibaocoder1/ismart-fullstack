@@ -13,6 +13,7 @@ import {
   initFilterProduct,
 } from './utils'
 import productApi from './api/productsApi'
+import { checkLoginUser } from './utils/get-user'
 
 async function renderListProduct({
   selector,
@@ -229,9 +230,7 @@ function initURL() {
   initFilterProduct('btn-filter')
   // get cart from localStorage
   let cart = localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : []
-  let infoUserStorage = localStorage.getItem('accessToken')
-    ? JSON.parse(localStorage.getItem('accessToken'))
-    : {}
+  let infoUserStorage = checkLoginUser() || {}
   let isCartAdded = false
   if (Array.isArray(cart) && cart.length > 0) {
     if (!isCartAdded) {

@@ -8,12 +8,18 @@ import { toast } from './utils'
     const modal = document.getElementById('modal')
     modal && modal.classList.add('is-show')
     const active = await userApi.active(activeID)
-    if (active.success) {
+    console.log(active)
+    if (active.success && !active.isActive) {
       toast.info('Chuyển đến trang đăng nhập')
+      setTimeout(() => {
+        window.location.assign('/login.html')
+      }, 1000)
+    } else {
+      toast.info('Tài khoản đã được kích hoạt')
+      setTimeout(() => {
+        window.location.assign('/login.html')
+      }, 2000)
     }
-    setTimeout(() => {
-      window.location.assign('/login.html')
-    }, 500)
   } else {
     window.location.assign('/login.html')
   }

@@ -4,10 +4,10 @@ import { hideSpinner, showSpinner, toast } from './utils'
 async function handleOnSubmitForm(data) {
   try {
     showSpinner()
-    const check = await userApi.forgot(data)
+    const recovery = await userApi.recovery(data)
     hideSpinner()
-    if (check.success) {
-      toast.success(check.message)
+    if (recovery.success) {
+      toast.success(recovery.message)
       setTimeout(() => {
         window.location.assign('/login.html')
       }, 500)

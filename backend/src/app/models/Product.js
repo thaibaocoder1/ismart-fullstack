@@ -11,7 +11,7 @@ const Product = new Schema(
     name: String,
     slug: { type: String, slug: 'name' },
     description: String,
-    code: String,
+    code: { type: String, unique: true },
     price: Number,
     discount: Number,
     thumb: { data: Buffer, contentType: String, fileName: String },

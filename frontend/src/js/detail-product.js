@@ -17,6 +17,7 @@ import {
 } from './utils'
 import { initProductComment } from './utils'
 import dayjs from 'dayjs'
+import { checkLoginUser } from './utils/get-user'
 
 async function renderDetailProduct({
   boxIDRight,
@@ -69,7 +70,7 @@ async function renderDetailProduct({
         ? ''
         : 'disabled'
     }>Mua ngay</button>`
-    infoProductDesc.innerHTML = `<p>${product.description}</p>`
+    infoProductDesc.innerHTML = `<p>${product.content}</p>`
     // fetch list product same category
     await renderListProductSameCategory({
       idElement: 'listProductSame',
@@ -138,7 +139,7 @@ async function renderListComment({ idElement, productID }) {
       commentSort?.forEach(async (item) => {
         const commentItem = document.createElement('div')
         commentItem.classList.add('comment-item')
-        const userInfo = await userApi.getById(item.userID)
+        const userInfo = await userApi.getById(item.userID._id)
         const { user } = userInfo
         commentItem.innerHTML = `<figure class="comment-thumb">
       <img
@@ -185,9 +186,7 @@ async function handleOnSubmitForm(value, productID, userID) {
 ;(() => {
   // get cart from localStorage
   let cart = localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : []
-  let infoUserStorage = localStorage.getItem('accessToken')
-    ? JSON.parse(localStorage.getItem('accessToken'))
-    : {}
+  let infoUserStorage = checkLoginUser() || {}
   let isCartAdded = false
   if (Array.isArray(cart) && cart.length > 0) {
     if (!isCartAdded) {
@@ -265,7 +264,7 @@ async function handleOnSubmitForm(value, productID, userID) {
       }
     } else if (target.matches('.buy-now')) {
       e.preventDefault()
-      if (infoUserStorage && Object.keys(infoUserStorage).length > 0) {
+      if (infoUserStorage) {
         const productID = target.dataset.id
         showSpinner()
         const data = await productApi.getById(productID)

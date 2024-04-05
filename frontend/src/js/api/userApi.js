@@ -17,6 +17,16 @@ const userApi = {
     const url = `/users/active/${id}`
     return axiosClient.post(url)
   },
+  recovery(data) {
+    const url = `/users/recovery`
+    return axiosClient.post(url, data)
+  },
+  confirmRecovey(params) {
+    const url = `/users/confirm`
+    return axiosClient.get(url, {
+      params,
+    })
+  },
   forgot(data) {
     const url = `/users/forgot`
     return axiosClient.post(url, data)

@@ -4,7 +4,7 @@ const status = require('http-status-codes');
 class CommentController {
   async index(req, res, next) {
     try {
-      const comments = await Comment.find({});
+      const comments = await Comment.find({}).populate('userID');
       if (comments) {
         return res.status(status.StatusCodes.OK).json({
           success: true,

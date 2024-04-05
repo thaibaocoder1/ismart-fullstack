@@ -13,7 +13,7 @@ async function handleSubmitForm(formValues) {
   const payload = jsonToFormData(formValues)
   try {
     let saveProduct = null
-    if (payload.get('id') !== undefined) {
+    if (payload.get('id') !== 'undefined') {
       saveProduct = payload.get('id')
       await productApi.updateFormData(payload)
     } else {
@@ -26,7 +26,10 @@ async function handleSubmitForm(formValues) {
       window.location.assign('product.html')
     }, 500)
   } catch (error) {
-    console.log('error', error)
+    const { data } = error.response
+    if (data.success === false) {
+      toast.error(data.message)
+    }
   }
 }
 // main

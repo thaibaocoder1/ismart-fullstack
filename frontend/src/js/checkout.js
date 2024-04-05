@@ -11,6 +11,7 @@ import {
   showSpinner,
   toast,
 } from './utils'
+import { checkLoginUser } from './utils/get-user'
 
 function displayProductInCart({ idTable, idTotalPrice, cart, userID }) {
   const tableElement = document.getElementById(idTable)
@@ -130,9 +131,7 @@ async function handleCheckoutFormSubmit(formValues, userID, cart) {
 ;(() => {
   // get cart from localStorage
   let cart = localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : []
-  let infoUserStorage = localStorage.getItem('accessToken')
-    ? JSON.parse(localStorage.getItem('accessToken'))
-    : {}
+  let infoUserStorage = checkLoginUser() || {}
   let isCartAdded = false
   if (Array.isArray(cart) && cart.length > 0) {
     if (!isCartAdded) {

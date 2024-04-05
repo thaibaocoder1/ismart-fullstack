@@ -11,6 +11,7 @@ import {
   toast,
 } from './utils'
 import dayjs from 'dayjs'
+import { checkLoginUser } from './utils/get-user'
 
 function displayTagLink(ulElement) {
   ulElement.textContent = ''
@@ -159,7 +160,6 @@ async function renderListOrder({ idTable, infoUserStorage }) {
       if (Object.keys(infoUserStorage).length > 0 && orders.length > 0) {
         const userID = infoUserStorage.id
         const listOrderApply = orders.filter((order) => order.userID === userID)
-        console.log(listOrderApply)
         if (listOrderApply.length === 0) {
           toast.info('Bạn chưa có đơn hàng nào')
           return
@@ -197,9 +197,7 @@ async function renderListOrder({ idTable, infoUserStorage }) {
 ;(() => {
   // get cart from localStorage
   let cart = localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : []
-  let infoUserStorage = localStorage.getItem('accessToken')
-    ? JSON.parse(localStorage.getItem('accessToken'))
-    : {}
+  let infoUserStorage = checkLoginUser() || {}
   let isCartAdded = false
   if (Array.isArray(cart) && cart.length > 0) {
     if (!isCartAdded) {

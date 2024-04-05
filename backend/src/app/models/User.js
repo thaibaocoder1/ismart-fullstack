@@ -34,6 +34,8 @@ const User = new Schema(
     },
     refreshToken: String,
     resetedAt: Number,
+    timeExpireRecover: Number,
+    recoverHashCode: String,
   },
   { timestamps: true },
 );

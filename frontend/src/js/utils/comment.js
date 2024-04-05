@@ -15,7 +15,7 @@ export function initProductComment({ idForm, infoUserStorage, productID, onSubmi
       toast.error('Phải nhập vào bình luận')
       return
     }
-    if (infoUserStorage && Object.keys(infoUserStorage).length > 1) {
+    if (infoUserStorage) {
       await onSubmit?.(value, productID, infoUserStorage.id)
       isSubmitting = true
     } else {

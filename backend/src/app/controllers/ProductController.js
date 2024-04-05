@@ -6,7 +6,6 @@ class ProductController {
   // [GET] /products
   async index(req, res, next) {
     try {
-      console.log(123);
       const products = await Product.find({}).sort('-updatedAt');
       res.status(status.StatusCodes.OK).json({
         success: true,
@@ -171,32 +170,46 @@ class ProductController {
       });
     }
   }
+  // [POST] /products/add
   async add(req, res, next) {
     try {
       req.body.thumb = {
-        data: `http://localhost:3001/uploads/${req.file.originalname}`,
+        data: Buffer.from(
+          `http://localhost:3001/uploads/${req.file.originalname}`,
+        ),
         contentType: req.file.mimetype,
         fileName: `http://localhost:3001/uploads/${req.file.originalname}`,
       };
-      const product = await Product.create(req.body);
-      if (product) {
-        return res.status(status.StatusCodes.CREATED).json({
-          success: true,
-          product,
+      const productExist = await Product.findOne({ code: req.body.code });
+      if (productExist) {
+        return res.status(status.StatusCodes.CONFLICT).json({
+          success: false,
+          message: 'Sản phẩm bị trùng mã code',
         });
       } else {
-        return res.status(status.StatusCodes.NOT_FOUND).json({
-          success: false,
-          message: 'Không có sản phẩm nào được tìm thấy.',
-        });
+        const product = await Product.create(req.body);
+        if (product) {
+          return res.status(status.StatusCodes.CREATED).json({
+            success: true,
+            product,
+          });
+        } else {
+          return res.status(status.StatusCodes.NOT_FOUND).json({
+            success: false,
+            message: 'Không có sản phẩm nào được tìm thấy.',
+          });
+        }
       }
     } catch (error) {
+      console.log(error);
+
       return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: 'Đã xảy ra lỗi khi lấy thông tin sản phẩm.',
       });
     }
   }
+  // [POST] /products/update/:id
   async update(req, res, next) {
     try {
       const product = await Product.findById(req.params.id);

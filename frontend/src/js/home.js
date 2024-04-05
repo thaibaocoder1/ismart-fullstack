@@ -13,6 +13,7 @@ import {
   calcPrice,
   renderListProductSeller,
 } from './utils'
+import { checkLoginUser } from './utils/get-user'
 
 async function renderListProductWithName({ idElement, tagName }) {
   const ulElement = document.querySelector(idElement)
@@ -62,9 +63,7 @@ async function renderListProductWithName({ idElement, tagName }) {
 ;(async () => {
   // get cart from localStorage
   let cart = localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : []
-  let infoUserStorage = localStorage.getItem('accessToken')
-    ? JSON.parse(localStorage.getItem('accessToken'))
-    : {}
+  let infoUserStorage = checkLoginUser() || {}
   let isCartAdded = false
   if (Array.isArray(cart) && cart.length > 0) {
     if (!isCartAdded) {

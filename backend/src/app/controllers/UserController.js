@@ -45,7 +45,7 @@ class UserController {
       data.password_confirmation = hashCPassowrd;
       const user = await User.create(data);
       const content = `<b>Vui lòng click vào đường link này để xác thực việc kích hoạt tài khoản. <a href="http://localhost:5173/active.html?id=${user._id}">Xác thực</a></b>`;
-      const send = await mailer.sendMail({
+      const send = mailer.sendMail({
         from: 'iSmart Admin',
         to: user.email,
         subject: 'Kích hoạt tài khoản tại hệ thống iSmart ✔',
@@ -259,7 +259,7 @@ class UserController {
   async delete(req, res, next) {
     try {
       const { id } = req.params;
-      const user = await User.findById({ _id: id });
+      const user = await User.findOneWithDeleted({ _id: id, deleted: false });
       if (user) {
         if (user.role.toLowerCase() === 'user') {
           await User.delete({ _id: id });
@@ -273,6 +273,12 @@ class UserController {
             message: "Can't remove admin account!",
           });
         }
+      } else {
+        await User.deleteOne({ _id: id, deleted: true });
+        res.status(status.StatusCodes.OK).json({
+          success: true,
+          message: 'Remove successfully!',
+        });
       }
     } catch (error) {
       next(error);
@@ -301,7 +307,7 @@ class UserController {
       const user = await User.findOne({ _id: id });
       if (user) {
         const now = Math.floor(Date.now() / 1000);
-        const timer = Math.floor(user.resetedAt / 1000);
+        const timer = Math.floor(new Date(user.resetedAt).getTime() / 1000);
         if (now - timer > 300) {
           res.status(status.StatusCodes.NOT_FOUND).json({
             success: false,
@@ -572,15 +578,105 @@ class UserController {
       });
     }
   }
+  async recovery(req, res, next) {
+    try {
+      const { email } = req.body;
+      const user = await User.findOneDeleted({ email });
+      if (user) {
+        const salt = bcrypt.genSaltSync(15);
+        const hash = bcrypt.hashSync(email, salt);
+        const content = `<b>Vui lòng click vào đường link này để xác thực việc khôi phục tài khoản. <a href="http://localhost:5173/confirm.html?id=${user._id}&hash=${hash}">Xác thực</a></b>`;
+        mailer.sendMail({
+          from: 'Ismart admin',
+          to: user.email,
+          subject: 'Xác thực việc khôi phục tài khoản tại iSmart ✔',
+          text: 'Xác thực việc khôi phục tài khoản tại iSmart',
+          html: content,
+        });
+        await User.findOneAndUpdateDeleted(
+          {
+            email,
+          },
+          {
+            recoverHashCode: hash,
+            timeExpireRecover: Date.now() + Number(process.env.TIMERECOVER),
+          },
+        );
+        return res.status(status.StatusCodes.CREATED).json({
+          success: true,
+          message: 'Kiểm tra email để xác thực',
+        });
+      } else {
+        return res.status(status.StatusCodes.NOT_FOUND).json({
+          success: false,
+          message: 'Tài khoản đã bị xoá vĩnh viễn!',
+        });
+      }
+    } catch (error) {
+      res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        data: {
+          message: 'Error from SERVER!',
+        },
+      });
+    }
+  }
+  async confirm(req, res, next) {
+    try {
+      const { hash, id } = req.query;
+      const user = await User.findOneDeleted({ _id: id });
+      if (user) {
+        const match = req.query.hash === user.recoverHashCode;
+        const now = Math.floor(Date.now());
+        const expireIns = Math.floor(user.timeExpireRecover);
+        if (match && now < expireIns) {
+          await User.restore({
+            _id: id,
+          });
+          await User.findOneAndUpdateDeleted(
+            {
+              _id: id,
+            },
+            {
+              recoverHashCode: '',
+              timeExpireRecover: 0,
+            },
+          );
+          return res.status(status.StatusCodes.CREATED).json({
+            success: true,
+            message: 'Khôi phục tài khoản thành công',
+          });
+        } else {
+          return res.status(status.StatusCodes.UNAUTHORIZED).json({
+            success: false,
+            message: 'Đã hết thời hạn khôi phục tài khoản!',
+          });
+        }
+      } else {
+        return res.status(status.StatusCodes.NOT_FOUND).json({
+          success: false,
+          message: 'Không thể khôi phục tài khoản!',
+        });
+      }
+    } catch (error) {
+      res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        data: {
+          message: 'Error from SERVER!',
+        },
+      });
+    }
+  }
   async active(req, res, next) {
     try {
       const { id } = req.params;
       const data = await User.findById({ _id: id });
       const now = Math.floor(Date.now());
-      const timeCreated = Math.floor(data.createdAt);
+      const timeCreated = Math.floor(new Date(data.createdAt).getTime());
       if (data.isActive) {
         res.status(status.StatusCodes.OK).json({
           success: true,
+          isActive: true,
         });
       } else {
         if (now - timeCreated < 300) {
@@ -616,7 +712,7 @@ class UserController {
       const user = await User.findOne({ email });
       const content = `<b>Vui lòng click vào đường link này để xác thực việc lấy lại mật khẩu. <a href="http://localhost:5173/update.html?id=${user._id}">Xác thực</a></b>`;
       if (user) {
-        await mailer.sendMail({
+        mailer.sendMail({
           from: 'Ismart admin',
           to: user.email,
           subject: 'Xác thực việc lấy lại mật khẩu tại iSmart ✔',

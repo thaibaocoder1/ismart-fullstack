@@ -9,6 +9,6 @@ export async function checkLogoutAccount() {
     toast.info('Chuyển đến trang đăng nhập')
     setTimeout(() => {
       window.location.assign('/admin/login.html')
-    }, 2000)
+    }, 500)
   }
 }

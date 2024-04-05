@@ -201,6 +201,11 @@ async function handleFilterChange(value, tbodyEl) {
               optionEl.disabled = true
             }
           }
+          if (order.status === 2) {
+            if (i === 3) {
+              optionEl.disabled = true
+            }
+          }
           optionEl.innerHTML = `${tagArr[i]}`
           selectEl.appendChild(optionEl)
         }

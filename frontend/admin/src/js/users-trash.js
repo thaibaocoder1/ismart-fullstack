@@ -119,7 +119,7 @@ async function handleFilterChange(value, tbodyEl) {
           toast.success(res.message)
           setTimeout(() => {
             window.location.reload()
-          }, 2000)
+          }, 1000)
         } else {
           toast.error(res.message)
           return
