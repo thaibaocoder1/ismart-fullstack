@@ -164,3 +164,7 @@ form#formProduct .form-right > .input-group input {
   padding: 30px;
   border-radius: 10px;
 }
+.is-relative {
+  position: relative;
+  width: 100%;
+}

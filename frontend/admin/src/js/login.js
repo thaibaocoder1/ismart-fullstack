@@ -5,12 +5,20 @@ async function handleOnSubmitForm(data) {
     showSpinner()
     const user = await userApi.check(data)
     hideSpinner()
-    if (user.success) {
+    if (user && user.success) {
+      const { data } = user
+      if (data.role.toLowerCase() === 'user') {
+        toast.error('Không có quyền truy cập')
+        return
+      }
       toast.success('Đăng nhập thành công')
       localStorage.setItem('accessTokenAdmin', JSON.stringify(user.data))
       setTimeout(() => {
         window.location.assign('index.html')
       }, 500)
+    } else {
+      toast.error(user.message)
+      return
     }
   } catch (error) {
     toast.error('Tài khoản không tồn tại!')

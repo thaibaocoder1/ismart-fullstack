@@ -20,9 +20,10 @@ function renderPagination(pagination) {
 async function handleFilterChange(combinedParams) {
   const url = new URL(window.location)
   const data = await productApi.getWithParams(combinedParams)
+  console.log(data)
+  console.log(combinedParams.get('brand'))
   const { products, pagination, allProducts } = data
   console.log(products)
-  console.log(data)
   await renderListProduct({
     selector: '#listProduct',
     selectorCount: '#countProduct',
@@ -34,20 +35,20 @@ async function handleFilterChange(combinedParams) {
   renderPagination(pagination)
 }
 function handlePrevClick(combinedParams) {
-  e.preventDefault()
   const ulPagination = document.getElementById('pagination')
   if (!ulPagination) return
-  const page = Number.parseInt(ulPagination.dataset.page) || 1
+  const page = Number.parseInt(combinedParams.get('page')) || 1
   if (page <= 1) return
   handleFilterChange(combinedParams, page - 1)
 }
 function handleNextClick(combinedParams) {
-  e.preventDefault()
   const ulPagination = document.getElementById('pagination')
   if (!ulPagination) return
-  const page = Number.parseInt(ulPagination.dataset.page) || 1
+  const page = Number.parseInt(combinedParams.get('page')) || 1
   const totalPages = Number.parseInt(ulPagination.dataset.totalPages)
   if (page >= totalPages) return
+  console.log(page)
+  return
   handleFilterChange(combinedParams, page + 1)
 }
 function initPagination(combinedParams) {
@@ -219,7 +220,40 @@ export function initSearchForm({ idForm, idElement, searchValueUrl }) {
     }
   })
 }
+async function handleChange(params, searchValueUrl, value) {
+  const res = await productApi.getWithParams(params)
+  let productApply = []
+  let productClone = [...res.products]
+  if (searchValueUrl && searchValueUrl !== null) {
+    productClone = products.filter((item) =>
+      item?.name.toLowerCase().includes(searchValueUrl.toLowerCase()),
+    )
+  }
 
+  switch (value) {
+    case 'discount':
+      productApply = productClone.sort((a, b) => b.discount - a.discount)
+      break
+    case 'decrease':
+      productApply = productClone.sort((a, b) => {
+        const priceA = calcPrice(a)
+        const priceB = calcPrice(b)
+        return priceB - priceA
+      })
+      break
+    case 'increase':
+      productApply = productClone.sort((a, b) => {
+        const priceA = calcPrice(a)
+        const priceB = calcPrice(b)
+        return priceA - priceB
+      })
+      break
+    default:
+      productApply = productClone
+      break
+  }
+  return productApply
+}
 export function initFormFilter({ idForm, searchValueUrl, onChange }) {
   const form = document.getElementById(idForm)
   if (!form) return
@@ -230,37 +264,10 @@ export function initFormFilter({ idForm, searchValueUrl, onChange }) {
   const params = new URLSearchParams(window.location.search)
   if (selectEl) {
     selectEl.addEventListener('change', async function (e) {
-      const res = await productApi.getAll(params)
-      let productApply = []
-      let productClone = [...res.products]
-      if (searchValueUrl && searchValueUrl !== null) {
-        productClone = products.filter((item) =>
-          item?.name.toLowerCase().includes(searchValueUrl.toLowerCase()),
-        )
-      }
-      const value = e.target.value
-
-      switch (value) {
-        case 'discount':
-          productApply = productClone.sort((a, b) => b.discount - a.discount)
-          break
-        case 'decrease':
-          productApply = productClone.sort((a, b) => {
-            const priceA = calcPrice(a)
-            const priceB = calcPrice(b)
-            return priceB - priceA
-          })
-          break
-        case 'increase':
-          productApply = productClone.sort((a, b) => {
-            const priceA = calcPrice(a)
-            const priceB = calcPrice(b)
-            return priceA - priceB
-          })
-          break
-        default:
-          productApply = productClone
-          break
+      let value = e.target.value
+      const productApply = await handleChange(params, searchValueUrl, selectedValue)
+      if (productApply.length > 0) {
+        toast.success('Filter success')
       }
       await onChange?.(productApply)
     })
@@ -300,6 +307,8 @@ async function applyFilters() {
 
   if (minPrice !== '') {
     queryParams.minPrice = minPrice
+  } else {
+    queryParams.minPrice = 1
   }
 
   if (maxPrice !== '') {
@@ -317,15 +326,18 @@ async function applyFilters() {
     Object.entries(queryParams).forEach(([key, value]) => {
       combinedParams.append(key, value)
     })
-    // if (combinedParams.get('brand')) {
-    //   combinedParams.set('page', 1)
-    // }
+    if (combinedParams.get('brand')) {
+      combinedParams.set('page', 1)
+    }
     showSpinner()
     const data = await productApi.getWithParams(combinedParams)
     hideSpinner()
     const { products, pagination, allProducts } = data
-    console.log(data)
-    console.log(products)
+    if (products.length > 0) {
+      toast.success('Filter success')
+    } else {
+      toast.error('Not found')
+    }
     await renderListProduct({
       selector: '#listProduct',
       selectorCount: '#countProduct',
@@ -335,7 +347,7 @@ async function applyFilters() {
       searchValueUrl: combinedParams.get('searchTerm'),
     })
     renderPagination(pagination)
-    initPagination()
+    initPagination(combinedParams)
   }
 }
 

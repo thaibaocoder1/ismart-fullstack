@@ -94,6 +94,8 @@ async function renderListProduct({
         countProductEl.innerHTML = `Hiển thị ${products.length} trên ${pagination.totalRows} sản phẩm`
       } else {
         toast.info('Sản phẩm đang phát triển')
+        const buttonFilter = document.getElementById('btn-filter')
+        buttonFilter.hidden = true
         const textElement = document.createElement('span')
         textElement.innerHTML = 'Sản phẩm đang phát triển!!!'
         ulElement.appendChild(textElement)
@@ -180,6 +182,7 @@ function handleNextClick(e) {
   const page = Number.parseInt(ulPagination.dataset.page) || 1
   const totalPages = Number.parseInt(ulPagination.dataset.totalPages)
   if (page >= totalPages) return
+  console.log('from product')
   handleFilterChange('page', page + 1)
 }
 function initPagination() {
@@ -207,7 +210,7 @@ function initURL() {
   initURL()
   const params = new URLSearchParams(window.location.search)
   // init pagination
-  initPagination()
+  initPagination(params)
   showSpinner()
   const data = await productApi.getWithParams(params)
   hideSpinner()

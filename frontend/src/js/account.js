@@ -32,7 +32,11 @@ async function displayInfoUser(infoUserStorage, divInfoLeftEl, userAvatarEl) {
     setFieldValue(divInfoLeftEl, "input[name='email']", user?.email)
     setBackgroundImage(userAvatarEl, 'img#avatar', user?.imageUrl)
   } catch (error) {
-    console.log('failed to fetch data', error)
+    const { data } = error.response
+    if (data.success === false && data.isRedirect) {
+      toast.error(data.message)
+      hideSpinner()
+    }
   }
 }
 async function renderInfoAccount({ idElement, infoUserStorage, divInfoLeft, divInfoRight }) {

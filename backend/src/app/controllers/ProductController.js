@@ -24,9 +24,11 @@ class ProductController {
   async params(req, res, next) {
     const slug = req.query.slug;
     const page = parseInt(req.query.page);
-    const limit = parseInt(req.query.limit);
+    let limit = parseInt(req.query.limit);
     const allProducts = await Product.find({});
     const brand = req.query.brand;
+    const minPrice = parseInt(req.query.minPrice);
+    const maxPrice = parseInt(req.query.maxPrice);
     console.log(req.query);
     try {
       if (slug) {
@@ -51,7 +53,7 @@ class ProductController {
           },
         });
       } else {
-        if (brand) {
+        if (brand && brand !== '' && minPrice && maxPrice) {
           const brands = brand.split(',');
           const brandRegexArray = brands.map((brand) => new RegExp(brand, 'i'));
           const brandQuery = {
@@ -59,12 +61,20 @@ class ProductController {
               name: { $regex: brandRegex },
             })),
           };
+          const priceQuery = {
+            $gte: parseInt(minPrice),
+            $lte: parseInt(maxPrice),
+          };
+          const mainQuery = {
+            $and: [brandQuery, { price: priceQuery }],
+          };
+          limit = 8;
           const skip = (page - 1) * limit;
-          const products = await Product.find(brandQuery)
+          const products = await Product.find(mainQuery)
             .sort('-updatedAt')
             .skip(skip)
             .limit(limit);
-          const totalProducts = await Product.countDocuments(brandQuery);
+          const totalProducts = await Product.countDocuments(mainQuery);
           if (products && products.length > 0) {
             return res.status(status.StatusCodes.OK).json({
               success: true,
@@ -79,6 +89,7 @@ class ProductController {
             });
           }
         } else {
+          console.log('acb');
           const skip = (page - 1) * limit;
           const products = await Product.find({})
             .sort('-updatedAt')

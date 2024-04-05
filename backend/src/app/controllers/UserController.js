@@ -83,6 +83,12 @@ class UserController {
           message: 'User is exist! Please try again with another email!',
         });
       } else {
+        const salt = bcrypt.genSaltSync(10);
+        const hashPassword = bcrypt.hashSync('passwordtemp', salt);
+        const hashCPassowrd = bcrypt.hashSync('passwordtemp', salt);
+        data.password = hashPassword;
+        data.password_confirmation = hashCPassowrd;
+        data.isActive = true;
         await User.create(data);
         return res.status(status.StatusCodes.CREATED).json({
           success: true,
@@ -90,6 +96,7 @@ class UserController {
         });
       }
     } catch (error) {
+      console.log(error);
       return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: 'Đã xảy ra lỗi khi lưu thông tin tài khoản.',
@@ -103,13 +110,13 @@ class UserController {
       const user = await User.findOne({
         _id: id,
       });
-      if (user !== null) {
+      if (user) {
         return res.status(status.StatusCodes.OK).json({
           success: true,
           user,
         });
       } else {
-        res.clearCookie(refreshToken);
+        res.clearCookie('refreshToken');
         return res.status(status.StatusCodes.NOT_FOUND).json({
           success: false,
           isRedirect: true,
@@ -129,13 +136,6 @@ class UserController {
       const { ...payload } = req.body;
       const user = await User.findById(req.params.id);
       const salt = bcrypt.genSaltSync(10);
-      const hashPassword = bcrypt.hashSync(payload.password, salt);
-      const hashCPassowrd = bcrypt.hashSync(
-        payload.password_confirmation,
-        salt,
-      );
-      payload.password = hashPassword;
-      payload.password_confirmation = hashCPassowrd;
       if (!req.file && payload.password === '') {
         if (JSON.stringify(payload) !== JSON.stringify(user.toObject())) {
           delete payload.password;
@@ -147,11 +147,22 @@ class UserController {
       } else {
         if (req.file && payload.password !== '') {
           payload.imageUrl = `http://localhost:3001/uploads/${req.file.originalname}`;
-          payload.password = hashPassword;
-          payload.password_confirmation = hashCPassowrd;
-          await User.findOneAndUpdate({ _id: req.params.id }, payload, {
-            new: true,
-          });
+          if (payload.admin && payload.admin === 'true') {
+            await User.findOneAndUpdate({ _id: req.params.id }, payload, {
+              new: true,
+            });
+          } else {
+            const hashPassword = bcrypt.hashSync(payload.password, salt);
+            const hashCPassowrd = bcrypt.hashSync(
+              payload.password_confirmation,
+              salt,
+            );
+            payload.password = hashPassword;
+            payload.password_confirmation = hashCPassowrd;
+            await User.findOneAndUpdate({ _id: req.params.id }, payload, {
+              new: true,
+            });
+          }
         } else {
           if (req.file) {
             payload.imageUrl = `http://localhost:3001/uploads/${req.file.originalname}`;
@@ -161,11 +172,22 @@ class UserController {
               new: true,
             });
           } else {
-            payload.password = hashPassword;
-            payload.password_confirmation = hashCPassowrd;
-            await User.findOneAndUpdate({ _id: req.params.id }, payload, {
-              new: true,
-            });
+            if (payload.admin && payload.admin === 'true') {
+              await User.findOneAndUpdate({ _id: req.params.id }, payload, {
+                new: true,
+              });
+            } else {
+              const hashPassword = bcrypt.hashSync(payload.password, salt);
+              const hashCPassowrd = bcrypt.hashSync(
+                payload.password_confirmation,
+                salt,
+              );
+              payload.password = hashPassword;
+              payload.password_confirmation = hashCPassowrd;
+              await User.findOneAndUpdate({ _id: req.params.id }, payload, {
+                new: true,
+              });
+            }
           }
         }
       }
@@ -191,23 +213,38 @@ class UserController {
   }
   async updateField(req, res, next) {
     try {
-      const { id, password, password_confirmation } = req.body;
+      const { id, oldPassword, password, password_confirmation } = req.body;
+      console.log(req.body);
       const user = await User.findById({ _id: id });
       if (user) {
-        if (user.password === password_confirmation) {
-          return res.status(status.StatusCodes.CONFLICT).json({
-            success: false,
-            message: 'Mật khẩu mới không được trùng với mật khẩu cũ.',
-          });
+        const isValidPassword = await bcrypt.compare(
+          oldPassword,
+          user.password,
+        );
+        if (isValidPassword) {
+          if (oldPassword === password) {
+            return res.status(status.StatusCodes.CONFLICT).json({
+              success: false,
+              message: 'Mật khẩu mới không được trùng với mật khẩu cũ.',
+            });
+          } else {
+            const salt = bcrypt.genSaltSync(10);
+            const hashPassword = bcrypt.hashSync(password, salt);
+            const hashCPassword = bcrypt.hashSync(password_confirmation, salt);
+            await User.findOneAndUpdate(
+              { _id: id },
+              { password: hashPassword, password_confirmation: hashCPassword },
+              { new: true },
+            );
+            return res.status(status.StatusCodes.CREATED).json({
+              success: true,
+              message: 'Đổi mật khẩu thành công',
+            });
+          }
         } else {
-          await User.findOneAndUpdate(
-            { _id: id },
-            { password, password_confirmation },
-            { new: true },
-          );
-          return res.status(status.StatusCodes.CREATED).json({
-            success: true,
-            message: 'Đổi mật khẩu thành công',
+          return res.status(status.StatusCodes.OK).json({
+            success: false,
+            message: 'Mật khẩu không trùng với hệ thống!',
           });
         }
       }
@@ -367,7 +404,7 @@ class UserController {
             role: user.role,
             id: user._id,
             accessToken,
-            expireIns: Date.now() + 10 * 60 * 1000,
+            expireIns: Date.now() + Number.parseInt(process.env.TIMER),
           },
         });
       } else {
@@ -383,7 +420,7 @@ class UserController {
             role: user.role,
             id: user._id,
             accessToken,
-            expireIns: Date.now() + 10 * 60 * 1000,
+            expireIns: Date.now() + Number.parseInt(process.env.TIMER),
           },
         });
       }
@@ -414,7 +451,7 @@ class UserController {
           process.env.REFRESH_TOKEN_SECRET,
           process.env.REFRESH_TOKEN_LIFE,
         );
-        const user = await User.findOne(
+        const user = await User.findOneAndUpdate(
           { email: verifyToken.payload.email },
           {
             refreshToken: newRefreshToken,
@@ -436,7 +473,7 @@ class UserController {
               id: user._id,
               role: user.role,
               accessToken: newAccessToken,
-              expireIns: Date.now() + 60000 * 10,
+              expireIns: Date.now() + Number.parseInt(process.env.TIMER),
             },
           });
         }
@@ -496,7 +533,7 @@ class UserController {
               id: user._id,
               role: user.role,
               accessToken: newAccessToken,
-              expireIns: Date.now() + 60000 * 10,
+              expireIns: Date.now() + Number.parseInt(process.env.TIMER),
             },
           });
         }

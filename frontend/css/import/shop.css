@@ -24,6 +24,29 @@ html {
   margin: 24px;
   align-self: center;
   box-shadow: 0 2px 5px 0 rgba(51, 62, 73, 0.1);
+  position: relative;
+}
+.back-to-home {
+  width: 4rem;
+  height: 4rem;
+  background-color: #f33a58;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.25s linear;
+  position: absolute;
+  top: 0%;
+  left: 0%;
+  transform: translate(-50%, -50%) scale(0.9);
+  z-index: 10000;
+}
+.back-to-home:hover {
+  background-color: #f33a40;
+  transform: translate(-50%, -50%) scale(1);
 }
 .wrapper {
   display: flex;

@@ -1,10 +1,6 @@
-import { setFieldError, setFieldValue } from './common'
+import { setFieldError } from './common'
 import * as yup from 'yup'
 
-function setFormValues(form, defaultValues) {
-  if (!form && !defaultValues) return
-  setFieldValue(form, "input[name='oldPassword']", defaultValues?.password)
-}
 function getFormValues(form) {
   if (!form) return
   const formValues = {}
@@ -50,7 +46,6 @@ async function handleValidateForm(form, formValues) {
 export function initFormPassword({ idForm, defaultValues, onSubmit }) {
   const form = document.getElementById(idForm)
   if (!form) return
-  setFormValues(form, defaultValues)
   form.addEventListener('submit', async function (e) {
     e.preventDefault()
     const formValues = getFormValues(form)

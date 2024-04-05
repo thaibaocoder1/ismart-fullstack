@@ -6,14 +6,19 @@ async function handleOnSubmitForm(formValues) {
   try {
     const populateValues = {
       id: formValues.id,
+      oldPassword: formValues.oldPassword,
       password: formValues.password,
       password_confirmation: formValues.retypePassword,
     }
     const dataUpdate = await userApi.updateFields(populateValues)
-    if (dataUpdate) toast.success('Đổi mật khẩu thành công')
-    setTimeout(() => {
-      window.location.assign('/admin/account.html')
-    }, 1000)
+    if (dataUpdate.success) {
+      toast.success('Đổi mật khẩu thành công')
+      setTimeout(() => {
+        window.location.assign('/admin/account.html')
+      }, 500)
+    } else {
+      toast.error(dataUpdate.message)
+    }
   } catch (error) {
     const { data } = error.response
     if (!data.success) {

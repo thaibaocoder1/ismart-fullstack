@@ -12,7 +12,7 @@ module.exports = {
   },
   async renderInvoice(order, orderDetail) {
     const invoiceFolderPath = 'src/public/invoice';
-    const fileName = `invoice.pdf`;
+    const fileName = `invoice-${order._id}.pdf`;
     const filePath = path.join(invoiceFolderPath, fileName);
     const fontPath = 'src/fonts/Roboto-Regular.ttf';
     const doc = new PDFDocument();

@@ -3,14 +3,16 @@ import { toast } from '../../../src/js/utils'
 import { renderInfoUser } from '../../../src/js/utils/add-edit-user'
 
 function jsonToFormData(formValues) {
+  const values = { ...formValues }
   const formData = new FormData()
-  for (const key in formValues) {
-    formData.append(key, formValues[key])
+  for (const key in values) {
+    formData.append(key, values[key])
   }
   return formData
 }
 async function handleOnSubmitForm(formValues) {
   const formData = jsonToFormData(formValues)
+  formData.append('admin', true)
   try {
     const savedUser =
       formData.get('id') && formData.get('id') !== 'undefined'
