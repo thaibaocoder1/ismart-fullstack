@@ -29,6 +29,7 @@ async function handleSubmitForm(formValues) {
     const { data } = error.response
     if (data.success === false) {
       toast.error(data.message)
+      return false
     }
   }
 }

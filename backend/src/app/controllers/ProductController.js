@@ -1,5 +1,6 @@
 const Catalog = require('../models/Catalog');
 const Product = require('../models/Product');
+const Detail = require('../models/Detail');
 const status = require('http-status-codes');
 
 class ProductController {
@@ -7,9 +8,11 @@ class ProductController {
   async index(req, res, next) {
     try {
       const products = await Product.find({}).sort('-updatedAt');
+      const productsSold = await Detail.find({}).populate('orderID');
       res.status(status.StatusCodes.OK).json({
         success: true,
         results: products.length,
+        productsSold,
         products,
       });
     } catch (error) {

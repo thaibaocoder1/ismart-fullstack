@@ -128,6 +128,7 @@ async function handleFilterChange(value, tbodyEl) {
     idElement: 'listOrderTable',
   })
   const modal = document.getElementById('modal')
+  const buttonInvoice = modal.querySelector('button.btn-invoice')
   document.addEventListener('click', async function (e) {
     const { target } = e
     if (target.matches('#viewOrder')) {
@@ -154,6 +155,7 @@ async function handleFilterChange(value, tbodyEl) {
         <li>Ghi chú: ${order.note || 'Không có ghi chú'}</li>
         <li>Trạng thái: ${await renderStatusOrder(order.status)}</li>
         </ul>`
+        buttonInvoice.hidden = order.status === 4 ? true : false
         tableBody.textContent = ''
         let total = 0
         orders.forEach((item) => {

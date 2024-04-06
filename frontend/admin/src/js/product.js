@@ -54,8 +54,13 @@ async function renderListProductAdmin({ idElement, data }) {
       showSpinner()
       const data = await productApi.getAll()
       hideSpinner()
-      const { products } = data
+      const { products, productsSold } = data
       products?.forEach((item, index) => {
+        const quantitySold = productsSold
+          .filter((x) => x.orderID.status === 3 && x.productID === item._id)
+          .reduce((total, item) => {
+            return total + item.quantity
+          }, 0)
         const tableRow = document.createElement('tr')
         tableRow.innerHTML = `
       <td><span class="tbody-text">${index + 1}</span></td>
@@ -76,6 +81,7 @@ async function renderListProductAdmin({ idElement, data }) {
       <td><span class="tbody-text">${checkStatus(item)}</span></td>
       <td><span class="tbody-text">${dayjs(item.createdAt).format('DD/MM/YYYY')}</span></td>
       <td><span class="tbody-text">${dayjs(item.updatedAt).format('DD/MM/YYYY')}</span></td>
+      <td><span class="tbody-text">${quantitySold}</span></td>
       <td>
         <button class="btn btn-primary btn-sm" id="editProduct" data-id="${
           item._id
