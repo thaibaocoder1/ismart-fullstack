@@ -183,7 +183,6 @@ function handleNextClick(e) {
   const page = Number.parseInt(ulPagination.dataset.page) || 1
   const totalPages = Number.parseInt(ulPagination.dataset.totalPages)
   if (page >= totalPages) return
-  console.log('from product')
   handleFilterChange('page', page + 1)
 }
 function initPagination() {

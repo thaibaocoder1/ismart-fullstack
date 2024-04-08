@@ -4,6 +4,9 @@ import orderApi from '../../../src/js/api/orderApi'
 import orderDetailApi from '../../../src/js/api/orderDetailApi'
 import { toast, checkLogoutAccount, showSpinner, hideSpinner } from '../../../src/js/utils'
 import { Chart } from 'chart.js/auto'
+;(Chart.defaults.font.family = 'SF Mono'),
+  '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif'
+Chart.defaults.color = '#858796'
 
 async function checkRoleAccount(infoUserStorage) {
   const { id } = infoUserStorage
@@ -67,9 +70,7 @@ async function initChart({ idElement }) {
     toast.error('Có lỗi trong khi xử lý dữ liệu')
   }
 }
-async function initChartOrder({ idElement }) {
-  const element = document.getElementById(idElement)
-  if (!element) return
+async function initChartRevenue() {
   const monthlyRevenue = []
   const res = await orderDetailApi.getWithStatus()
   const { orders } = res
@@ -98,38 +99,190 @@ async function initChartOrder({ idElement }) {
     'Tháng 11',
     'Tháng 12',
   ]
+  // Bar Chart Example
+  const element = document.getElementById('myAreaChart')
   const ctx = element.getContext('2d')
-  const myChart = new Chart(ctx, {
+  const myLineChart = new Chart(ctx, {
     type: 'line',
     data: {
       labels: monthNames,
       datasets: [
         {
-          label: 'Doanh thu trong năm',
-          data: monthlyRevenue,
+          label: 'Doanh thu trong năm 2024',
+          tension: 0.3,
+          backgroundColor: 'rgba(78, 115, 223, 0.05)',
+          borderColor: 'rgba(78, 115, 223, 1)',
+          pointRadius: 3,
+          pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+          pointBorderColor: 'rgba(78, 115, 223, 1)',
+          pointHoverRadius: 3,
+          pointHoverBackgroundColor: 'rgba(78, 115, 223, 1)',
+          pointHoverBorderColor: 'rgba(78, 115, 223, 1)',
+          pointHitRadius: 10,
+          pointBorderWidth: 2,
           fill: false,
-          borderColor: 'rgb(75, 192, 192)',
-          tension: 0.1,
+          data: monthlyRevenue,
         },
       ],
     },
     options: {
+      animations: {
+        tension: {
+          duration: 1000,
+          easing: 'easeOutExpo',
+          from: 1,
+          to: 0,
+          loop: true,
+        },
+      },
       scales: {
         y: {
           beginAtZero: true,
         },
       },
+      maintainAspectRatio: false,
+      layout: {
+        padding: {
+          left: 10,
+          right: 25,
+          top: 25,
+          bottom: 0,
+        },
+      },
+      legend: {
+        display: false,
+      },
+      plugins: {
+        tooltip: {
+          backgroundColor: 'rgb(255,255,255)',
+          bodyColor: '#858796',
+          titleMarginBottom: 10,
+          titleColor: '#6e707e',
+          titleFontSize: 14,
+          borderColor: '#dddfeb',
+          borderWidth: 1,
+          xPadding: 15,
+          yPadding: 15,
+          displayColors: false,
+          intersect: false,
+          mode: 'index',
+          caretPadding: 10,
+        },
+      },
     },
   })
 }
+async function initChartOrder() {
+  const res = await orderApi.getAll()
+  if (res.success) {
+    const statusCount = {
+      3: 0,
+      4: 0,
+      5: 0,
+    }
+    const { orders } = res
+    orders.forEach((order) => {
+      const { status } = order
+      if (status in statusCount) {
+        statusCount[status]++
+      }
+    })
+    const values = Object.values(statusCount)
+    const ctx = document.getElementById('myPieChart')
+    const myPieChart = new Chart(ctx.getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Thành công', 'Từ chối nhận hàng', 'Đã huỷ'],
+        datasets: [
+          {
+            data: values,
+            backgroundColor: ['#4e73df', '#ccc', '#36b9cc'],
+            hoverBackgroundColor: ['#2e59d9', '#333', '#2c9faf'],
+            hoverBorderColor: 'rgba(234, 236, 244, 1)',
+          },
+        ],
+      },
+      options: {
+        maintainAspectRatio: false,
+        plugins: {
+          subtitle: {
+            display: true,
+            text: 'Biểu đồ thống kê đơn hàng',
+            padding: '15',
+          },
+          tooltips: {
+            backgroundColor: 'rgb(255,255,255)',
+            bodyFontColor: '#858796',
+            borderColor: '#dddfeb',
+            borderWidth: 1,
+            xPadding: 15,
+            yPadding: 15,
+            displayColors: false,
+            caretPadding: 10,
+          },
+          legend: {
+            display: false,
+          },
+        },
+        cutout: 80,
+      },
+    })
+  }
+}
+function checkUserCancelOrder(result) {
+  let userID
+  try {
+    if (Array.isArray(result) && result.length > 0) {
+      result.forEach(async (item) => {
+        if (item.cancelCount === 2) {
+          userID = item.userID
+          showSpinner()
+          const res = await userApi.delete(item.userID)
+          hideSpinner()
+          if (res.success) {
+            toast.success(res.message)
+          } else {
+            toast.error(res.message)
+            return
+          }
+        }
+      })
+    }
+    return userID
+  } catch (error) {
+    console.log(error)
+  }
+}
 // main
 ;(async () => {
-  await initChart({
-    idElement: 'myChart',
-  })
-  await initChartOrder({
-    idElement: 'myChartOrder',
-  })
+  if (window.location.pathname === '/admin/index.html') {
+    await initChart({
+      idElement: 'myChart',
+    })
+    await initChartRevenue()
+    await initChartOrder()
+    const res = await orderApi.getAll()
+    if (res.success) {
+      const { orders } = res
+      const aggregatedOrders = {}
+      orders.forEach((order) => {
+        if (order.status === 5) {
+          const { userID, cancelCount } = order
+          if (aggregatedOrders[userID]) {
+            aggregatedOrders[userID].cancelCount += cancelCount
+          } else {
+            aggregatedOrders[userID] = { userID, cancelCount }
+          }
+        }
+      })
+      const result = Object.values(aggregatedOrders)
+      console.log(result)
+      const userID = checkUserCancelOrder(result)
+      const filteredResult = result.filter((item) => item.userID !== userID)
+      console.log(result)
+      console.log(filteredResult)
+    }
+  }
   let infoUserStorage = localStorage.getItem('accessTokenAdmin')
     ? JSON.parse(localStorage.getItem('accessTokenAdmin'))
     : {}
@@ -146,6 +299,31 @@ async function initChartOrder({ idElement }) {
     if (target.matches('a#logout-btn')) {
       e.preventDefault()
       await checkLogoutAccount()
+    } else if (target.closest('button#btn-statistical')) {
+      try {
+        showSpinner()
+        const res = await productApi.getAll()
+        const orderDetail = await orderDetailApi.getWithStatus()
+        hideSpinner()
+        if (res.success && orderDetail.success) {
+          const { products } = res
+          const { orders } = orderDetail
+          const table = document.getElementById('table-statistical')
+          const tableBody = table.querySelector('tbody')
+          tableBody.textContent = ''
+          products.forEach((item, index) => {
+            const isValid = orders.find((x) => x.orderID.status === 3 && x.productID === item._id)
+            const tableRow = document.createElement('tr')
+            tableRow.innerHTML = `<th scope="row">${index + 1}</th>
+            <td>${item.code}</td>
+            <td>${item.name}</td>
+            <td>${isValid ? isValid.quantity : 0}</td>`
+            tableBody.appendChild(tableRow)
+          })
+        }
+      } catch (error) {
+        console.log(error)
+      }
     }
   })
 })()

@@ -116,7 +116,7 @@
     </div>
 
     <!-- main -->
-    <div id="main-content-wp" class="checkout-page">
+    <div id="main-content-wp" class="checkout-page" style="background-color: #fff">
       <div class="section" id="breadcrumb-wp">
         <div class="wp-inner">
           <div class="section-detail">
@@ -230,6 +230,19 @@
                     style="display: block; width: 100%; height: 60px"
                   ></textarea>
                   <span class="invalid-feedback"></span>
+                </div>
+              </div>
+              <div class="form-row clearfix" style="display: flex">
+                <label for="" style="padding-bottom: 0">Thanh toán</label>
+                <div class="payment-method">
+                  <div class="payment-item">
+                    <label for="payment-direct">Trực tiếp</label>
+                    <input type="radio" name="payment" id="payment-direct" value="cod" checked />
+                  </div>
+                  <div class="payment-item">
+                    <label for="payment-online">Online</label>
+                    <input type="radio" name="payment" id="payment-online" value="online" />
+                  </div>
                 </div>
               </div>
               <div class="form-row" style="display: flex; justify-content: flex-end">

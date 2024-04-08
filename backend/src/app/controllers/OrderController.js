@@ -100,7 +100,7 @@ class OrderController {
         const filePath = await renderInvoice(order, orderDetail);
         await waitForFile(filePath);
         const pdfContent = await readFile(filePath);
-        const info = await transporter.sendMail({
+        transporter.sendMail({
           from: 'Ismart admin',
           to: order.email,
           subject: 'Đơn hành thanh toán tại iSmart ✔',
@@ -126,7 +126,6 @@ class OrderController {
         });
       }
     } catch (error) {
-      console.log(error);
       return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: 'Đã xảy ra lỗi khi lấy thông tin đơn hàng.',
@@ -157,9 +156,19 @@ class OrderController {
   }
   async update(req, res, next) {
     try {
-      const { id, status: STATUS } = req.body;
+      const { id, status: STATUS, cancelCount } = req.body;
       if (id) {
-        if (status !== 1) {
+        if (status !== 1 && cancelCount) {
+          const order = await Order.findOneAndUpdate(
+            { _id: id },
+            { status: STATUS, cancelCount: 1 },
+            { new: true },
+          );
+          return res.status(status.StatusCodes.CREATED).json({
+            success: true,
+            order,
+          });
+        } else if (status !== 1 && !cancelCount) {
           const order = await Order.findOneAndUpdate(
             { _id: id },
             { status: STATUS },

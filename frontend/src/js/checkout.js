@@ -13,6 +13,26 @@ import {
 } from './utils'
 import { checkLoginUser } from './utils/get-user'
 
+function filterCart(cart) {
+  if (!cart || cart.length === 0) return
+  let cartApply = []
+  for (const item of cart) {
+    if (item.isBuyNow) {
+      if (item.isChecked) {
+        cartApply.push(item)
+      } else {
+        continue
+      }
+    } else {
+      if (item.isChecked) {
+        cartApply.push(item)
+      } else {
+        continue
+      }
+    }
+  }
+  return cartApply
+}
 function displayProductInCart({ idTable, idTotalPrice, cart, userID }) {
   const tableElement = document.getElementById(idTable)
   if (!tableElement) return
@@ -21,7 +41,8 @@ function displayProductInCart({ idTable, idTotalPrice, cart, userID }) {
   tableBodyEl.textContent = ''
   let totalPrice = 0
   try {
-    cart?.forEach(async (item) => {
+    const cartApply = filterCart(cart)
+    cartApply?.forEach(async (item) => {
       if (item.isBuyNow || item.isChecked) {
         showSpinner()
         const data = await productApi.getById(item.productID)
@@ -53,7 +74,7 @@ async function handleAddOrder(orderID, formValues, cart) {
   if (orderData.success) {
     orderID = orderData.data._id
   }
-  let cartApply = cart.filter((item) => item.isChecked || item.isBuyNow)
+  let cartApply = filterCart(cart)
   for (const item of cartApply) {
     const product = await productApi.getById(item.productID)
     const remainingQuantity = Number.parseInt(product.quantity)

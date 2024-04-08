@@ -213,13 +213,13 @@ async function renderListProductInCart({ idTable, cart }) {
       }
     } else if (e.target.matches("input[type='number'].num-order")) {
       const inputValue = parseInt(+e.target.value, 10)
-      console.log(inputValue)
       const productID = e.target.dataset.id
       const index = cart.findIndex((item) => item.productID === productID)
       const data = await productApi.getById(productID)
       const { product } = data
       const checkedProducts = cart.filter((item) => item.isChecked)
-      if (inputValue === 0) {
+      if (inputValue < 1) {
+        e.target.value = 1
         Swal.fire({
           title: 'Xoá sản phẩm này?',
           text: 'Sản phẩm sẽ bị xoá khỏi giỏ hàng!',
@@ -258,24 +258,25 @@ async function renderListProductInCart({ idTable, cart }) {
             e.target.value = 1
           }
         })
-      }
-      if (inputValue >= 1 && inputValue <= +product.quantity) {
-        cart = handleChangeQuantity(inputValue, cart, productID)
-        await addCartToDom({
-          idListCart: 'listCart',
-          cart,
-          idNumOrder: 'numOrder',
-          idNum: '#num.numDesktop',
-          idTotalPrice: 'totalPrice',
-        })
-        updateTotal(checkedProducts)
-        const productPrice = e.target.parentElement.parentElement.querySelector('#priceProduct')
-        productPrice.innerHTML = `${formatCurrencyNumber(
-          cart[index].quantity * calcPrice(product),
-        )}`
       } else {
-        toast.error('Số lượng đặt mua đã đạt tối đa')
-        e.target.value = product.quantity
+        if (inputValue >= 1 && inputValue <= +product.quantity) {
+          cart = handleChangeQuantity(inputValue, cart, productID)
+          await addCartToDom({
+            idListCart: 'listCart',
+            cart,
+            idNumOrder: 'numOrder',
+            idNum: '#num.numDesktop',
+            idTotalPrice: 'totalPrice',
+          })
+          updateTotal(checkedProducts)
+          const productPrice = e.target.parentElement.parentElement.querySelector('#priceProduct')
+          productPrice.innerHTML = `${formatCurrencyNumber(
+            cart[index].quantity * calcPrice(product),
+          )}`
+        } else {
+          toast.error('Số lượng đặt mua đã đạt tối đa')
+          e.target.value = product.quantity
+        }
       }
       const totalPriceEl =
         e.target.parentElement.parentElement.parentElement.nextElementSibling.querySelector(

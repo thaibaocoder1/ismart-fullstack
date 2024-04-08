@@ -47,6 +47,17 @@ async function handleOnSubmitForm(data) {
 }
 // main
 ;(() => {
+  let accessToken = localStorage.getItem('accessToken')
+  let accessTokenAdmin = localStorage.getItem('accessTokenAdmin')
+  if (accessToken !== null && accessToken !== null) {
+    window.location.assign('/index.html')
+  } else {
+    if (accessToken !== null) {
+      window.location.assign('/index.html')
+    } else if (accessTokenAdmin !== null) {
+      window.location.assign('/admin/index.html')
+    }
+  }
   Validator({
     formID: '#form-1',
     formGroupSelector: '.form-group',

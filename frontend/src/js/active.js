@@ -8,7 +8,6 @@ import { toast } from './utils'
     const modal = document.getElementById('modal')
     modal && modal.classList.add('is-show')
     const active = await userApi.active(activeID)
-    console.log(active)
     if (active.success && !active.isActive) {
       toast.info('Chuyển đến trang đăng nhập')
       setTimeout(() => {

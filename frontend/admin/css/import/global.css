@@ -109,6 +109,9 @@ form#formProduct .form-right > .input-group input {
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   grid-gap: 20px;
 }
+.grid-layout li:last-child {
+  grid-column-end: span 2;
+}
 .grid-layout .input-group {
   width: 100%;
 }
@@ -167,4 +170,8 @@ form#formProduct .form-right > .input-group input {
 .is-relative {
   position: relative;
   width: 100%;
+}
+.modal-statistical {
+  height: 350px;
+  overflow: auto;
 }

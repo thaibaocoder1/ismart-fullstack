@@ -95,7 +95,6 @@ async function handleOnSubmitForm(formValues) {
     console.log(error)
   }
 }
-
 // main
 ;(() => {
   // get cart from localStorage

@@ -31,8 +31,15 @@ async function handleOnSubmitForm(data) {
 ;(() => {
   // check if exists access_token
   let accessToken = localStorage.getItem('accessToken')
-  if (accessToken !== null) {
-    window.location.assign('login.html')
+  let accessTokenAdmin = localStorage.getItem('accessTokenAdmin')
+  if (accessToken !== null && accessToken !== null) {
+    window.location.assign('/index.html')
+  } else {
+    if (accessToken !== null) {
+      window.location.assign('/index.html')
+    } else if (accessTokenAdmin !== null) {
+      window.location.assign('/admin/index.html')
+    }
   }
   Validator({
     formID: '#form-1',

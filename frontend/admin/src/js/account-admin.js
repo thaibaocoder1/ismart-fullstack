@@ -34,5 +34,4 @@ async function registerInfoAccountAdmin({ idForm, idAccount }) {
       idAccount: userInfoStorage.id,
     })
   }
-  console.log(123)
 })()

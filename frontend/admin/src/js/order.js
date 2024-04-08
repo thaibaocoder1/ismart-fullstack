@@ -1,5 +1,6 @@
 import orderApi from '../../../src/js/api/orderApi'
 import orderDetailApi from '../../../src/js/api/orderDetailApi'
+import productApi from '../../../src/js/api/productsApi'
 import {
   showSpinner,
   hideSpinner,
@@ -18,8 +19,12 @@ async function renderStatusOrder(status) {
       return 'Đã xác nhận + vận chuyển'
     case 3:
       return 'Đã nhận hàng'
-    default:
+    case 4:
       return 'Đã huỷ'
+    case 5:
+      return 'Từ chối nhận hàng'
+    default:
+      return ''
   }
 }
 function checkStatusOrder(status) {
@@ -151,9 +156,10 @@ async function handleFilterChange(value, tbodyEl) {
         <li>Họ và tên: ${order.fullname}</li>
         <li>Email: ${order.email}</li>
         <li>Số điện thoại: 0${order.phone}</li>
-        <li>Địa chỉ: ${order.address}</li>
         <li>Ghi chú: ${order.note || 'Không có ghi chú'}</li>
+        <li>Phương thức thanh toán: ${order.payment}</li>
         <li>Trạng thái: ${await renderStatusOrder(order.status)}</li>
+        <li>Địa chỉ: ${order.address}</li>
         </ul>`
         buttonInvoice.hidden = order.status === 4 ? true : false
         tableBody.textContent = ''
@@ -187,29 +193,47 @@ async function handleFilterChange(value, tbodyEl) {
       hideSpinner()
       if (resOrder.success) {
         const { order } = resOrder
-        let tagArr = ['Chờ xác nhận', 'Đã xác nhận + vận chuyển', 'Đã nhận hàng', 'Đã huỷ']
+        if (order.status === 4 || order.status === 5 || order.status === 3)
+          buttonModalConfirm.hidden = true
+        let tagArr = [
+          'Chờ xác nhận',
+          'Đã xác nhận + vận chuyển',
+          'Đã nhận hàng',
+          'Đã huỷ',
+          'Từ chối nhận hàng',
+        ]
         selectEl.textContent = ''
         for (let i = 0; i < tagArr.length; ++i) {
-          const optionEl = document.createElement('option')
-          optionEl.value = i + 1
-          if (order.status !== 1 && i === 0) {
-            optionEl.disabled = true
+          const optionElement = document.createElement('option')
+          optionElement.value = (i + 1).toString()
+          if (i + 1 === order.status) {
+            optionElement.selected = true
           }
-          if (+optionEl.value === order.status) {
-            optionEl.selected = true
+          if (order.status !== 1 && i === 0) {
+            optionElement.disabled = true
+          }
+          if (order.status === 2) {
+            if (i !== 1 && i !== 4 && i !== 2) {
+              optionElement.disabled = true
+            }
           }
           if (order.status === 3) {
             if (i !== 2) {
-              optionEl.disabled = true
+              optionElement.disabled = true
             }
           }
-          if (order.status === 2) {
-            if (i === 3) {
-              optionEl.disabled = true
+          if (order.status === 4) {
+            if (i !== 3) {
+              optionElement.disabled = true
             }
           }
-          optionEl.innerHTML = `${tagArr[i]}`
-          selectEl.appendChild(optionEl)
+          if (order.status === 5) {
+            if (i !== 4) {
+              optionElement.disabled = true
+            }
+          }
+          optionElement.text = `${tagArr[i]}`
+          selectEl.add(optionElement)
         }
       }
       selectEl.addEventListener('change', (e) => {
@@ -218,16 +242,42 @@ async function handleFilterChange(value, tbodyEl) {
     } else if (target.matches('.btn-confirm')) {
       const orderID = target.dataset.id
       const modalEdit = document.getElementById('modal-edit')
-      const payload = {
-        id: orderID,
-        status: Number.parseInt(modalEdit.dataset.status) || 1,
-      }
-      const update = await orderApi.update(payload)
-      if (update.success) {
-        toast.success('Cập nhật thành công')
+      const status = Number.parseInt(modalEdit.dataset.status)
+      if (status === 5 || status === 4) {
+        const res = await orderDetailApi.getById(orderID)
+        if (res.success) {
+          const { orders } = res
+          orders.forEach(async (item) => {
+            const refundQuantity = {
+              id: item.productID._id,
+              quantity: item.productID.quantity + item.quantity,
+            }
+            const payload = {
+              id: orderID,
+              status: Number.parseInt(modalEdit.dataset.status) || 1,
+              cancelCount: status === 5 ? 1 : 0,
+            }
+            const promise1 = orderApi.update(payload)
+            const promise2 = productApi.update(refundQuantity)
+            const [updateOrder, updateProduct] = await Promise.all([promise1, promise2])
+            if (updateOrder.success && updateProduct.success) {
+              toast.success('Cập nhật thành công')
+            } else {
+              toast.error('Có lỗi trong khi cập nhật')
+            }
+          })
+        }
       } else {
-        toast.error('Có lỗi trong khi cập nhật')
-        return
+        const payload = {
+          id: orderID,
+          status: Number.parseInt(modalEdit.dataset.status) || 1,
+        }
+        const update = await orderApi.update(payload)
+        if (update.success) {
+          toast.success('Cập nhật thành công')
+        } else {
+          toast.error('Có lỗi trong khi cập nhật')
+        }
       }
     } else if (target.matches('.btn-invoice')) {
       const orderID = modal.dataset.id

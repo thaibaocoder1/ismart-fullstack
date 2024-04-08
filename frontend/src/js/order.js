@@ -70,7 +70,6 @@ async function handleCancelOrder(orderID) {
   }
   return isSuccess
 }
-
 function handleOnClick() {
   // add event for element render after dom
   document.addEventListener('click', async function (e) {
@@ -137,7 +136,6 @@ function handleOnClick() {
     }
   })
 }
-
 function displayStatus(status) {
   if (!status) return
   if (+status !== 1) {
@@ -145,7 +143,6 @@ function displayStatus(status) {
   }
   return ''
 }
-
 async function renderListOrder({ idTable, infoUserStorage }) {
   const table = document.getElementById(idTable)
   if (!table) return

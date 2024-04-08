@@ -56,3 +56,38 @@ exports.validatePayload = async (req, res, next) => {
   }
   next();
 };
+exports.verifyAccount = async (req, res, next) => {
+  const { refreshToken, refreshTokenAdmin } = req.cookies;
+  let token = '';
+  if (!refreshToken && !refreshTokenAdmin) {
+    token = '';
+  } else {
+    if (refreshToken && !refreshTokenAdmin) {
+      token = refreshToken;
+    } else if (!refreshToken && refreshTokenAdmin) {
+      token = refreshTokenAdmin;
+    } else {
+      token = '';
+    }
+  }
+  if (token === '') {
+    res.status(401).json({
+      message: 'Unauthorization',
+    });
+  } else {
+    const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET;
+    const verifyToken = await exports.decodeToken(token, refreshTokenSecret);
+    if (verifyToken) {
+      const { payload } = verifyToken;
+      const user = await User.findOne({ email: payload.email });
+      if (user) {
+        next();
+      } else {
+        res.clearCookie('refreshToken');
+        res.status(401).json({
+          message: 'Unauthorization',
+        });
+      }
+    }
+  }
+};

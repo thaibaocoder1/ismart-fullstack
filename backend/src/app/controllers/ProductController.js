@@ -31,7 +31,6 @@ class ProductController {
     const brand = req.query.brand;
     const minPrice = parseInt(req.query.minPrice);
     const maxPrice = parseInt(req.query.maxPrice);
-    console.log(req.query);
     try {
       if (slug) {
         const category = await Catalog.findOne({ slug });
@@ -91,30 +90,67 @@ class ProductController {
             });
           }
         } else {
-          console.log('acb');
-          const skip = (page - 1) * limit;
-          const products = await Product.find({})
-            .sort('-updatedAt')
-            .skip(skip)
-            .limit(limit);
-          const totalProducts = await Product.countDocuments();
-          if (products && products.length > 0) {
-            return res.status(status.StatusCodes.OK).json({
-              success: true,
-              results: products.length,
-              allProducts,
-              products,
-              pagination: {
-                limit,
-                currentPage: page,
-                totalRows: totalProducts,
-              },
-            });
+          if (brand && brand !== '' && minPrice === 1) {
+            const brands = brand.split(',');
+            const brandRegexArray = brands.map(
+              (brand) => new RegExp(brand, 'i'),
+            );
+            const brandQuery = {
+              $or: brandRegexArray.map((brandRegex) => ({
+                name: { $regex: brandRegex },
+              })),
+            };
+            const priceQuery = {
+              $gte: parseInt(minPrice),
+            };
+            const mainQuery = {
+              $and: [brandQuery, { price: priceQuery }],
+            };
+            limit = 8;
+            const skip = (page - 1) * limit;
+            const products = await Product.find(mainQuery)
+              .sort('-updatedAt')
+              .skip(skip)
+              .limit(limit);
+            const totalProducts = await Product.countDocuments(mainQuery);
+            if (products && products.length > 0) {
+              return res.status(status.StatusCodes.OK).json({
+                success: true,
+                results: products.length,
+                allProducts,
+                products,
+                pagination: {
+                  limit,
+                  currentPage: page,
+                  totalRows: totalProducts,
+                },
+              });
+            }
           } else {
-            return res.status(status.StatusCodes.NOT_FOUND).json({
-              success: false,
-              message: 'Không có sản phẩm nào được tìm thấy.',
-            });
+            const skip = (page - 1) * limit;
+            const products = await Product.find({})
+              .sort('-updatedAt')
+              .skip(skip)
+              .limit(limit);
+            const totalProducts = await Product.countDocuments();
+            if (products && products.length > 0) {
+              return res.status(status.StatusCodes.OK).json({
+                success: true,
+                results: products.length,
+                allProducts,
+                products,
+                pagination: {
+                  limit,
+                  currentPage: page,
+                  totalRows: totalProducts,
+                },
+              });
+            } else {
+              return res.status(status.StatusCodes.NOT_FOUND).json({
+                success: false,
+                message: 'Không có sản phẩm nào được tìm thấy.',
+              });
+            }
           }
         }
       }
@@ -154,11 +190,13 @@ class ProductController {
       const { slug } = req.params;
       const catalog = await Catalog.findOne({ slug });
       const products = await Product.find({ categoryID: catalog?._id });
+      const productSolds = await Detail.find({}).populate('productID');
       if (products && products.length > 0) {
         return res.status(status.StatusCodes.OK).json({
           success: true,
           results: products.length,
           products,
+          productSolds,
         });
       } else {
         return res.status(status.StatusCodes.OK).json({

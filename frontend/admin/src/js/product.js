@@ -12,7 +12,7 @@ import {
 import dayjs from 'dayjs'
 import diacritics from 'diacritics'
 
-async function renderListProductAdmin({ idElement, data }) {
+async function renderListProductAdmin({ idElement, data, productSolds }) {
   const table = document.getElementById(idElement)
   if (!table) return
   const tbody = table.getElementsByTagName('tbody')[0]
@@ -21,6 +21,11 @@ async function renderListProductAdmin({ idElement, data }) {
   try {
     if (Array.isArray(data) && data.length > 0) {
       data?.forEach((item, index) => {
+        const quantitySold = productSolds
+          .filter((x) => x.orderID.status === 3 && x.productID === item._id)
+          .reduce((total, item) => {
+            return total + item.quantity
+          }, 0)
         const tableRow = document.createElement('tr')
         tableRow.innerHTML = `
       <td><span class="tbody-text">${index + 1}</span></td>
@@ -41,6 +46,7 @@ async function renderListProductAdmin({ idElement, data }) {
       <td><span class="tbody-text">${checkStatus(item)}</span></td>
       <td><span class="tbody-text">${dayjs(item.createdAt).format('DD/MM/YYYY')}</span></td>
       <td><span class="tbody-text">${dayjs(item.updatedAt).format('DD/MM/YYYY')}</span></td>
+      <td><span class="tbody-text">${quantitySold}</span></td>
       <td>
         <button class="btn btn-primary btn-sm" id="editProduct" data-id="${
           item._id
@@ -166,11 +172,12 @@ async function initFilterForm({ selector }) {
         const res = await productApi.getByCatalog(slug)
         hideSpinner()
         if (res.success) {
-          const { products } = res
+          const { products, productSolds } = res
           toast.info('Lọc thành công')
           await renderListProductAdmin({
             idElement: 'listProductTable',
             data: products,
+            productSolds,
           })
         } else {
           toast.info('Danh mục chưa có sản phẩm')

@@ -3,6 +3,7 @@ const status = require('http-status-codes');
 const authMethod = require('../../auth/AuthController');
 const mailer = require('../../middlewares/mailer');
 const bcrypt = require('bcrypt');
+const { error } = require('console');
 
 class UserController {
   // Get all
@@ -45,14 +46,14 @@ class UserController {
       data.password_confirmation = hashCPassowrd;
       const user = await User.create(data);
       const content = `<b>Vui lòng click vào đường link này để xác thực việc kích hoạt tài khoản. <a href="http://localhost:5173/active.html?id=${user._id}">Xác thực</a></b>`;
-      const send = mailer.sendMail({
+      (await mailer.createTransporter()).sendMail({
         from: 'iSmart Admin',
         to: user.email,
         subject: 'Kích hoạt tài khoản tại hệ thống iSmart ✔',
         text: 'Kích hoạt tài khoản tại hệ thống iSmart',
         html: content,
       });
-      if (user && send) {
+      if (user) {
         return res.status(status.StatusCodes.OK).json({
           success: true,
           user,
@@ -308,7 +309,7 @@ class UserController {
       if (user) {
         const now = Math.floor(Date.now() / 1000);
         const timer = Math.floor(new Date(user.resetedAt).getTime() / 1000);
-        if (now - timer > 300) {
+        if (now - timer > Number(process.env.TIMERESETPASSWORD)) {
           res.status(status.StatusCodes.NOT_FOUND).json({
             success: false,
             message: 'Reset failed!',
@@ -345,7 +346,13 @@ class UserController {
       if (!user) {
         return res.status(status.StatusCodes.OK).json({
           success: false,
-          message: 'Tài khoản không tồn tại hoặc đã bị xoá.',
+          message: 'Tài khoản không tồn tại.',
+        });
+      }
+      if (user.deleted) {
+        return res.status(status.StatusCodes.OK).json({
+          success: false,
+          message: 'Tài khoản đã bị xoá.',
         });
       }
       if (!user.isActive) {
@@ -403,6 +410,9 @@ class UserController {
           sameSite: 'strict',
           path: '/',
           secure: false,
+          expires: new Date(
+            Date.now() + Number(process.env.EXPIRE_DATE_COOKIE),
+          ),
         });
         res.status(status.StatusCodes.CREATED).json({
           success: true,
@@ -419,6 +429,9 @@ class UserController {
           sameSite: 'strict',
           path: '/',
           secure: false,
+          expires: new Date(
+            Date.now() + Number(process.env.EXPIRE_DATE_COOKIE),
+          ),
         });
         res.status(status.StatusCodes.CREATED).json({
           success: true,
@@ -472,6 +485,9 @@ class UserController {
             sameSite: 'strict',
             path: '/',
             secure: false,
+            expires: new Date(
+              Date.now() + Number(process.env.EXPIRE_DATE_COOKIE),
+            ),
           });
           res.status(status.StatusCodes.CREATED).json({
             success: true,
@@ -532,6 +548,9 @@ class UserController {
             sameSite: 'strict',
             path: '/',
             secure: false,
+            expires: new Date(
+              Date.now() + Number(process.env.EXPIRE_DATE_COOKIE),
+            ),
           });
           res.status(status.StatusCodes.CREATED).json({
             success: true,
@@ -543,7 +562,6 @@ class UserController {
             },
           });
         }
-        next();
       }
     } catch (error) {
       res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
@@ -586,8 +604,8 @@ class UserController {
         const salt = bcrypt.genSaltSync(15);
         const hash = bcrypt.hashSync(email, salt);
         const content = `<b>Vui lòng click vào đường link này để xác thực việc khôi phục tài khoản. <a href="http://localhost:5173/confirm.html?id=${user._id}&hash=${hash}">Xác thực</a></b>`;
-        mailer.sendMail({
-          from: 'Ismart admin',
+        await mailer.createTransporter().sendMail({
+          from: 'iSmart ADMIN',
           to: user.email,
           subject: 'Xác thực việc khôi phục tài khoản tại iSmart ✔',
           text: 'Xác thực việc khôi phục tài khoản tại iSmart',
@@ -679,7 +697,7 @@ class UserController {
           isActive: true,
         });
       } else {
-        if (now - timeCreated < 300) {
+        if (now - timeCreated > Number(process.env.TIMERACTIVE)) {
           await User.deleteOne({ _id: id });
           return res.status(status.StatusCodes.UNAUTHORIZED).json({
             success: false,
@@ -712,8 +730,8 @@ class UserController {
       const user = await User.findOne({ email });
       const content = `<b>Vui lòng click vào đường link này để xác thực việc lấy lại mật khẩu. <a href="http://localhost:5173/update.html?id=${user._id}">Xác thực</a></b>`;
       if (user) {
-        mailer.sendMail({
-          from: 'Ismart admin',
+        (await mailer.createTransporter()).sendMail({
+          from: 'iSmart ADMIN',
           to: user.email,
           subject: 'Xác thực việc lấy lại mật khẩu tại iSmart ✔',
           text: 'Xác thực việc lấy lại mật khẩu tại iSmart',

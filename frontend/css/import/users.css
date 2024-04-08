@@ -229,10 +229,17 @@
   border-radius: 0 0 2px 2px;
   box-shadow: 0 0 4px 6px rgba(0, 0, 0, 0.03);
   width: 493px;
+  height: 250px;
   position: absolute;
   z-index: 10;
   overflow-y: scroll;
+  opacity: 0;
+  visibility: hidden;
   transition: all 0.25s linear;
+}
+.search.is-has-product {
+  opacity: 1;
+  visibility: visible;
 }
 .search::-webkit-scrollbar-track {
   -webkit-box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
@@ -272,4 +279,17 @@
 .is-out-quantity {
   background: #ef5350;
   color: #fff;
+}
+.payment-method {
+  display: flex;
+  gap: 0 10px;
+  margin-left: auto;
+}
+.payment-item {
+  display: flex;
+  align-items: center;
+  gap: 0 5px;
+}
+.payment-item label {
+  padding-bottom: 0 !important;
 }

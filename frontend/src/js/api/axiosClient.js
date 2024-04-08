@@ -109,7 +109,12 @@ axiosClient.interceptors.response.use(
       window.location.assign('/login.html')
     }
     if (error.response.status === 401) {
-      toast.error('Tài khoản đã bị xoá!')
+      if (data.message === 'Unauthorization') {
+        await axiosClient.removeLocalStorage()
+        window.location.assign('/login.html')
+      } else {
+        toast.error('Tài khoản đã bị xoá!')
+      }
     }
     return Promise.reject(error)
   },

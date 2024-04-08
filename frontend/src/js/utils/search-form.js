@@ -162,9 +162,9 @@ export async function renderListProductSearch(listProduct, search) {
   if (!search || listProduct.length === 0) return
   search.textContent = ''
   if (listProduct.length > 0) {
+    search.classList.add('is-has-product')
     listProduct.forEach((item) => {
       const searchItem = document.createElement('search')
-      search.style.height = `${listProduct.length > 0 ? '200px' : '0px'}`
       searchItem.classList.add('search-item')
       searchItem.innerHTML = `<figure class="search-thumb">
     <a href="product-detail.html?id=${item._id}">
@@ -197,18 +197,17 @@ export function initSearchForm({ idForm, idElement, searchValueUrl }) {
     const { target } = e
     const value = target.value
     let listProduct = []
+    const res = await productApi.getAll()
     if (value.length === 0) {
-      search.textContent = ''
-      await renderListProductSearch(listProduct, search)
+      search.classList.remove('is-has-product')
     } else {
-      const res = await productApi.getAll()
       if (res.success) {
         const { products } = res
         listProduct = products.filter((item) =>
           item?.name.toLowerCase().includes(value.toLowerCase()),
         )
+        await renderListProductSearch(listProduct, search)
       }
-      await renderListProductSearch(listProduct, search)
     }
   }, 500)
   searchTerm.addEventListener('input', debounceSearch)
@@ -229,7 +228,6 @@ async function handleChange(params, searchValueUrl, value) {
       item?.name.toLowerCase().includes(searchValueUrl.toLowerCase()),
     )
   }
-
   switch (value) {
     case 'discount':
       productApply = productClone.sort((a, b) => b.discount - a.discount)
@@ -265,7 +263,7 @@ export function initFormFilter({ idForm, searchValueUrl, onChange }) {
   if (selectEl) {
     selectEl.addEventListener('change', async function (e) {
       let value = e.target.value
-      const productApply = await handleChange(params, searchValueUrl, selectedValue)
+      const productApply = await handleChange(params, searchValueUrl, value)
       if (productApply.length > 0) {
         toast.success('Filter success')
       }
@@ -273,7 +271,6 @@ export function initFormFilter({ idForm, searchValueUrl, onChange }) {
     })
   }
 }
-
 export function initFilterProduct(selector) {
   const button = document.getElementById(selector)
   if (!button) return
@@ -350,7 +347,6 @@ async function applyFilters() {
     initPagination(combinedParams)
   }
 }
-
 function resetFilters() {
   document
     .querySelectorAll('input[name="brand"]:checked')

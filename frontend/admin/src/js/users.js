@@ -101,7 +101,7 @@ async function handleFilterChange(value, tbodyEl) {
       modal.dataset.id = userID
     } else if (target.closest('button.btn-confirm')) {
       const userID = modal.dataset.id
-      if (userApi) {
+      if (userID) {
         showSpinner()
         const res = await userApi.delete(userID)
         hideSpinner()

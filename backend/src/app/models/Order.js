@@ -10,6 +10,8 @@ const Order = new Schema(
     phone: { type: Number, require: true },
     note: { type: String },
     status: { type: Number, require: true },
+    cancelCount: { type: Number, default: 0 },
+    payment: { type: String, default: 'cod' },
     userID: { type: mongoose.Types.ObjectId, ref: 'User' },
   },
   { timestamps: true },

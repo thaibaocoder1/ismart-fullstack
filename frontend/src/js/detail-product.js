@@ -56,9 +56,9 @@ async function renderDetailProduct({
     </div>
     <p class="price">${formatCurrencyNumber(calcPrice(product))}</p>
     <div id="num-order-wp">
-      <span id="minus"><i class="fa fa-minus"></i></span>
+      <span id="minus" data-id=${product._id}><i class="fa fa-minus"></i></span>
       <input type="text" value="1" data-quantity="1" name="num-order" id="num-order" />
-      <span id="plus"><i class="fa fa-plus"></i></span>
+      <span id="plus" data-id=${product._id}><i class="fa fa-plus"></i></span>
     </div>
     <button data-id=${product._id} title="Thêm giỏ hàng" class="add-cart" ${
       Number.parseInt(product.quantity) > 0 && Number.parseInt(product.status) === 1
@@ -243,7 +243,7 @@ async function handleOnSubmitForm(value, productID, userID) {
           window.location.assign(`/product-detail.html?id=${productID}`)
         }, 500)
       }
-    } else if (target.closest('#minus')) {
+    } else if (target.closest('span#minus')) {
       const parent = target.closest('#num-order-wp')
       if (!parent) return
       const numOrderDetail = parent.querySelector('#num-order')
@@ -254,13 +254,20 @@ async function handleOnSubmitForm(value, productID, userID) {
         numOrderDetail.value--
         numOrderDetail.dataset.quantity = numOrderDetail.value--
       }
-    } else if (target.closest('#plus')) {
+    } else if (target.closest('span#plus')) {
+      const productID = target.dataset.id
       const parent = target.closest('#num-order-wp')
-      if (!parent) return
-      const numOrderDetail = parent.querySelector('#num-order')
-      if (+numOrderDetail.value >= 1) {
-        numOrderDetail.value++
-        numOrderDetail.dataset.quantity = +numOrderDetail.value
+      if (!parent || !productID) return
+      const data = await productApi.getById(productID)
+      if (data.success) {
+        const { product } = data
+        const numOrderDetail = parent.querySelector('#num-order')
+        if (+numOrderDetail.value >= 1 && +numOrderDetail.value < product.quantity) {
+          numOrderDetail.value++
+          numOrderDetail.dataset.quantity = numOrderDetail.value
+        } else {
+          toast.error('Sản phẩm đạt số lượng tối đa')
+        }
       }
     } else if (target.matches('.buy-now')) {
       e.preventDefault()

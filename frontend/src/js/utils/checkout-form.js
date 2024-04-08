@@ -4,13 +4,25 @@ import { setFieldError, setFieldValue } from './common'
 import * as yup from 'yup'
 
 export function displayTextStatus(status) {
-  return +status === 1
-    ? 'Huỷ đơn'
-    : +status === 4
-    ? 'Đã huỷ'
-    : +status === 2
-    ? 'Đang vận chuyển'
-    : 'Đã nhận hàng'
+  switch (+status) {
+    case 1:
+      return 'Chờ xác nhận'
+
+    case 2:
+      return 'Đã xác nhận + vận chuyển'
+
+    case 3:
+      return 'Đã nhận hàng'
+
+    case 4:
+      return 'Đã huỷ'
+
+    case 5:
+      return 'Từ chối nhận hàng'
+
+    default:
+      break
+  }
 }
 function setValuesForm(formCheckout, user) {
   setFieldValue(formCheckout, "input[name='fullname']", user?.fullname)
