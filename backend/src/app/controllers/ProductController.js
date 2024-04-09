@@ -2,6 +2,25 @@ const Catalog = require('../models/Catalog');
 const Product = require('../models/Product');
 const Detail = require('../models/Detail');
 const status = require('http-status-codes');
+const fs = require('fs');
+const util = require('util');
+const { renderCSV } = require('../../utils');
+
+const readFile = util.promisify(fs.readFile);
+
+async function waitForFile(filePath) {
+  return new Promise((resolve) => {
+    const checkExistence = async () => {
+      try {
+        await fs.promises.access(filePath, fs.constants.F_OK);
+        resolve();
+      } catch (error) {
+        setTimeout(checkExistence, 1000);
+      }
+    };
+    checkExistence();
+  });
+}
 
 class ProductController {
   // [GET] /products
@@ -158,6 +177,52 @@ class ProductController {
       return res.status(status.StatusCodes.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: 'Đã xảy ra lỗi khi lấy danh sách sản phẩm.',
+      });
+    }
+  }
+  // [GET] /products/params
+  async export(req, res, next) {
+    const products = await Product.find(
+      {},
+      { _id: 1, code: 1, name: 1, quantity: 1 },
+    );
+    const details = await Detail.find().populate({
+      path: 'orderID',
+      match: { status: 3 },
+    });
+    const orders = details.filter((detail) => detail.orderID !== null);
+    products.forEach((item) => {
+      const productSold = orders.find(
+        (x) =>
+          x.orderID.status === 3 &&
+          x.productID.toString() === item._id.toString(),
+      );
+      if (item._id.toString() === productSold?.productID.toString()) {
+        item.sold = productSold.quantity;
+      }
+    });
+    const filteredData = products.map((item) => {
+      return {
+        _id: item._id.toString(),
+        name: item.name,
+        code: item.code,
+        quantity: item.quantity,
+        sold: item?.sold || 0,
+      };
+    });
+    const data = await renderCSV(filteredData);
+    await waitForFile(data.filePath);
+    const csvContent = await readFile(data.filePath);
+    if (csvContent) {
+      res.status(status.StatusCodes.OK).json({
+        success: true,
+        message: 'Export successfully',
+        link: `http://localhost:3001/csv/${data.fileName}`,
+      });
+    } else {
+      res.status(status.StatusCodes.OK).json({
+        success: false,
+        message: 'Export failed',
       });
     }
   }

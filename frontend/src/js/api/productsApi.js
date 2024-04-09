@@ -47,5 +47,9 @@ const productApi = {
     const url = `/products/${id}`
     return axiosClient.delete(url)
   },
+  export() {
+    const url = `/products/export-csv`
+    return axiosClient.get(url)
+  },
 }
 export default productApi

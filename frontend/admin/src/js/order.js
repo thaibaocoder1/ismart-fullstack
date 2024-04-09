@@ -157,7 +157,7 @@ async function handleFilterChange(value, tbodyEl) {
         <li>Email: ${order.email}</li>
         <li>Số điện thoại: 0${order.phone}</li>
         <li>Ghi chú: ${order.note || 'Không có ghi chú'}</li>
-        <li>Phương thức thanh toán: ${order.payment}</li>
+        <li>Phương thức thanh toán: ${order.payment.toUpperCase()}</li>
         <li>Trạng thái: ${await renderStatusOrder(order.status)}</li>
         <li>Địa chỉ: ${order.address}</li>
         </ul>`

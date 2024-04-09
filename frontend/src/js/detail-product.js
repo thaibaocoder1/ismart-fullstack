@@ -271,7 +271,7 @@ async function handleOnSubmitForm(value, productID, userID) {
       }
     } else if (target.matches('.buy-now')) {
       e.preventDefault()
-      if (infoUserStorage) {
+      if (infoUserStorage && Object.keys(infoUserStorage).length > 0) {
         const productID = target.dataset.id
         showSpinner()
         const data = await productApi.getById(productID)

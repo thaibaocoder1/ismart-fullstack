@@ -234,7 +234,7 @@ function checkUserCancelOrder(result) {
   try {
     if (Array.isArray(result) && result.length > 0) {
       result.forEach(async (item) => {
-        if (item.cancelCount === 2) {
+        if (item.cancelCount >= 2) {
           userID = item.userID
           showSpinner()
           const res = await userApi.delete(item.userID)
@@ -261,27 +261,6 @@ function checkUserCancelOrder(result) {
     })
     await initChartRevenue()
     await initChartOrder()
-    const res = await orderApi.getAll()
-    if (res.success) {
-      const { orders } = res
-      const aggregatedOrders = {}
-      orders.forEach((order) => {
-        if (order.status === 5) {
-          const { userID, cancelCount } = order
-          if (aggregatedOrders[userID]) {
-            aggregatedOrders[userID].cancelCount += cancelCount
-          } else {
-            aggregatedOrders[userID] = { userID, cancelCount }
-          }
-        }
-      })
-      const result = Object.values(aggregatedOrders)
-      console.log(result)
-      const userID = checkUserCancelOrder(result)
-      const filteredResult = result.filter((item) => item.userID !== userID)
-      console.log(result)
-      console.log(filteredResult)
-    }
   }
   let infoUserStorage = localStorage.getItem('accessTokenAdmin')
     ? JSON.parse(localStorage.getItem('accessTokenAdmin'))
@@ -292,6 +271,35 @@ function checkUserCancelOrder(result) {
     const result = await checkRoleAccount(infoUserStorage)
     if (result && window.location.pathname === '/admin/index.html') {
       toast.success('Chào mừng admin đăng nhập')
+    }
+  }
+  const filteredUsers = sessionStorage.getItem('filteredUsers')
+  const aggregatedOrders = {}
+  const filterUserID = []
+  const res = await orderApi.getAll()
+  const { orders } = res
+  orders.forEach((order) => {
+    if (order.status === 5) {
+      const { userID, cancelCount } = order
+      if (aggregatedOrders[userID]) {
+        aggregatedOrders[userID].cancelCount += cancelCount
+      } else {
+        aggregatedOrders[userID] = { userID, cancelCount }
+      }
+    }
+  })
+  const result = Object.values(aggregatedOrders)
+  if (!filteredUsers) {
+    const userID = checkUserCancelOrder(result)
+    filterUserID.push(userID)
+    sessionStorage.setItem('filteredUsers', JSON.stringify(filterUserID))
+  } else {
+    const filteredUsers = JSON.parse(sessionStorage.getItem('filteredUsers'))
+    const resultApply = result.filter((item) => !filteredUsers.includes(item.userID))
+    const userID = checkUserCancelOrder(resultApply)
+    if (userID) {
+      filteredUsers.push(userID)
+      sessionStorage.setItem('filteredUsers', JSON.stringify(filteredUsers))
     }
   }
   document.addEventListener('click', async function (e) {
@@ -312,14 +320,40 @@ function checkUserCancelOrder(result) {
           const tableBody = table.querySelector('tbody')
           tableBody.textContent = ''
           products.forEach((item, index) => {
-            const isValid = orders.find((x) => x.orderID.status === 3 && x.productID === item._id)
+            const productSold = orders.find(
+              (x) => x.orderID.status === 3 && x.productID === item._id,
+            )
             const tableRow = document.createElement('tr')
             tableRow.innerHTML = `<th scope="row">${index + 1}</th>
             <td>${item.code}</td>
             <td>${item.name}</td>
-            <td>${isValid ? isValid.quantity : 0}</td>`
+            <td>${productSold ? productSold.quantity : 0}</td>`
             tableBody.appendChild(tableRow)
           })
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    } else if (target.closest('button#btn-export-csv')) {
+      try {
+        showSpinner()
+        const res = await productApi.export()
+        hideSpinner()
+        if (res.success) {
+          toast.success(res.message)
+          const downloadLink = res.link
+          const hiddenLink = document.createElement('a')
+          hiddenLink.href = downloadLink
+          hiddenLink.style.display = 'none'
+          document.body.appendChild(hiddenLink)
+          hiddenLink.click()
+          document.body.removeChild(hiddenLink)
+          setTimeout(() => {
+            window.location.reload()
+          }, 500)
+        } else {
+          toast.error(res.message)
+          return
         }
       } catch (error) {
         console.log(error)

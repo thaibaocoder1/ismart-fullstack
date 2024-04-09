@@ -71,9 +71,7 @@ exports.verifyAccount = async (req, res, next) => {
     }
   }
   if (token === '') {
-    res.status(401).json({
-      message: 'Unauthorization',
-    });
+    next();
   } else {
     const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET;
     const verifyToken = await exports.decodeToken(token, refreshTokenSecret);

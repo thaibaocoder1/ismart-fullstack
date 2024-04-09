@@ -17,6 +17,7 @@ const Product = new Schema(
     thumb: { data: Buffer, contentType: String, fileName: String },
     content: String,
     status: Number,
+    sold: { type: Number, default: 0 },
     quantity: Number,
   },
   { timestamps: true },

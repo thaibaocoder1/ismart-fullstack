@@ -1,6 +1,7 @@
 const PDFDocument = require('pdfkit-table');
 const path = require('path');
 const fs = require('fs');
+const converter = require('json-2-csv');
 
 module.exports = {
   shuffle(array) {
@@ -62,5 +63,13 @@ module.exports = {
     // done!
     doc.end();
     return filePath;
+  },
+  async renderCSV(products) {
+    const csv = converter.json2csv(products);
+    const CSVFolderPath = 'src/public/csv';
+    const fileName = `export.csv`;
+    const filePath = path.join(CSVFolderPath, fileName);
+    await fs.promises.writeFile(filePath, csv);
+    return { filePath, fileName };
   },
 };
