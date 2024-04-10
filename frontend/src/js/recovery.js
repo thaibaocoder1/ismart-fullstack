@@ -14,10 +14,13 @@ async function handleOnSubmitForm(data) {
       return
     }
   } catch (error) {
-    toast.error('Email không tồn tại!')
-    setTimeout(() => {
-      window.location.reload()
-    }, 1500)
+    const { data } = error.response
+    if (!data.success) {
+      toast.error(data.message)
+      setTimeout(() => {
+        window.location.reload()
+      }, 1500)
+    }
   }
 }
 // main

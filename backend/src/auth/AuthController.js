@@ -77,7 +77,7 @@ exports.verifyAccount = async (req, res, next) => {
     const verifyToken = await exports.decodeToken(token, refreshTokenSecret);
     if (verifyToken) {
       const { payload } = verifyToken;
-      const user = await User.findOne({ email: payload.email });
+      const user = await User.findOneDeleted({ email: payload.email });
       if (user) {
         next();
       } else {

@@ -3,7 +3,6 @@ const status = require('http-status-codes');
 const authMethod = require('../../auth/AuthController');
 const mailer = require('../../middlewares/mailer');
 const bcrypt = require('bcrypt');
-const { error } = require('console');
 
 class UserController {
   // Get all
@@ -260,9 +259,20 @@ class UserController {
   async delete(req, res, next) {
     try {
       const { id } = req.params;
-      const user = await User.findOneWithDeleted({ _id: id, deleted: false });
+      const user = await User.findOneWithDeleted({
+        _id: id,
+        deleted: false || null,
+      });
       if (user) {
         if (user.role.toLowerCase() === 'user') {
+          const content = `<p>Tài khoản của bạn đã bị xoá do vi phạm chính sách của hệ thống. Để có thể khôi phục tài khoản, vui lòng liên hệ ADMIN hoặc truy cập vào đường link khôi phục tài khoản trên hệ thống.LINK: <a href="http://localhost:5173/recovery.html">Khôi phục</a></p>. Lưu ý tài khoản chỉ được khôi phục sau 2 ngày kể từ khi nhận được email này.`;
+          (await mailer.createTransporter()).sendMail({
+            from: 'iSmart ADMIN',
+            to: user.email,
+            subject: 'Thông báo về tài khoản tại iSmart ✔',
+            text: 'Thông báo về tài khoản tại iSmart',
+            html: content,
+          });
           await User.delete({ _id: id });
           res.status(status.StatusCodes.OK).json({
             success: true,
@@ -599,31 +609,41 @@ class UserController {
   async recovery(req, res, next) {
     try {
       const { email } = req.body;
-      const user = await User.findOneDeleted({ email });
+      const user = await User.findOneWithDeleted({ email, deleted: true });
       if (user) {
-        const salt = bcrypt.genSaltSync(15);
-        const hash = bcrypt.hashSync(email, salt);
-        const content = `<b>Vui lòng click vào đường link này để xác thực việc khôi phục tài khoản. <a href="http://localhost:5173/confirm.html?id=${user._id}&hash=${hash}">Xác thực</a></b>`;
-        await mailer.createTransporter().sendMail({
-          from: 'iSmart ADMIN',
-          to: user.email,
-          subject: 'Xác thực việc khôi phục tài khoản tại iSmart ✔',
-          text: 'Xác thực việc khôi phục tài khoản tại iSmart',
-          html: content,
-        });
-        await User.findOneAndUpdateDeleted(
-          {
-            email,
-          },
-          {
-            recoverHashCode: hash,
-            timeExpireRecover: Date.now() + Number(process.env.TIMERECOVER),
-          },
-        );
-        return res.status(status.StatusCodes.CREATED).json({
-          success: true,
-          message: 'Kiểm tra email để xác thực',
-        });
+        const now = Math.floor(Date.now() / 1000);
+        const timeDeleted = Math.floor(user.deletedAt / 1000);
+        if (now - timeDeleted < Number(process.env.TIMEDELETED)) {
+          return res.status(status.StatusCodes.NOT_ACCEPTABLE).json({
+            success: false,
+            message: 'Tài khoản hiện tạm thời không thể khôi phục!',
+          });
+        } else {
+          const salt = bcrypt.genSaltSync(15);
+          const hash = bcrypt.hashSync(email, salt);
+          const content = `<b>Vui lòng click vào đường link này để xác thực việc khôi phục tài khoản. <a href="http://localhost:5173/confirm.html?id=${user._id}&hash=${hash}">Xác thực</a></b>`;
+          (await mailer.createTransporter()).sendMail({
+            from: 'iSmart ADMIN',
+            to: email,
+            subject: 'Xác thực việc khôi phục tài khoản tại iSmart ✔',
+            text: 'Xác thực việc khôi phục tài khoản tại iSmart',
+            html: content,
+          });
+          await User.findOneAndUpdateWithDeleted(
+            {
+              email,
+              deleted: true,
+            },
+            {
+              recoverHashCode: hash,
+              timeExpireRecover: Date.now() + Number(process.env.TIMERECOVER),
+            },
+          );
+          return res.status(status.StatusCodes.CREATED).json({
+            success: true,
+            message: 'Kiểm tra email để xác thực',
+          });
+        }
       } else {
         return res.status(status.StatusCodes.NOT_FOUND).json({
           success: false,
