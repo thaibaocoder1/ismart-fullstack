@@ -1,0 +1,8 @@
+import 'bootstrap/js/index.esm'
+import '/js/carousel/owl.carousel'
+import '/js/app'
+import '/css/reset.css'
+import '/css/style.css'
+import '/css/responsive.css'
+import '/css/carousel/owl.carousel.css'
+import '/css/carousel/owl.theme.css'

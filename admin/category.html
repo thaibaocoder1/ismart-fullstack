@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Quản lý ISMART</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+  </head>
+  <body>
+    <div class="spinner"></div>
+    <div id="site">
+      <div id="container">
+        <div id="header-wp">
+          <div class="wp-inner clearfix">
+            <a href="/admin/index.html" title="" id="logo" class="fl-left">ADMIN</a>
+            <ul id="main-menu" class="fl-left">
+              <li>
+                <a href="/admin/index.html" title="">Thống kê</a>
+              </li>
+              <li>
+                <a href="/admin/product.html" title="">Sản phẩm</a>
+                <ul class="sub-menu">
+                  <li>
+                    <a href="/admin/category.html" title="">Danh mục sản phẩm</a>
+                  </li>
+                </ul>
+              </li>
+              <li>
+                <a href="/admin/order.html" title="">Bán hàng</a>
+                <ul class="sub-menu">
+                  <li>
+                    <a href="/admin/order.html" title="">Danh sách đơn hàng</a>
+                  </li>
+                </ul>
+              </li>
+              <li>
+                <a href="/admin/comment.html" title="">Bình luận</a>
+              </li>
+            </ul>
+            <div class="dropdown fl-right">
+              <button
+                class="dropdown-toggle"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                <div id="thumb-circle" class="fl-left">
+                  <img src="/images/img-admin.png" />
+                </div>
+                <h3 id="account" class="fl-right">Admin</h3>
+              </button>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="/admin/account.html" title="Thông tin cá nhân"
+                    >Thông tin tài khoản</a
+                  >
+                </li>
+                <li><a href="#" title="Thoát" id="logout-btn">Thoát</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="main-content-wp" class="list-post-page">
+      <div class="wrap clearfix">
+        <div id="sidebar" class="fl-left">
+          <ul id="sidebar-menu">
+            <li class="nav-item">
+              <a href="" title="" class="nav-link nav-toggle">
+                <span class="fa fa-product-hunt icon"></span>
+                <span class="title">Sản phẩm</span>
+              </a>
+              <ul class="sub-menu">
+                <li class="nav-item">
+                  <a href="/admin/add-product.html" title="" class="nav-link">Thêm mới</a>
+                </li>
+                <li class="nav-item">
+                  <a href="/admin/product.html" title="" class="nav-link">Danh sách sản phẩm</a>
+                </li>
+                <li class="nav-item">
+                  <a href="/admin/category.html" title="" class="nav-link">Danh mục sản phẩm</a>
+                </li>
+              </ul>
+            </li>
+            <li class="nav-item">
+              <a href="" title="" class="nav-link nav-toggle">
+                <span class="fa fa-database icon"></span>
+                <span class="title">Bán hàng</span>
+              </a>
+              <ul class="sub-menu">
+                <li class="nav-item">
+                  <a href="/admin/order.html" title="" class="nav-link">Danh sách đơn hàng</a>
+                </li>
+              </ul>
+            </li>
+            <li class="nav-item">
+              <a href="#" title="" class="nav-link nav-toggle">
+                <i class="fa fa-comment" aria-hidden="true"></i>
+                <span class="title">Bình luận</span>
+              </a>
+              <ul class="sub-menu">
+                <li class="nav-item">
+                  <a href="/admin/comment.html" title="" class="nav-link">Danh sách bình luận</a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+        <div id="content" class="fl-right">
+          <div class="section section--custom" id="title-page">
+            <div class="clearfix">
+              <h3 id="index" class="fl-left">Danh mục sản phẩm</h3>
+              <a href="/admin/add-category.html" title="" id="add-new" class="fl-left">
+                Thêm mới
+              </a>
+            </div>
+            <div class="form-s fl-right">
+              <span
+                style="
+                  display: inline-block;
+                  background: #eee;
+                  padding: 3px;
+                  border-radius: 3px;
+                  color: #333;
+                "
+                >Tìm kiếm</span
+              >
+              <input type="text" name="s" id="searchInput" />
+            </div>
+          </div>
+          <div class="section" id="detail-page">
+            <div class="section-detail">
+              <div class="filter-wp clearfix">
+                <ul class="post-status fl-left" id="breadcrumbProduct">
+                  <li class="all">
+                    <a id="breadcrumbCategory" href="">Tất cả <span class="count">(0)</span></a>
+                  </li>
+                </ul>
+              </div>
+              <div class="table-responsive">
+                <table class="table list-table-wp" id="listCategoryTable">
+                  <thead>
+                    <tr>
+                      <td><span class="thead-text">STT</span></td>
+                      <td><span class="thead-text">Mã danh mục</span></td>
+                      <td><span class="thead-text">Tên danh mục</span></td>
+                      <td><span class="thead-text">Ngày tạo</span></td>
+                      <td><span class="thead-text">Ngày cập nhật</span></td>
+                      <td><span class="thead-text">Thao tác</span></td>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="footer-wp">
+      <div class="wp-inner">
+        <p id="copyright">2024 © thaibaocoder1</p>
+      </div>
+    </div>
+    <script type="module" src="src/js/home.js"></script>
+    <script type="module" src="src/js/common.js"></script>
+    <script type="module" src="src/js/category.js"></script>
+  </body>
+</html>
