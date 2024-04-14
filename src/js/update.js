@@ -1,5 +1,6 @@
 import userApi from './api/userApi'
 import { hideSpinner, showSpinner, toast } from './utils'
+import Validator from './utils/validator'
 
 async function handleOnSubmitForm(data) {
   const searchParams = new URLSearchParams(location.search)

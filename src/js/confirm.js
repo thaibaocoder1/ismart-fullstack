@@ -12,7 +12,7 @@ import { hideSpinner, showSpinner } from './utils'
       toast.success(confirm.message)
       setTimeout(() => {
         window.location.assign('/login.html')
-      }, 2000)
+      }, 1000)
     } else {
       toast.error(confirm.message)
       return
