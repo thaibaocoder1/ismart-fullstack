@@ -41,7 +41,7 @@ async function handleOnSubmitForm(data) {
       window.location.assign('login.html')
     }
   }
-  Validator({
+  new Validator({
     formID: '#form-1',
     formGroupSelector: '.form-group',
     errorSelector: '.form-message',
