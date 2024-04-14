@@ -1,7 +1,0 @@
-import 'bootstrap/js/index.esm'
-import 'bootstrap/dist/css/bootstrap.css'
-import '/admin/css/reset.css'
-import '/admin/css/style.css'
-import '/admin/css/responsive.css'
-import '/css/import/shop.css'
-import '/admin/js/main'

@@ -11,7 +11,6 @@ export default defineConfig({
     rollupOptions: {
       input: {
         ...getClientFiles(),
-        ...getAdminFiles(),
       },
     },
     target: 'esnext',

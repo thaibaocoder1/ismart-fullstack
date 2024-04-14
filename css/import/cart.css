@@ -1,5 +1,6 @@
 /*RESET BOOTSTRAP*/
 .table {
+  width: 100%;
   margin-bottom: 0 !important;
 }
 .table thead {
