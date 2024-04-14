@@ -11,7 +11,7 @@ import { hideSpinner, showSpinner } from './utils'
     if (confirm.success) {
       toast.success(confirm.message)
       setTimeout(() => {
-        window.location.assign('/login.html')
+        window.location.assign('https://ismart-fullstack.vercel.app/login.html')
       }, 1000)
     } else {
       toast.error(confirm.message)
