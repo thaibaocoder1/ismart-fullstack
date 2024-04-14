@@ -1,5 +1,5 @@
-import userApi from '../../../src/js/api/userApi'
-import { hideSpinner, setBackgroundImage, setFieldValue, showSpinner } from '../../../src/js/utils'
+import userApi from './api/userApi'
+import { hideSpinner, setBackgroundImage, setFieldValue, showSpinner } from './utils'
 function setFormValues(form, infoUser) {
   setFieldValue(form, "[name='fullname']", infoUser?.fullname)
   setFieldValue(form, "[name='username']", infoUser?.username)

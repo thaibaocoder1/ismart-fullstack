@@ -1,6 +1,11 @@
-import userApi from '../../../src/js/api/userApi'
-import { hideSpinner, registerShowHidePassword, showSpinner, toast } from '../../../src/js/utils'
-import { initFormPassword } from '../../../src/js/utils'
+import userApi from './api/userApi'
+import {
+  hideSpinner,
+  registerShowHidePassword,
+  showSpinner,
+  toast,
+  initFormPassword,
+} from './utils'
 
 async function handleOnSubmitForm(formValues) {
   try {

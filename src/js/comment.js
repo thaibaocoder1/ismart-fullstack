@@ -1,6 +1,6 @@
-import { showSpinner, hideSpinner, toast, initSearchInput } from '../../../src/js/utils'
-import commentApi from '../../../src/js/api/commentApi'
-import productApi from '../../../src/js/api/productsApi'
+import { showSpinner, hideSpinner, toast, initSearchInput } from './utils'
+import commentApi from './api/commentApi'
+import productApi from './api/productsApi'
 import dayjs from 'dayjs'
 import diacritics from 'diacritics'
 
@@ -30,9 +30,7 @@ async function renderListComment({ idElement }) {
       <td><span class="tbody-text">${item.userID._id}</span></td>
       <td><span class="tbody-text">${item.userID.email}</span></td>
       <td>
-        <button class="btn btn-danger btn-sm btn--style" id="removeBtn" data-id="${
-          item._id
-        }">Xoá</button>
+        <button class="btn btn-danger btn--style" id="removeBtn" data-id="${item._id}">Xoá</button>
       </td>`
         tbodyEl.appendChild(tableRow)
       })

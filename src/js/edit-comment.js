@@ -1,5 +1,5 @@
-import commentApi from '../../../src/js/api/commentApi'
-import { hideSpinner, initCommentForm, showSpinner, toast } from '../../../src/js/utils'
+import commentApi from '../api/commentApi'
+import { hideSpinner, initCommentForm, showSpinner, toast } from '../utils'
 
 async function handleOnSubmitForm(formValues) {
   try {

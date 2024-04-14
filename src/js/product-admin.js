@@ -1,5 +1,5 @@
-import categoryApi from '../../../src/js/api/categoryApi'
-import productApi from '../../../src/js/api/productsApi'
+import categoryApi from './api/categoryApi'
+import productApi from './api/productsApi'
 import {
   calcPrice,
   checkStatus,
@@ -8,7 +8,7 @@ import {
   initSearchInput,
   showSpinner,
   toast,
-} from '../../../src/js/utils'
+} from './utils'
 import dayjs from 'dayjs'
 import diacritics from 'diacritics'
 

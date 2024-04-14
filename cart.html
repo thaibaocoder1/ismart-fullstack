@@ -128,7 +128,7 @@
       <div id="wrapper" class="wp-inner clearfix">
         <div class="section" id="info-cart-wp">
           <div class="section-detail table-responsive">
-            <table class="table" id="tableCart">
+            <table id="tableCart" style="width: 100%">
               <thead>
                 <tr>
                   <td>Lựa chọn</td>
@@ -155,8 +155,12 @@
                   <td>
                     <div class="section" id="action-cart-wp">
                       <div class="section-detail.section-detail--cart">
-                        <button class="btn btn-primary" id="btn-buy-product">Mua tiếp</button>
-                        <button class="btn btn-warning" id="btn-remove-product">
+                        <button class="btn--style" id="btn-buy-product">Mua tiếp</button>
+                        <button
+                          class="btn--style"
+                          style="background-color: #ccc"
+                          id="btn-remove-product"
+                        >
                           Xoá giỏ hàng
                         </button>
                       </div>
@@ -302,7 +306,7 @@
         fjs.parentNode.insertBefore(js, fjs)
       })(document, 'script', 'facebook-jssdk')
     </script>
-    <script type="module" src="src/js/common.js"></script>
-    <script type="module" src="src/js/cart.js"></script>
+    <script type="module" src="/src/js/common.js"></script>
+    <script type="module" src="/src/js/cart.js"></script>
   </body>
 </html>

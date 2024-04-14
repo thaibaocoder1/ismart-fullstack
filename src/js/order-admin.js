@@ -1,13 +1,7 @@
-import orderApi from '../../../src/js/api/orderApi'
-import orderDetailApi from '../../../src/js/api/orderDetailApi'
-import productApi from '../../../src/js/api/productsApi'
-import {
-  showSpinner,
-  hideSpinner,
-  initSearchInput,
-  formatCurrencyNumber,
-  toast,
-} from '../../../src/js/utils'
+import orderApi from './api/orderApi'
+import orderDetailApi from './api/orderDetailApi'
+import productApi from './api/productsApi'
+import { showSpinner, hideSpinner, initSearchInput, formatCurrencyNumber, toast } from './utils'
 import dayjs from 'dayjs'
 import diacritics from 'diacritics'
 
@@ -63,7 +57,7 @@ async function renderListOrder({ idElement }) {
             <button class="btn btn-primary btn-lg" id="viewOrder" data-id="${
               item._id
             }" style="background-position: unset;" data-bs-toggle="modal" data-bs-target="#modal">Chi tiết</button>
-            <button class="btn btn-info btn-sm" id="editOrder" ${
+            <button class="btn btn-info btn-lg" id="editOrder" ${
               +item.status === 4 ? 'hidden' : ''
             } data-id="${
             item._id
@@ -105,7 +99,7 @@ async function handleFilterChange(value, tbodyEl) {
           <button class="btn btn-primary btn-lg" id="viewOrder" data-id="${
             item._id
           }" style="background-position: unset;" data-bs-toggle="modal" data-bs-target="#modal">Chi tiết</button>
-          <button class="btn btn-info btn-sm" id="editOrder" ${
+          <button class="btn btn-info btn-lg" id="editOrder" ${
             +item.status === 4 ? 'hidden' : ''
           } data-id="${
           item._id

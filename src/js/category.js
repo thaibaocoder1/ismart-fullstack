@@ -1,5 +1,5 @@
-import categoryApi from '../../../src/js/api/categoryApi'
-import { hideSpinner, initSearchInput, showSpinner } from '../../../src/js/utils'
+import categoryApi from './api/categoryApi'
+import { hideSpinner, initSearchInput, showSpinner } from './utils'
 import dayjs from 'dayjs'
 import diacritics from 'diacritics'
 

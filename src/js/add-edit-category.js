@@ -1,6 +1,6 @@
-import categoryApi from '../../../src/js/api/categoryApi'
-import { hideSpinner, showSpinner, toast } from '../../../src/js/utils'
-import { initFormCategory } from '../../../src/js/utils'
+import categoryApi from './api/categoryApi'
+import { hideSpinner, showSpinner, toast, initFormCategory } from './utils'
+
 async function handleSubmitForm(formValues) {
   try {
     let saveCategory = null

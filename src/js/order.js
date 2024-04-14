@@ -87,6 +87,7 @@ function handleOnClick() {
     } else if (target.matches('#orderDetail')) {
       const modal = document.getElementById('modal')
       if (!modal) return
+      modal && modal.classList.add('is-show')
       const modalBody = modal.querySelector('.modal-body')
       const tableBody = modalBody.querySelector('tbody')
       const orderID = target.dataset.id
@@ -94,7 +95,6 @@ function handleOnClick() {
       const res = await orderDetailApi.getById(orderID)
       hideSpinner()
       if (res.success) {
-        modal && modal.classList.add('is-show')
         const { orders } = res
         tableBody.textContent = ''
         if (Array.isArray(orders) && orders.length > 0) {
@@ -127,12 +127,19 @@ function handleOnClick() {
           window.location.reload()
         }, 1000)
       }
-    } else if (target.matches('.modal')) {
+    } else if (target.matches('.modal') || target.matches('.modal-dialog')) {
       const modal = document.getElementById('modal')
+      const modalCancel = document.getElementById('modal-cancel')
       modal && modal.classList.remove('is-show')
+      modalCancel && modalCancel.classList.remove('is-show')
     } else if (target.closest('.btn-close')) {
       const modal = document.getElementById('modal')
+      const modalCancel = document.getElementById('modal-cancel')
       modal && modal.classList.remove('is-show')
+      modalCancel && modalCancel.classList.remove('is-show')
+    } else if (target.closest('.close')) {
+      const modalCancel = document.getElementById('modal-cancel')
+      modalCancel && modalCancel.classList.remove('is-show')
     }
   })
 }
@@ -170,12 +177,12 @@ async function renderListOrder({ idTable, infoUserStorage }) {
           <td>0${item.phone}</td>
           <td>${dayjs(item.orderDate).format('DD/MM/YYYY HH:mm:ss')}</td>
           <td>
-            <button type="button" class="btn btn-primary btn--style" id="orderDetail" data-id="${
+            <button type="button" class="btn-order--detail" id="orderDetail" data-id="${
               item._id
             }">Chi tiết</button>
             <button type="button" id="cancelOrder" data-id="${
               item._id
-            }" class="btn btn-danger btn--style" ${displayStatus(item.status)}>${displayTextStatus(
+            }" class="btn-order--cancel" ${displayStatus(item.status)}>${displayTextStatus(
             item.status,
           )}</button>
           </td>`

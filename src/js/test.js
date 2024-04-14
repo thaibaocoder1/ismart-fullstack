@@ -1,6 +1,6 @@
-import userApi from '../../../src/js/api/userApi'
-import { hideSpinner, showSpinner, toast } from '../../../src/js/utils'
-import Validator from '../../../src/js/utils/validator'
+import userApi from './api/userApi'
+import { hideSpinner, showSpinner, toast } from './utils'
+import Validator from './utils/validator'
 
 async function handleOnSubmitForm(data) {
   try {
@@ -30,7 +30,7 @@ async function handleOnSubmitForm(data) {
 // main
 ;(() => {
   new Validator({
-    formID: '#form-admin-login',
+    formID: '#form-1',
     formGroupSelector: '.form-group',
     errorSelector: '.form-message',
     rules: [

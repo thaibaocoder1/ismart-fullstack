@@ -102,7 +102,7 @@ async function renderListProductInCart({ idTable, cart }) {
       isCartAdded = true
     }
   } else {
-    document.getElementById('btn-remove-product').hidden = true
+    document.getElementById('btn-remove-product').style.display = 'none'
   }
   initSearchForm({
     idForm: 'searchForm',

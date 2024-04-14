@@ -1,6 +1,6 @@
-import userApi from '../../../src/js/api/userApi'
+import userApi from './api/userApi'
 import diacritics from 'diacritics'
-import { hideSpinner, initSearchInput, showSpinner, toast } from '../../../src/js/utils'
+import { hideSpinner, initSearchInput, showSpinner, toast } from './utils'
 
 async function renderListUser({ idTable, idBreadcrumb }) {
   const table = document.getElementById(idTable)
@@ -30,7 +30,7 @@ async function renderListUser({ idTable, idBreadcrumb }) {
           <button class="btn btn-primary btn-lg" data-id="${
             item._id
           }" id="editUser" style="background-position: unset;">Khôi phục</button>
-          <button class="btn btn-secondary btn-sm" data-id="${
+          <button class="btn btn-secondary btn-lg" data-id="${
             item._id
           }" id="removeUser" data-bs-toggle="modal"
           data-bs-target="#removeModal" style="background-position: unset;">Xoá</button>
@@ -70,7 +70,7 @@ async function handleFilterChange(value, tbodyEl) {
         <button class="btn btn-primary btn-lg" data-id="${
           item._id
         }" id="editUser" style="background-position: unset;">Khôi phục</button>
-        <button class="btn btn-secondary btn-sm" data-id="${
+        <button class="btn btn-secondary btn-lg" data-id="${
           item._id
         }" id="removeUser" data-bs-toggle="modal"
         data-bs-target="#removeModal" style="background-position: unset;">Xoá</button>

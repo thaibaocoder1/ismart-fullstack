@@ -1,7 +1,7 @@
-import orderApi from '../../../src/js/api/orderApi'
-import orderDetailApi from '../../../src/js/api/orderDetailApi'
-import productApi from '../../../src/js/api/productsApi'
-import { showSpinner, hideSpinner, setFieldError, toast } from '../../../src/js/utils'
+import orderApi from '../api/orderApi'
+import orderDetailApi from '../api/orderDetailApi'
+import productApi from '../api/productsApi'
+import { showSpinner, hideSpinner, setFieldError, toast } from '../utils'
 import * as yup from 'yup'
 
 function registerStatusOrder(selectEl, status) {

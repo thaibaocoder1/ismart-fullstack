@@ -1,6 +1,6 @@
-import userApi from '../../../src/js/api/userApi'
-import { toast } from '../../../src/js/utils'
-import { renderInfoUser } from '../../../src/js/utils/add-edit-user'
+import userApi from './api/userApi'
+import { toast } from './utils'
+import { renderInfoUser } from './utils/add-edit-user'
 
 function jsonToFormData(formValues) {
   const values = { ...formValues }

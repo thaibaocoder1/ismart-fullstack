@@ -1,6 +1,7 @@
 /*RESET BOOTSTRAP*/
 .table {
   width: 100%;
+  border: 1px solid #ddd;
   margin-bottom: 0 !important;
 }
 .table thead {
@@ -8,6 +9,12 @@
 }
 .table > tfoot > tr > td {
   border-top: none !important;
+}
+.table th,
+.table td {
+  padding: 5px;
+  border: 1px solid #ddd;
+  vertical-align: top;
 }
 .table tbody {
   background: #fff;
@@ -160,13 +167,16 @@ input[name='filter-btn']:hover {
   border: none;
   color: #fff;
   min-width: 100px;
-  padding: 5px 15px;
+  padding: 10px;
   border-radius: 6px;
 }
 .btn--style {
   color: #fff;
+  display: inline-block;
   border: none;
-  padding: 5px 10px;
+  padding: 10px 15px;
   border-radius: 6px;
   cursor: pointer;
+  background-color: #da1818;
+  font-family: inherit;
 }

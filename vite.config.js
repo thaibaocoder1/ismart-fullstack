@@ -6,11 +6,46 @@ import { fileURLToPath } from 'url'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
+const adminDir = resolve(__dirname, 'admin')
+
 export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        ...getClientFiles(),
+        update: resolve(__dirname, 'update.html'),
+        updateInfo: resolve(__dirname, 'update-info.html'),
+        register: resolve(__dirname, 'register.html'),
+        recovery: resolve(__dirname, 'recovery.html'),
+        products: resolve(__dirname, 'products.html'),
+        productDetail: resolve(__dirname, 'product-detail.html'),
+        order: resolve(__dirname, 'order.html'),
+        login: resolve(__dirname, 'login.html'),
+        index: resolve(__dirname, 'index.html'),
+        forgot: resolve(__dirname, 'forgot.html'),
+        detailOrder: resolve(__dirname, 'detail-order.html'),
+        contact: resolve(__dirname, 'contact.html'),
+        confirm: resolve(__dirname, 'confirm.html'),
+        checkout: resolve(__dirname, 'checkout.html'),
+        cart: resolve(__dirname, 'cart.html'),
+        active: resolve(__dirname, 'active.html'),
+        account: resolve(__dirname, 'account.html'),
+        about: resolve(__dirname, 'about.html'),
+        users: resolve(adminDir, 'users.html'),
+        usersTrash: resolve(adminDir, 'users-trash.html'),
+        'update-password': resolve(adminDir, 'update-password.html'),
+        'update-info': resolve(adminDir, 'update-info.html'),
+        product: resolve(adminDir, 'product.html'),
+        orders: resolve(adminDir, 'order.html'),
+        'login-admin': resolve(adminDir, 'login.html'),
+        main: resolve(adminDir, 'index.html'),
+        'edit-product': resolve(adminDir, 'edit-product.html'),
+        'edit-category': resolve(adminDir, 'edit-category.html'),
+        comment: resolve(adminDir, 'comment.html'),
+        category: resolve(adminDir, 'category.html'),
+        'add-product': resolve(adminDir, 'add-product.html'),
+        'add-edit-user': resolve(adminDir, 'add-edit-user.html'),
+        'add-category': resolve(adminDir, 'add-category.html'),
+        'account-admin': resolve(adminDir, 'account.html'),
       },
     },
     target: 'esnext',
@@ -18,42 +53,9 @@ export default defineConfig({
       '/api': {
         target: 'https://localhost:3001',
         changeOrigin: true,
-        secure: false,
+        secure: true,
         ws: true,
       },
     },
   },
 })
-function getAdminFiles() {
-  const adminDir = resolve(__dirname, 'admin')
-  const entries = {}
-  const files = glob.sync(`${adminDir}/*.html`)
-  files.forEach((file) => {
-    let fileName = file.split('/').pop().replace('.html', '')
-    if (fileName === 'index') {
-      fileName = 'main'
-    }
-    const camelCaseName = kebabToCamelCase(fileName)
-    entries[camelCaseName] = resolve(__dirname, file)
-  })
-  return entries
-}
-function getClientFiles() {
-  const clientDir = resolve(__dirname)
-  const entries = {}
-  const files = glob.sync(`${clientDir}/*.html`)
-
-  files.forEach((file) => {
-    let fileName = file.split('/').pop().replace('.html', '')
-    if (fileName === 'index') {
-      fileName = 'main'
-    }
-    const camelCaseName = kebabToCamelCase(fileName)
-    entries[camelCaseName] = resolve(__dirname, file)
-  })
-
-  return entries
-}
-function kebabToCamelCase(str) {
-  return str.replace(/-([a-z])/g, (match, char) => char.toUpperCase())
-}

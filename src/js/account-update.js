@@ -1,4 +1,4 @@
-import userApi from '../../../src/js/api/userApi'
+import userApi from './api/userApi'
 import {
   hideSpinner,
   setBackgroundImage,
@@ -6,7 +6,7 @@ import {
   setFieldValue,
   showSpinner,
   toast,
-} from '../../../src/js/utils'
+} from './utils'
 import * as yup from 'yup'
 function setFormValues(form, infoUser) {
   setFieldValue(form, "[name='fullname']", infoUser?.fullname)

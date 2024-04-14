@@ -120,16 +120,6 @@ form#formProduct .form-right > .input-group input {
   display: block;
 }
 
-.btn--style {
-  color: #fff;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-.btn--style:hover {
-  background-position: unset;
-}
 .img-wrapper {
   display: flex;
   align-items: center;

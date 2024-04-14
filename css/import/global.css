@@ -173,12 +173,6 @@ div.product-sale {
   z-index: 10;
   font-size: 12px;
 }
-.is-show {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0%);
-  padding-top: 20px;
-}
 .disabled {
   cursor: not-allowed;
   pointer-events: none;
@@ -291,4 +285,96 @@ button.reset {
   border-radius: 4px;
   background-color: #ccc;
   cursor: pointer;
+}
+.modal {
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.25s linear;
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+  max-width: 600px;
+  text-align: center;
+  position: relative;
+  border-radius: 10px;
+}
+
+.btn-close {
+  width: 30px;
+  height: 30px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  cursor: pointer;
+  background-color: #333;
+  color: #fff;
+  transition: all 0.25s linear;
+}
+.btn-close:hover {
+  background-color: #ccc;
+}
+.modal-body {
+  margin: 10px 0;
+  font-size: 14px;
+}
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0 5px;
+}
+.modal-footer > button {
+  cursor: pointer;
+  min-width: 100px;
+  padding: 8px 0;
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: 14px;
+}
+.modal-footer > button.close {
+  background-color: #3498db;
+  color: #fff;
+}
+.modal-title {
+  font-size: 2rem;
+}
+.btn-order--detail,
+.btn-order--cancel {
+  cursor: pointer;
+  min-width: 100px;
+  padding: 6px 0;
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: 14px;
+  border-radius: 6px;
+}
+.btn-order--detail {
+  background-color: #f12a43;
+  color: #fff;
+}
+@media screen and (max-width: 700px) {
+  .modal-content {
+    width: 90%;
+  }
+}
+
+.is-show {
+  opacity: 1;
+  visibility: visible;
 }

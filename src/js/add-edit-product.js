@@ -1,7 +1,7 @@
-import categoryApi from '../../../src/js/api/categoryApi'
-import productApi from '../../../src/js/api/productsApi'
-import { hideSpinner, showSpinner, toast } from '../../../src/js/utils'
-import { initFormProduct } from '../../../src/js/utils/add-edit-product'
+import categoryApi from './api/categoryApi'
+import productApi from './api/productsApi'
+import { hideSpinner, showSpinner, toast } from './utils'
+import { initFormProduct } from './utils/add-edit-product'
 function jsonToFormData(formValues) {
   const formData = new FormData()
   for (const key in formValues) {

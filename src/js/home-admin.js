@@ -1,8 +1,8 @@
-import productApi from '../../../src/js/api/productsApi'
-import userApi from '../../../src/js/api/userApi'
-import orderApi from '../../../src/js/api/orderApi'
-import orderDetailApi from '../../../src/js/api/orderDetailApi'
-import { toast, checkLogoutAccount, showSpinner, hideSpinner } from '../../../src/js/utils'
+import productApi from './api/productsApi'
+import userApi from './api/userApi'
+import orderApi from './api/orderApi'
+import orderDetailApi from './api/orderDetailApi'
+import { toast, checkLogoutAccount, showSpinner, hideSpinner } from './utils'
 import { Chart } from 'chart.js/auto'
 ;(Chart.defaults.font.family = 'SF Mono'),
   '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif'
@@ -196,8 +196,8 @@ async function initChartOrder() {
         datasets: [
           {
             data: values,
-            backgroundColor: ['#4e73df', '#ccc', '#36b9cc'],
-            hoverBackgroundColor: ['#2e59d9', '#333', '#2c9faf'],
+            backgroundColor: ['#4e73df', '#36b9cc', '#ccc'],
+            hoverBackgroundColor: ['#2e59d9', '#2c9faf', '#333'],
             hoverBorderColor: 'rgba(234, 236, 244, 1)',
           },
         ],

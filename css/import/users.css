@@ -207,6 +207,9 @@
 .user-right {
   width: 49%;
 }
+.user-left#userInfo .input-group > input {
+  height: inherit;
+}
 .user-right {
   display: flex;
   justify-content: space-between;
