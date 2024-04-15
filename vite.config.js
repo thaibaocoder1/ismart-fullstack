@@ -51,7 +51,7 @@ export default defineConfig({
     target: 'esnext',
     proxy: {
       '/api': {
-        target: 'https://backend-ismart.onrender.com',
+        target: 'https://backend-ismart.vercel.app',
         changeOrigin: true,
         secure: true,
         ws: true,

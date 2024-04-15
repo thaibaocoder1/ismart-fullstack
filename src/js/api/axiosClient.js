@@ -2,7 +2,7 @@ import axios from 'axios'
 import { toast } from '../utils'
 
 const axiosClient = axios.create({
-  baseURL: 'https://backend-ismart.onrender.com/api/',
+  baseURL: 'https://backend-ismart.vercel.app/api/',
   headers: {
     'Content-Type': 'application/json',
   },
