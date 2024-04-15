@@ -7,6 +7,7 @@ async function handleOnSubmitForm(data) {
     showSpinner()
     const user = await userApi.check(data)
     hideSpinner()
+    console.log(user)
     if (user && user.success) {
       toast.success('Đăng nhập thành công')
       if (user.data.role === 'User') {
@@ -15,7 +16,7 @@ async function handleOnSubmitForm(data) {
         //   window.location.assign('/index.html')
         // }, 500)
       } else {
-        localStorage.setItem('accessToken', JSON.stringify(user.data))
+        localStorage.setItem('accessTokenAdmin', JSON.stringify(user.data))
         setTimeout(() => {
           window.location.assign('/admin/index.html')
         }, 500)
