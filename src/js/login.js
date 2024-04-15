@@ -11,9 +11,9 @@ async function handleOnSubmitForm(data) {
       toast.success('Đăng nhập thành công')
       if (user.data.role === 'User') {
         localStorage.setItem('accessToken', JSON.stringify(user.data))
-        setTimeout(() => {
-          window.location.assign('/index.html')
-        }, 500)
+        // setTimeout(() => {
+        //   window.location.assign('/index.html')
+        // }, 500)
       } else {
         localStorage.setItem('accessToken', JSON.stringify(user.data))
         setTimeout(() => {
@@ -57,17 +57,17 @@ async function handleOnSubmitFormAdmin(data) {
 ;(() => {
   // check if exists access_token
   if (window.location.pathname === '/login.html') {
-    let accessToken = localStorage.getItem('accessToken')
-    let accessTokenAdmin = localStorage.getItem('accessTokenAdmin')
-    if (accessToken !== null && accessToken !== null) {
-      window.location.assign('/index.html')
-    } else {
-      if (accessToken !== null) {
-        window.location.assign('/index.html')
-      } else if (accessTokenAdmin !== null) {
-        window.location.assign('/admin/index.html')
-      }
-    }
+    // let accessToken = localStorage.getItem('accessToken')
+    // let accessTokenAdmin = localStorage.getItem('accessTokenAdmin')
+    // if (accessToken !== null && accessToken !== null) {
+    //   window.location.assign('/index.html')
+    // } else {
+    //   if (accessToken !== null) {
+    //     window.location.assign('/index.html')
+    //   } else if (accessTokenAdmin !== null) {
+    //     window.location.assign('/admin/index.html')
+    //   }
+    // }
     new Validator({
       formID: '#form-1',
       formGroupSelector: '.form-group',
